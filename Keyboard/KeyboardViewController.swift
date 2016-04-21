@@ -44,7 +44,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     private var keyHeight: CGFloat {
-        return (keyboardHeight - 7 * spacing) / 6.0
+        return (keyboardHeight - 5 * spacing) / 5.0
     }
     
     // MARK: User interface
@@ -68,7 +68,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private var oopButton: KeyButton!
     private var numpadButton: KeyButton!
     private var shortWordButton: KeyButton!
-
+    private var dotButton: KeyButton!
     // MARK: Timers
     
     private var deleteButtonTimer: NSTimer?
@@ -153,7 +153,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 180.0/255, green: 180.0/255, blue: 180.0/255, alpha: 1)
+        view.backgroundColor = UIColor(red: 210.0/255, green: 213.0/255, blue: 219.0/255, alpha: 1)
         heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
     }
     
@@ -280,6 +280,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func shortWordButtonPressed(sender: KeyButton){
         proxy.insertText(sender.currentTitle!)
         proxy.insertText(" ")
+    }
+    
+    // When the dotButton is pressed
+    func dotButtonPressed(sender: KeyButton){
+        proxy.insertText(".")
     }
     
     func handleLongPressForSpaceButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
@@ -413,10 +418,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addSwipeView()
         addShortWordButton()
         addNumpadButton()
+        addDotButton()
     }
     
     private func addPredictiveTextScrollView() {
-        predictiveTextScrollView = PredictiveTextScrollView(frame: CGRectMake(0.0, 0.0, self.view.frame.width, predictiveTextBoxHeight))
+        predictiveTextScrollView = PredictiveTextScrollView(frame: CGRectMake(0.0, 0.0, self.view.frame.width, 0.0))
         self.view.addSubview(predictiveTextScrollView)
     }
     
@@ -453,6 +459,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         oopButton.setTitle("ó", forState: .Normal)
         oopButton.addTarget(self, action: "oopButtonPressed:", forControlEvents: .TouchUpInside)
         self.view.addSubview(oopButton)
+    }
+    
+    private func addDotButton() {
+        dotButton = KeyButton(frame: CGRectMake(spacing * 10 + keyWidth * 9.5, spacing * 4 + keyHeight * 3, keyWidth / 2, keyHeight))
+        dotButton.setTitle(".", forState: .Normal)
+        dotButton.addTarget(self, action: "dotButtonPressed:", forControlEvents: .TouchUpInside)
+        self.view.addSubview(dotButton)
     }
     
     private func addNextKeyboardButton() {

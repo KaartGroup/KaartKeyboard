@@ -20,20 +20,20 @@ class KeyButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 20.0)
         titleLabel?.textAlignment = .Center
-        setTitleColor(UIColor(white: 238.0/255, alpha: 1.0), forState: UIControlState.Normal)
+        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), forState: UIControlState.Normal)
         titleLabel?.sizeToFit()
         
         let gradient = CAGradientLayer()
         gradient.frame = bounds
-        let gradientColors: [AnyObject] = [UIColor(red: 80.0/255, green: 80.0/255, blue: 80.0/255, alpha: 1.0).CGColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).CGColor]
+        let gradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).CGColor, UIColor(red: 240.0/255, green: 240.0/255, blue: 240.0/255, alpha: 1.0).CGColor]
         gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
         setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
         
         let selectedGradient = CAGradientLayer()
         selectedGradient.frame = bounds
-        let selectedGradientColors: [AnyObject] = [UIColor(red: 67.0/255, green: 116.0/255, blue: 224.0/255, alpha: 1.0).CGColor, UIColor(red: 32.0/255, green: 90.0/255, blue: 214.0/255, alpha: 1.0).CGColor]
+        let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).CGColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).CGColor]
         selectedGradient.colors = selectedGradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
         setBackgroundImage(selectedGradient.UIImageFromCALayer(), forState: .Selected)
         
