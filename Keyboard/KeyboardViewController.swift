@@ -1,581 +1,831 @@
-	//
+//
 //  KeyboardViewController.swift
 //  Keyboard
 //
-//  Created by Kari Kraam on 2016-04-20.
-//  Copyright (c) 2016 Kari Kraam. All rights reserved.
+//  Created by Alexei Baboulevitch on 6/9/14.
+//  Copyright (c) 2014 Alexei Baboulevitch ("Archagon"). All rights reserved.
 //
 
-import Foundation
 import UIKit
+import AudioToolbox
 
-/**
-    An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
-*/
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate, TouchForwardingViewDelegate {
+let metrics: [String:Double] = [
+    "topBanner": 30
+]
+func metric(name: String) -> CGFloat { return CGFloat(metrics[name]!) }
 
-    // MARK: Constants
-    
-    private let primaryCharacters = [
-        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-        ["z", "x", "c", "v", "b", "n", "m"]
-    ]
-    
-    private let shortWord = ["Calle","Avenida","Callejón","Boulevard","Senda","Pasaje","Peatón"]
-    
-    lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
-    
-    lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
-    
-    private let spacing: CGFloat = 4.0
-    private let predictiveTextBoxHeight: CGFloat = 24.0
-    private var predictiveTextButtonWidth: CGFloat {
-        return (view.frame.width - 4 * spacing) / 3.0
-    }
-    private var keyboardHeight: CGFloat {
-        let interfaceOrientation = UIDevice.currentDevice().orientation
-        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 300.0 : 260.0
-    }
-    private var keyWidth: CGFloat {
-        return (view.frame.width - 11 * spacing) / 10.0
-    }
-    private var wordKeyWidth: CGFloat {
-        return (view.frame.width - 8 * spacing) / 7.0
-    }
-    private var keyHeight: CGFloat {
-        return (keyboardHeight - 7 * spacing) / 6.0
-    }
-    
-    // MARK: User interface
-    
-    private var swipeView: SwipeView!
-    private var predictiveTextScrollView: PredictiveTextScrollView!
-    private var suggestionButtons = [SuggestionButton]()
-    
-    private lazy var characterButtons: [[CharacterButton]] = [
-        [],
-        [],
-        []
-    ]
-    private var shiftButton: KeyButton!
-    private var deleteButton: KeyButton!
-    private var tabButton: KeyButton!
-    private var nextKeyboardButton: KeyButton!
-    private var spaceButton: KeyButton!
-    private var returnButton: KeyButton!
-    private var currentLanguageLabel: UILabel!
-    private var oopButton: KeyButton!
-    private var numpadButton: KeyButton!
-    private var shortWordButton: KeyButton!
+// TODO: move this somewhere else and localize
+let kAutoCapitalization = "kAutoCapitalization"
+let kPeriodShortcut = "kPeriodShortcut"
+let kKeyboardClicks = "kKeyboardClicks"
+let kSmallLowercase = "kSmallLowercase"
 
-    // MARK: Timers
+class KeyboardViewController: UIInputViewController {
     
-    private var deleteButtonTimer: NSTimer?
-    private var spaceButtonTimer: NSTimer?
+    let backspaceDelay: NSTimeInterval = 0.5
+    let backspaceRepeat: NSTimeInterval = 0.07
     
-    // MARK: Properties
+    var keyboard: Keyboard!
+    var forwardingView: ForwardingView!
+    var layout: KeyboardLayout?
+    var heightConstraint: NSLayoutConstraint?
     
-    private var heightConstraint: NSLayoutConstraint!
+    var bannerView: ExtraView?
+    var settingsView: ExtraView?
     
-    private var proxy: UITextDocumentProxy {
-        return textDocumentProxy 
-    }
-    
-    private var lastWordTyped: String? {
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            let length = documentContextBeforeInput.length
-            if length > 0 && NSCharacterSet.letterCharacterSet().characterIsMember(documentContextBeforeInput.characterAtIndex(length - 1)) {
-                let components = documentContextBeforeInput.componentsSeparatedByCharactersInSet(NSCharacterSet.letterCharacterSet().invertedSet) 
-                return components[components.endIndex - 1]
-            }
-        }
-        return nil
-    }
-
-    private var languageProvider: LanguageProvider = DefaultLanguageProvider() {
+    var currentMode: Int {
         didSet {
-            for (rowIndex, row) in characterButtons.enumerate() {
-                for (characterButtonIndex, characterButton) in row.enumerate() {
-                    characterButton.secondaryCharacter = languageProvider.secondaryCharacters[rowIndex][characterButtonIndex]
-                    characterButton.tertiaryCharacter = languageProvider.tertiaryCharacters[rowIndex][characterButtonIndex]
-                }
+            if oldValue != currentMode {
+                setMode(currentMode)
             }
-            currentLanguageLabel.text = languageProvider.language
-            suggestionProvider.clear()
-            suggestionProvider.loadWeightedStrings(languageProvider.suggestionDictionary)
         }
     }
-
-    private enum ShiftMode {
-        case Off, On, Caps
+    
+    var backspaceActive: Bool {
+        get {
+            return (backspaceDelayTimer != nil) || (backspaceRepeatTimer != nil)
+        }
+    }
+    var backspaceDelayTimer: NSTimer?
+    var backspaceRepeatTimer: NSTimer?
+    
+    enum AutoPeriodState {
+        case NoSpace
+        case FirstSpace
     }
     
-    private var shiftMode: ShiftMode = .Off {
+    var autoPeriodState: AutoPeriodState = .NoSpace
+    var lastCharCountInBeforeContext: Int = 0
+    
+    var shiftState: ShiftState {
         didSet {
-            shiftButton.selected = (shiftMode == .Caps)
-            for row in characterButtons {
-                for characterButton in row {
-                    switch shiftMode {
-                    case .Off:
-                        characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercaseString
-                        characterButton.secondaryLabel.text = " "
-                        characterButton.tertiaryLabel.text = " "
-                    case .On, .Caps:
-                        characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercaseString
-                        characterButton.secondaryLabel.text = " "
-                        characterButton.tertiaryLabel.text = " "
-                    }
-                
-                }
+            switch shiftState {
+            case .Disabled:
+                self.updateKeyCaps(false)
+            case .Enabled:
+                self.updateKeyCaps(true)
+            case .Locked:
+                self.updateKeyCaps(true)
             }
         }
     }
     
-    // MARK: Constructors
-    // FIXME: Uncomment init methods when crash bug is fixed. Also need to move languageProvider initialization to constructor to prevent unnecessary creation of two DefaultLanguageProvider instances.
-//    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-//        self.shiftMode = .Off
-//        self.languageProvider = languageProviders.currentItem!
-//        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-//    }
-//
-//    required init(coder aDecoder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
+    // state tracking during shift tap
+    var shiftWasMultitapped: Bool = false
+    var shiftStartingState: ShiftState?
     
-    // MARK: Overridden methods
-    
-//    override func loadView() {
-//        let screenRect = UIScreen.mainScreen().bounds
-//        self.view = TouchForwardingView(frame: CGRectMake(0.0, predictiveTextBoxHeight, screenRect.width, keyboardHeight - predictiveTextBoxHeight), delegate: self)
-//    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 180.0/255, green: 180.0/255, blue: 180.0/255, alpha: 1)
-        heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
+    var keyboardHeight: CGFloat {
+        get {
+            if let constraint = self.heightConstraint {
+                return constraint.constant
+            }
+            else {
+                return 0
+            }
+        }
+        set {
+            self.setHeight(newValue)
+        }
     }
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-        initializeKeyboard()
+    // TODO: why does the app crash if this isn't here?
+    convenience init() {
+        self.init(nibName: nil, bundle: nil)
     }
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+        NSUserDefaults.standardUserDefaults().registerDefaults([
+            kAutoCapitalization: true,
+            kPeriodShortcut: true,
+            kKeyboardClicks: false,
+            kSmallLowercase: false
+        ])
         
+        self.keyboard = defaultKeyboard()
+        
+        self.shiftState = .Disabled
+        self.currentMode = 0
+        
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        
+        self.forwardingView = ForwardingView(frame: CGRectZero)
+        self.view.addSubview(self.forwardingView)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(KeyboardViewController.defaultsChanged(_:)), name: NSUserDefaultsDidChangeNotification, object: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("NSCoding not supported")
+    }
+    
+    deinit {
+        backspaceDelayTimer?.invalidate()
+        backspaceRepeatTimer?.invalidate()
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func defaultsChanged(notification: NSNotification) {
+        //let defaults = notification.object as? NSUserDefaults
+        self.updateKeyCaps(self.shiftState.uppercase())
+    }
+    
+    // without this here kludge, the height constraint for the keyboard does not work for some reason
+    var kludge: UIView?
+    func setupKludge() {
+        if self.kludge == nil {
+            let kludge = UIView()
+            self.view.addSubview(kludge)
+            kludge.translatesAutoresizingMaskIntoConstraints = false
+            kludge.hidden = true
+            
+            let a = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
+            let b = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Right, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
+            let c = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Top, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+            let d = NSLayoutConstraint(item: kludge, attribute: NSLayoutAttribute.Bottom, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+            self.view.addConstraints([a, b, c, d])
+            
+            self.kludge = kludge
+        }
+    }
+    
+    /*
+    BUG NOTE
+
+    For some strange reason, a layout pass of the entire keyboard is triggered 
+    whenever a popup shows up, if one of the following is done:
+
+    a) The forwarding view uses an autoresizing mask.
+    b) The forwarding view has constraints set anywhere other than init.
+
+    On the other hand, setting (non-autoresizing) constraints or just setting the
+    frame in layoutSubviews works perfectly fine.
+
+    I don't really know what to make of this. Am I doing Autolayout wrong, is it
+    a bug, or is it expected behavior? Perhaps this has to do with the fact that
+    the view's frame is only ever explicitly modified when set directly in layoutSubviews,
+    and not implicitly modified by various Autolayout constraints
+    (even though it should really not be changing).
+    */
+    
+    var constraintsAdded: Bool = false
+    func setupLayout() {
+        if !constraintsAdded {
+            self.layout = self.dynamicType.layoutClass.init(model: self.keyboard, superview: self.forwardingView, layoutConstants: self.dynamicType.layoutConstants, globalColors: self.dynamicType.globalColors, darkMode: self.darkMode(), solidColorMode: self.solidColorMode())
+            
+            self.layout?.initialize()
+            self.setMode(0)
+            
+            self.setupKludge()
+            
+            self.updateKeyCaps(self.shiftState.uppercase())
+//            var capsWasSet = self.setCapsIfNeeded()
+            
+            self.updateAppearances(self.darkMode())
+            self.addInputTraitsObservers()
+            
+            self.constraintsAdded = true
+        }
+    }
+    
+    // only available after frame becomes non-zero
+    func darkMode() -> Bool {
+        let darkMode = { () -> Bool in
+            let proxy = self.textDocumentProxy
+            return proxy.keyboardAppearance == UIKeyboardAppearance.Dark
+        }()
+        
+        return darkMode
+    }
+    
+    func solidColorMode() -> Bool {
+        return UIAccessibilityIsReduceTransparencyEnabled()
+    }
+    
+    var lastLayoutBounds: CGRect?
+    override func viewDidLayoutSubviews() {
+        if view.bounds == CGRectZero {
+            return
+        }
+        
+        self.setupLayout()
+        
+        let orientationSavvyBounds = CGRectMake(0, 0, self.view.bounds.width, self.heightForOrientation(self.interfaceOrientation, withTopBanner: false))
+        
+        if (lastLayoutBounds != nil && lastLayoutBounds == orientationSavvyBounds) {
+            // do nothing
+        }
+        else {
+            let uppercase = self.shiftState.uppercase()
+            let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
+            
+            self.forwardingView.frame = orientationSavvyBounds
+            self.layout?.layoutKeys(self.currentMode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+            self.lastLayoutBounds = orientationSavvyBounds
+            self.setupKeys()
+        }
+        
+        self.bannerView?.frame = CGRectMake(0, 0, self.view.bounds.width, metric("topBanner"))
+        
+        let newOrigin = CGPointMake(0, self.view.bounds.height - self.forwardingView.bounds.height)
+        self.forwardingView.frame.origin = newOrigin
+    }
+    
+    override func loadView() {
+        super.loadView()
+        
+        if let aBanner = self.createBanner() {
+            aBanner.hidden = true
+            self.view.insertSubview(aBanner, belowSubview: self.forwardingView)
+            self.bannerView = aBanner
+        }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        self.bannerView?.hidden = false
+        self.keyboardHeight = self.heightForOrientation(self.interfaceOrientation, withTopBanner: true)
+    }
+    
+    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
+        self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
+        
+        // optimization: ensures smooth animation
+        if let keyPool = self.layout?.keyPool {
+            for view in keyPool {
+                view.shouldRasterize = true
+            }
+        }
+        
+        self.keyboardHeight = self.heightForOrientation(toInterfaceOrientation, withTopBanner: true)
+    }
+    
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        initializeKeyboard()
-    }
-    
-    override func updateViewConstraints() {
-        super.updateViewConstraints()
-        view.removeConstraint(heightConstraint)
-        heightConstraint.constant = keyboardHeight
-        view.addConstraint(heightConstraint)
-    }
-    
-    // MARK: Event handlers
-    // Shift Buttton Action(Uppercase, Lowercase disabled the Caps Mode)
-    func shiftButtonPressed(sender: KeyButton) {
-        switch shiftMode {
-        case .Off:
-            shiftMode = .On
-        case .On:
-            shiftMode = .Off
-        case .Caps:
-            shiftMode = .Off
-        }
-    }
-    
-    //
-    func deleteButtonPressed(sender: KeyButton) {
-        switch proxy.documentContextBeforeInput {
-        case let s where s?.hasSuffix("    ") == true: // Cursor in front of tab, so delete tab.
-            for i in 0..<4 { // TODO: Update to use tab setting.
-                proxy.deleteBackward()
-            }
-        default:
-            proxy.deleteBackward()
-        }
-        updateSuggestions()
-    }
-    
-    //Delete Button long press action
-    func handleLongPressForDeleteButtonWithGestureRecognizer(gestureRecognizer: UILongPressGestureRecognizer) {
-        switch gestureRecognizer.state {
-        case .Began:
-            if deleteButtonTimer == nil {
-                deleteButtonTimer = NSTimer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
-                deleteButtonTimer!.tolerance = 0.01
-                NSRunLoop.mainRunLoop().addTimer(deleteButtonTimer!, forMode: NSDefaultRunLoopMode)
-            }
-        default:
-            deleteButtonTimer?.invalidate()
-            deleteButtonTimer = nil
-            updateSuggestions()
-        }
-    }
-    
-    func handleSwipeLeftForDeleteButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
-        // TODO: Figure out an implementation that doesn't use bridgeToObjectiveC, in case of funny unicode characters.
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            if documentContextBeforeInput.length > 0 {
-                var charactersToDelete = 0
-                switch documentContextBeforeInput {
-                case let s where NSCharacterSet.letterCharacterSet().characterIsMember(s.characterAtIndex(s.length - 1)): // Cursor in front of letter, so delete up to first non-letter character.
-                    let range = documentContextBeforeInput.rangeOfCharacterFromSet(NSCharacterSet.letterCharacterSet().invertedSet, options: .BackwardsSearch)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
-                    let range = documentContextBeforeInput.rangeOfCharacterFromSet(NSCharacterSet.whitespaceCharacterSet().invertedSet, options: .BackwardsSearch)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                default: // Just delete last character.
-                    charactersToDelete = 1
-                }
-                
-                for i in 0..<charactersToDelete {
-                    proxy.deleteBackward()
-                }
-            }
-        }
-        updateSuggestions()
-    }
-    
-    func handleDeleteButtonTimerTick(timer: NSTimer) {
-        proxy.deleteBackward()
-    }
-    
-    func spaceButtonPressed(sender: KeyButton) {
-        for suffix in languageProvider.autocapitalizeAfter {
-            if proxy.documentContextBeforeInput!.hasSuffix(suffix) {
-                shiftMode = .On
-            }
-        }
-        proxy.insertText(" ")
-        updateSuggestions()
-    }
-    
-    // Input the character "ñ" instead of tab
-    func tabButtonPressed(sender: KeyButton) {
-        proxy.insertText("ñ")
-    }
-    
-    // Input the character ""
-    func oopButtonPressed(sender: KeyButton) {
-        proxy.insertText("ó")
-    }
-    
-    // When the numpadButton is pressed
-    func numpadButtonPressed(sender: KeyButton){
-        proxy.insertText(sender.currentTitle!)
-    }
-    
-    // When the shortWordButton is pressed
-    func shortWordButtonPressed(sender: KeyButton){
-        proxy.insertText(sender.currentTitle!)
-        proxy.insertText(" ")
-    }
-    
-    func handleLongPressForSpaceButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
-        switch gestureRecognizer.state {
-        case .Began:
-            if spaceButtonTimer == nil {
-                spaceButtonTimer = NSTimer(timeInterval: 0.1, target: self, selector: "handleSpaceButtonTimerTick:", userInfo: nil, repeats: true)
-                spaceButtonTimer!.tolerance = 0.01
-                NSRunLoop.mainRunLoop().addTimer(spaceButtonTimer!, forMode: NSDefaultRunLoopMode)
-            }
-        default:
-            spaceButtonTimer?.invalidate()
-            spaceButtonTimer = nil
-            updateSuggestions()
-        }
-    }
-    
-    func handleSpaceButtonTimerTick(timer: NSTimer) {
-        proxy.insertText(" ")
-    }
-    
-    func handleSwipeLeftForSpaceButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animateWithDuration(0.1, animations: {
-            self.moveButtonLabels(-self.keyWidth)
-            }, completion: {
-                (success: Bool) -> Void in
-                self.languageProviders.increment()
-                self.languageProvider = self.languageProviders.currentItem!
-                self.moveButtonLabels(self.keyWidth * 2.0)
-                UIView.animateWithDuration(0.1) {
-                    self.moveButtonLabels(-self.keyWidth)
-                }
-            }
-        )
-    }
-    
-    func handleSwipeRightForSpaceButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animateWithDuration(0.1, animations: {
-            self.moveButtonLabels(self.keyWidth)
-            }, completion: {
-                (success: Bool) -> Void in
-                self.languageProviders.decrement()
-                self.languageProvider = self.languageProviders.currentItem!
-                self.moveButtonLabels(-self.keyWidth * 2.0)
-                UIView.animateWithDuration(0.1) {
-                    self.moveButtonLabels(self.keyWidth)
-                }
-            }
-        )
-    }
-    
-    func returnButtonPressed(sender: KeyButton) {
-        proxy.insertText("\n")
-        updateSuggestions()
-    }
-    
-    // MARK: CharacterButtonDelegate methods
-    
-    func handlePressForCharacterButton(button: CharacterButton) {
-        switch shiftMode {
-        case .Off:
-            proxy.insertText(button.primaryCharacter.lowercaseString)
-        case .On:
-            proxy.insertText(button.primaryCharacter.uppercaseString)
-            shiftMode = .Off
-        case .Caps:
-            proxy.insertText(button.primaryCharacter.uppercaseString)
-        }
-        updateSuggestions()
-    }
-    
-    func handleSwipeUpForButton(button: CharacterButton) {
-        proxy.insertText(button.secondaryCharacter)
-        if button.secondaryCharacter.characters.count > 1 {
-            proxy.insertText(" ")
-        }
-        updateSuggestions()
-    }
-    
-    func handleSwipeDownForButton(button: CharacterButton) {
-        proxy.insertText(button.tertiaryCharacter)
-        if button.tertiaryCharacter.characters.count > 1 {
-            proxy.insertText(" ")
-        }
-        updateSuggestions()
-    }
-    
-    // MARK: SuggestionButtonDelegate methods
-    
-    func handlePressForSuggestionButton(button: SuggestionButton) {
-        if let lastWord = lastWordTyped {
-            for letter in lastWord.characters {
-                proxy.deleteBackward()
-            }
-            proxy.insertText(button.title + " ")
-            for suggestionButton in suggestionButtons {
-                suggestionButton.removeFromSuperview()
+        // optimization: ensures quick mode and shift transitions
+        if let keyPool = self.layout?.keyPool {
+            for view in keyPool {
+                view.shouldRasterize = false
             }
         }
     }
     
-    // MARK: TouchForwardingViewDelegate methods
-    
-    // TODO: Get this method to properly provide the desired behaviour.
-    func viewForHitTestWithPoint(point: CGPoint, event: UIEvent?, superResult: UIView?) -> UIView? {
-        for subview in view.subviews {
-            let convertPoint = subview.convertPoint(point, fromView: view)
-            if subview is KeyButton && subview.pointInside(convertPoint, withEvent: event) {
-                return subview
-            }
-        }
-        return swipeView
+    func heightForOrientation(orientation: UIInterfaceOrientation, withTopBanner: Bool) -> CGFloat {
+        let isPad = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+        
+        //TODO: hardcoded stuff
+        let actualScreenWidth = (UIScreen.mainScreen().nativeBounds.size.width / UIScreen.mainScreen().nativeScale)
+        let canonicalPortraitHeight = (isPad ? CGFloat(396) : CGFloat(orientation.isPortrait && actualScreenWidth >= 400 ? 226 : 216))
+//        let canonicalLandscapeHeight = (isPad ? CGFloat(528) : CGFloat(162))
+        let canonicalLandscapeHeight = (isPad ? CGFloat(396) : CGFloat(162))
+        let topBannerHeight = (withTopBanner ? metric("topBanner") : 0)
+        
+        return CGFloat(orientation.isPortrait ? canonicalPortraitHeight + topBannerHeight : canonicalLandscapeHeight + topBannerHeight)
     }
     
-    // MARK: Helper methods
-    
-    private func initializeKeyboard() {
-        for subview in self.view.subviews {
-            subview.removeFromSuperview() // Remove all buttons and gesture recognizers when view is recreated during orientation changes.
-        }
+    /*
+    BUG NOTE
 
-        addPredictiveTextScrollView()
-        addShiftButton()
-        addDeleteButton()
-        addTabButton()
-        addOopButton()
-        addNextKeyboardButton()
-        addSpaceButton()
-        addReturnButton()
-        addCharacterButtons()
-        addSwipeView()
-        addShortWordButton()
-        addNumpadButton()
-    }
+    None of the UIContentContainer methods are called for this controller.
+    */
     
-    private func addPredictiveTextScrollView() {
-        predictiveTextScrollView = PredictiveTextScrollView(frame: CGRectMake(0.0, 0.0, self.view.frame.width, predictiveTextBoxHeight))
-        self.view.addSubview(predictiveTextScrollView)
-    }
+    //override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    //    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    //}
     
-    private func addShiftButton() {
-        shiftButton = KeyButton(frame: CGRectMake(spacing, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5 + spacing * 0.5, keyHeight))
-        shiftButton.setTitle("\u{000021E7}", forState: .Normal)
-        shiftButton.addTarget(self, action: "shiftButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(shiftButton)
-    }
-    
-    private func addDeleteButton() {
-        deleteButton = KeyButton(frame: CGRectMake(keyWidth * 8.5 + spacing * 9.5, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5, keyHeight))
-        deleteButton.setTitle("\u{0000232B}", forState: .Normal)
-        deleteButton.addTarget(self, action: "deleteButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(deleteButton)
-        
-        let deleteButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPressForDeleteButtonWithGestureRecognizer:")
-        deleteButton.addGestureRecognizer(deleteButtonLongPressGestureRecognizer)
-        
-        let deleteButtonSwipeLeftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleSwipeLeftForDeleteButtonWithGestureRecognizer:")
-        deleteButtonSwipeLeftGestureRecognizer.direction = .Left
-        deleteButton.addGestureRecognizer(deleteButtonSwipeLeftGestureRecognizer)
-    }
-    
-    private func addTabButton() {
-        tabButton = KeyButton(frame: CGRectMake(spacing, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        tabButton.setTitle("ñ", forState: .Normal)
-        tabButton.addTarget(self, action: "tabButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(tabButton)
-    }
-    
-    private func addOopButton() {
-        oopButton = KeyButton(frame: CGRectMake(spacing * 2 + keyWidth, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        oopButton.setTitle("ó", forState: .Normal)
-        oopButton.addTarget(self, action: "oopButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(oopButton)
-    }
-    
-    private func addNextKeyboardButton() {
-        nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 2 + spacing * 3, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        nextKeyboardButton.setTitle("\u{0001F310}", forState: .Normal)
-        nextKeyboardButton.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
-        self.view.addSubview(nextKeyboardButton)
-    }
-    
-    private func addSpaceButton() {
-        spaceButton = KeyButton(frame: CGRectMake(keyWidth * 3 + spacing * 4, keyHeight * 5.0 + spacing * 6.0, keyWidth * 4.5 + spacing * 3.5, keyHeight))
-        spaceButton.setTitle("Space", forState: .Normal)
-        spaceButton.addTarget(self, action: "spaceButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(spaceButton)
-        
-//        currentLanguageLabel = UILabel(frame: CGRectMake(0.0, 0.0, spaceButton.frame.width, spaceButton.frame.height * 0.33))
-//        currentLanguageLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
-//        currentLanguageLabel.adjustsFontSizeToFitWidth = true
-//        currentLanguageLabel.textColor = UIColor(white: 187.0/255, alpha: 1)
-//        currentLanguageLabel.textAlignment = .Center
-//        currentLanguageLabel.text = "\(languageProvider.language)"
-//        spaceButton.addSubview(currentLanguageLabel)
-//        
-//        let spaceButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPressForSpaceButtonWithGestureRecognizer:")
-//        spaceButton.addGestureRecognizer(spaceButtonLongPressGestureRecognizer)
-//        
-//        let spaceButtonSwipeLeftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleSwipeLeftForSpaceButtonWithGestureRecognizer:")
-//        spaceButtonSwipeLeftGestureRecognizer.direction = .Left
-//        spaceButton.addGestureRecognizer(spaceButtonSwipeLeftGestureRecognizer)
-//        
-//        let spaceButtonSwipeRightGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleSwipeRightForSpaceButtonWithGestureRecognizer:")
-//        spaceButtonSwipeRightGestureRecognizer.direction = .Right
-//        spaceButton.addGestureRecognizer(spaceButtonSwipeRightGestureRecognizer)
-    }
-    
-    private func addReturnButton() {
-        returnButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth * 2.5 + spacing, keyHeight))
-        returnButton.setTitle("\u{000023CE}", forState: .Normal)
-        returnButton.addTarget(self, action: "returnButtonPressed:", forControlEvents: .TouchUpInside)
-        self.view.addSubview(returnButton)
-    }
-    
-    private func addCharacterButtons() {
-        characterButtons = [
-            [],
-            [],
-            []
-        ] // Clear characterButtons array.
-        
-        var y = spacing * 3 + keyHeight * 2
-        for (rowIndex, row) in primaryCharacters.enumerate() {
-            var x: CGFloat
-            switch rowIndex {
-            case 1:
-                x = spacing * 1.5 + keyWidth * 0.5
-            case 2:
-                x = spacing * 2.5 + keyWidth * 1.5
-            default:
-                x = spacing
-            }
-            for (keyIndex, key) in row.enumerate() {
-                let characterButton = CharacterButton(frame: CGRectMake(x, y, keyWidth, keyHeight), primaryCharacter: key, secondaryCharacter: " ", tertiaryCharacter: " ", delegate: self)
-                self.view.addSubview(characterButton)
-                characterButtons[rowIndex].append(characterButton)
-                x += keyWidth + spacing
-            }
-            y += keyHeight + spacing
+    func setupKeys() {
+        if self.layout == nil {
+            return
         }
-    }
-    
-    private func addShortWordButton(){
-        for index in 1...7{
-            shortWordButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), spacing, wordKeyWidth, keyHeight))
-            shortWordButton.setTitle(shortWord[index-1], forState: .Normal)
-            shortWordButton.addTarget(self, action: "shortWordButtonPressed:", forControlEvents: .TouchUpInside)
-            self.view.addSubview(shortWordButton)
-        }
-    }
-    private func addNumpadButton(){
-        for index in 1...10{
-            print("\(index) times 5 is \(index * 5)")
-            numpadButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + keyWidth * CGFloat(index-1), spacing * 2 + keyHeight, keyWidth, keyHeight))
-            if index == 10 {
-                numpadButton.setTitle("\(index - 10)", forState: .Normal)
+        
+        for page in keyboard.pages {
+            for rowKeys in page.rows { // TODO: quick hack
+                for key in rowKeys {
+                    if let keyView:KeyboardKey = self.layout?.viewForKey(key) {
+                        keyView.removeTarget(nil, action: nil, forControlEvents: UIControlEvents.AllEvents)
+                        
+                        switch key.type {
+                        case Key.KeyType.KeyboardChange:
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.advanceTapped(_:)), forControlEvents: .TouchUpInside)
+                        case Key.KeyType.Backspace:
+                            let cancelEvents: UIControlEvents = [UIControlEvents.TouchUpInside, UIControlEvents.TouchUpInside, UIControlEvents.TouchDragExit, UIControlEvents.TouchUpOutside, UIControlEvents.TouchCancel, UIControlEvents.TouchDragOutside]
+                            
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.backspaceDown(_:)), forControlEvents: .TouchDown)
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.backspaceUp(_:)), forControlEvents: cancelEvents)
+                        case Key.KeyType.Shift:
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.shiftDown(_:)), forControlEvents: .TouchDown)
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.shiftUp(_:)), forControlEvents: .TouchUpInside)
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.shiftDoubleTapped(_:)), forControlEvents: .TouchDownRepeat)
+                        case Key.KeyType.ModeChange:
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.modeChangeTapped(_:)), forControlEvents: .TouchDown)
+                        case Key.KeyType.Settings:
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.toggleSettings), forControlEvents: .TouchUpInside)
+                        default:
+                            break
+                        }
+                        
+                        if key.isCharacter {
+                            if UIDevice.currentDevice().userInterfaceIdiom != UIUserInterfaceIdiom.Pad {
+                                keyView.addTarget(self, action: #selector(KeyboardViewController.showPopup(_:)), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                                keyView.addTarget(keyView, action: #selector(KeyboardKey.hidePopup), forControlEvents: [.TouchDragExit, .TouchCancel])
+                                keyView.addTarget(self, action: #selector(KeyboardViewController.hidePopupDelay(_:)), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside])
+                            }
+                        }
+                        
+                        if key.hasOutput {
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.keyPressedHelper(_:)), forControlEvents: .TouchUpInside)
+                        }
+                        
+                        if key.type != Key.KeyType.Shift && key.type != Key.KeyType.ModeChange {
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.highlightKey(_:)), forControlEvents: [.TouchDown, .TouchDragInside, .TouchDragEnter])
+                            keyView.addTarget(self, action: #selector(KeyboardViewController.unHighlightKey(_:)), forControlEvents: [.TouchUpInside, .TouchUpOutside, .TouchDragOutside, .TouchDragExit, .TouchCancel])
+                        }
+                        
+                        keyView.addTarget(self, action: #selector(KeyboardViewController.playKeySound), forControlEvents: .TouchDown)
+                    }
                 }
-            else{
-            numpadButton.setTitle("\(index)", forState: .Normal)
+            }
+        }
+    }
+    
+    /////////////////
+    // POPUP DELAY //
+    /////////////////
+    
+    var keyWithDelayedPopup: KeyboardKey?
+    var popupDelayTimer: NSTimer?
+    
+    func showPopup(sender: KeyboardKey) {
+        if sender == self.keyWithDelayedPopup {
+            self.popupDelayTimer?.invalidate()
+        }
+        sender.showPopup()
+    }
+    
+    func hidePopupDelay(sender: KeyboardKey) {
+        self.popupDelayTimer?.invalidate()
+        
+        if sender != self.keyWithDelayedPopup {
+            self.keyWithDelayedPopup?.hidePopup()
+            self.keyWithDelayedPopup = sender
+        }
+        
+        if sender.popup != nil {
+            self.popupDelayTimer = NSTimer.scheduledTimerWithTimeInterval(0.05, target: self, selector: #selector(KeyboardViewController.hidePopupCallback), userInfo: nil, repeats: false)
+        }
+    }
+    
+    func hidePopupCallback() {
+        self.keyWithDelayedPopup?.hidePopup()
+        self.keyWithDelayedPopup = nil
+        self.popupDelayTimer = nil
+    }
+    
+    /////////////////////
+    // POPUP DELAY END //
+    /////////////////////
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated
+    }
+
+    // TODO: this is currently not working as intended; only called when selection changed -- iOS bug
+    override func textDidChange(textInput: UITextInput?) {
+        self.contextChanged()
+    }
+    
+    func contextChanged() {
+        self.setCapsIfNeeded()
+        self.autoPeriodState = .NoSpace
+    }
+    
+    func setHeight(height: CGFloat) {
+        if self.heightConstraint == nil {
+            self.heightConstraint = NSLayoutConstraint(
+                item:self.view,
+                attribute:NSLayoutAttribute.Height,
+                relatedBy:NSLayoutRelation.Equal,
+                toItem:nil,
+                attribute:NSLayoutAttribute.NotAnAttribute,
+                multiplier:0,
+                constant:height)
+            self.heightConstraint!.priority = 1000
+            
+            self.view.addConstraint(self.heightConstraint!) // TODO: what if view already has constraint added?
+        }
+        else {
+            self.heightConstraint?.constant = height
+        }
+    }
+    
+    func updateAppearances(appearanceIsDark: Bool) {
+        self.layout?.solidColorMode = self.solidColorMode()
+        self.layout?.darkMode = appearanceIsDark
+        self.layout?.updateKeyAppearance()
+        
+        self.bannerView?.darkMode = appearanceIsDark
+        self.settingsView?.darkMode = appearanceIsDark
+    }
+    
+    func highlightKey(sender: KeyboardKey) {
+        sender.highlighted = true
+    }
+    
+    func unHighlightKey(sender: KeyboardKey) {
+        sender.highlighted = false
+    }
+    
+    func keyPressedHelper(sender: KeyboardKey) {
+        if let model = self.layout?.keyForView(sender) {
+            self.keyPressed(model)
+
+            // auto exit from special char subkeyboard
+            if model.type == Key.KeyType.Space || model.type == Key.KeyType.Return {
+                self.currentMode = 0
+            }
+            else if model.lowercaseOutput == "'" {
+                self.currentMode = 0
+            }
+            else if model.type == Key.KeyType.Character {
+                self.currentMode = 0
             }
             
-            numpadButton.addTarget(self, action: "numpadButtonPressed:", forControlEvents: .TouchUpInside)
-            self.view.addSubview(numpadButton)
-        }
-    }
-    
-    private func addSwipeView() {
-        swipeView = SwipeView(containerView: view, topOffset: predictiveTextBoxHeight)
-        view.addSubview(swipeView)
-    }
-    
-    private func moveButtonLabels(dx: CGFloat) {
-        for (rowIndex, row) in characterButtons.enumerate() {
-            for (characterButtonIndex, characterButton) in row.enumerate() {
-                characterButton.secondaryLabel.frame.offsetInPlace(dx: dx, dy: 0.0)
-                characterButton.tertiaryLabel.frame.offsetInPlace(dx: dx, dy: 0.0)
-            }
-        }
-        currentLanguageLabel.frame.offsetInPlace(dx: dx, dy: 0.0)
-    }
-    
-    private func updateSuggestions() {
-        for suggestionButton in suggestionButtons {
-            suggestionButton.removeFromSuperview()
+            // auto period on double space
+            // TODO: timeout
+            
+            self.handleAutoPeriod(model)
+            // TODO: reset context
         }
         
-        if let lastWord = lastWordTyped {
-            var x = spacing
-            for suggestion in suggestionProvider.suggestionsForPrefix(lastWord) {
-                let suggestionButton = SuggestionButton(frame: CGRectMake(x, 0.0, predictiveTextButtonWidth, predictiveTextBoxHeight), title: suggestion, delegate: self)
-                predictiveTextScrollView?.addSubview(suggestionButton)
-                suggestionButtons.append(suggestionButton)
-                x += predictiveTextButtonWidth + spacing
-            }
-            predictiveTextScrollView!.contentSize = CGSizeMake(x, predictiveTextBoxHeight)
+        self.setCapsIfNeeded()
+    }
+    
+    func handleAutoPeriod(key: Key) {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kPeriodShortcut) {
+            return
         }
+        
+        if self.autoPeriodState == .FirstSpace {
+            if key.type != Key.KeyType.Space {
+                self.autoPeriodState = .NoSpace
+                return
+            }
+            
+            let charactersAreInCorrectState = { () -> Bool in
+                let previousContext = self.textDocumentProxy.documentContextBeforeInput
+                
+                if previousContext == nil || (previousContext!).characters.count < 3 {
+                    return false
+                }
+                
+                var index = previousContext!.endIndex
+                
+                index = index.predecessor()
+                if previousContext![index] != " " {
+                    return false
+                }
+                
+                index = index.predecessor()
+                if previousContext![index] != " " {
+                    return false
+                }
+                
+                index = index.predecessor()
+                let char = previousContext![index]
+                if self.characterIsWhitespace(char) || self.characterIsPunctuation(char) || char == "," {
+                    return false
+                }
+                
+                return true
+            }()
+            
+            if charactersAreInCorrectState {
+                self.textDocumentProxy.deleteBackward()
+                self.textDocumentProxy.deleteBackward()
+                self.textDocumentProxy.insertText(".")
+                self.textDocumentProxy.insertText(" ")
+            }
+            
+            self.autoPeriodState = .NoSpace
+        }
+        else {
+            if key.type == Key.KeyType.Space {
+                self.autoPeriodState = .FirstSpace
+            }
+        }
+    }
+    
+    func cancelBackspaceTimers() {
+        self.backspaceDelayTimer?.invalidate()
+        self.backspaceRepeatTimer?.invalidate()
+        self.backspaceDelayTimer = nil
+        self.backspaceRepeatTimer = nil
+    }
+    
+    func backspaceDown(sender: KeyboardKey) {
+        self.cancelBackspaceTimers()
+        
+        self.textDocumentProxy.deleteBackward()
+        self.setCapsIfNeeded()
+        
+        // trigger for subsequent deletes
+        self.backspaceDelayTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceDelay - backspaceRepeat, target: self, selector: #selector(KeyboardViewController.backspaceDelayCallback), userInfo: nil, repeats: false)
+    }
+    
+    func backspaceUp(sender: KeyboardKey) {
+        self.cancelBackspaceTimers()
+    }
+    
+    func backspaceDelayCallback() {
+        self.backspaceDelayTimer = nil
+        self.backspaceRepeatTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceRepeat, target: self, selector: #selector(KeyboardViewController.backspaceRepeatCallback), userInfo: nil, repeats: true)
+    }
+    
+    func backspaceRepeatCallback() {
+        self.playKeySound()
+        
+        self.textDocumentProxy.deleteBackward()
+        self.setCapsIfNeeded()
+    }
+    
+    func shiftDown(sender: KeyboardKey) {
+        self.shiftStartingState = self.shiftState
+        
+        if let shiftStartingState = self.shiftStartingState {
+            if shiftStartingState.uppercase() {
+                // handled by shiftUp
+                return
+            }
+            else {
+                switch self.shiftState {
+                case .Disabled:
+                    self.shiftState = .Enabled
+                case .Enabled:
+                    self.shiftState = .Disabled
+                case .Locked:
+                    self.shiftState = .Disabled
+                }
+                
+                (sender.shape as? ShiftShape)?.withLock = false
+            }
+        }
+    }
+    
+    func shiftUp(sender: KeyboardKey) {
+        if self.shiftWasMultitapped {
+            // do nothing
+        }
+        else {
+            if let shiftStartingState = self.shiftStartingState {
+                if !shiftStartingState.uppercase() {
+                    // handled by shiftDown
+                }
+                else {
+                    switch self.shiftState {
+                    case .Disabled:
+                        self.shiftState = .Enabled
+                    case .Enabled:
+                        self.shiftState = .Disabled
+                    case .Locked:
+                        self.shiftState = .Disabled
+                    }
+                    
+                    (sender.shape as? ShiftShape)?.withLock = false
+                }
+            }
+        }
+
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
+    }
+    
+    func shiftDoubleTapped(sender: KeyboardKey) {
+        self.shiftWasMultitapped = true
+        
+        switch self.shiftState {
+        case .Disabled:
+            self.shiftState = .Locked
+        case .Enabled:
+            self.shiftState = .Locked
+        case .Locked:
+            self.shiftState = .Disabled
+        }
+    }
+    
+    func updateKeyCaps(uppercase: Bool) {
+        let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
+        self.layout?.updateKeyCaps(false, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+    }
+    
+    func modeChangeTapped(sender: KeyboardKey) {
+        if let toMode = self.layout?.viewToModel[sender]?.toMode {
+            self.currentMode = toMode
+        }
+    }
+    
+    func setMode(mode: Int) {
+        self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
+        
+        let uppercase = self.shiftState.uppercase()
+        let characterUppercase = (NSUserDefaults.standardUserDefaults().boolForKey(kSmallLowercase) ? uppercase : true)
+        self.layout?.layoutKeys(mode, uppercase: uppercase, characterUppercase: characterUppercase, shiftState: self.shiftState)
+        
+        self.setupKeys()
+    }
+    
+    func advanceTapped(sender: KeyboardKey) {
+        self.forwardingView.resetTrackedViews()
+        self.shiftStartingState = nil
+        self.shiftWasMultitapped = false
+        
+        self.advanceToNextInputMode()
+    }
+    
+    @IBAction func toggleSettings() {
+        // lazy load settings
+        if self.settingsView == nil {
+            if let aSettings = self.createSettings() {
+                aSettings.darkMode = self.darkMode()
+                
+                aSettings.hidden = true
+                self.view.addSubview(aSettings)
+                self.settingsView = aSettings
+                
+                aSettings.translatesAutoresizingMaskIntoConstraints = false
+                
+                let widthConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Width, multiplier: 1, constant: 0)
+                let heightConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.Height, multiplier: 1, constant: 0)
+                let centerXConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterX, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterX, multiplier: 1, constant: 0)
+                let centerYConstraint = NSLayoutConstraint(item: aSettings, attribute: NSLayoutAttribute.CenterY, relatedBy: NSLayoutRelation.Equal, toItem: self.view, attribute: NSLayoutAttribute.CenterY, multiplier: 1, constant: 0)
+                
+                self.view.addConstraint(widthConstraint)
+                self.view.addConstraint(heightConstraint)
+                self.view.addConstraint(centerXConstraint)
+                self.view.addConstraint(centerYConstraint)
+            }
+        }
+        
+        if let settings = self.settingsView {
+            let hidden = settings.hidden
+            settings.hidden = !hidden
+            self.forwardingView.hidden = hidden
+            self.forwardingView.userInteractionEnabled = !hidden
+            self.bannerView?.hidden = hidden
+        }
+    }
+    
+    func setCapsIfNeeded() -> Bool {
+        if self.shouldAutoCapitalize() {
+            switch self.shiftState {
+            case .Disabled:
+                self.shiftState = .Enabled
+            case .Enabled:
+                self.shiftState = .Enabled
+            case .Locked:
+                self.shiftState = .Locked
+            }
+            
+            return true
+        }
+        else {
+            switch self.shiftState {
+            case .Disabled:
+                self.shiftState = .Disabled
+            case .Enabled:
+                self.shiftState = .Disabled
+            case .Locked:
+                self.shiftState = .Locked
+            }
+            
+            return false
+        }
+    }
+    
+    func characterIsPunctuation(character: Character) -> Bool {
+        return (character == ".") || (character == "!") || (character == "?")
+    }
+    
+    func characterIsNewline(character: Character) -> Bool {
+        return (character == "\n") || (character == "\r")
+    }
+    
+    func characterIsWhitespace(character: Character) -> Bool {
+        // there are others, but who cares
+        return (character == " ") || (character == "\n") || (character == "\r") || (character == "\t")
+    }
+    
+    func stringIsWhitespace(string: String?) -> Bool {
+        if string != nil {
+            for char in (string!).characters {
+                if !characterIsWhitespace(char) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    
+    func shouldAutoCapitalize() -> Bool {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kAutoCapitalization) {
+            return false
+        }
+        
+        let traits = self.textDocumentProxy
+        if let autocapitalization = traits.autocapitalizationType {
+            let documentProxy = self.textDocumentProxy
+            //var beforeContext = documentProxy.documentContextBeforeInput
+            
+            switch autocapitalization {
+            case .None:
+                return false
+            case .Words:
+                if let beforeContext = documentProxy.documentContextBeforeInput {
+                    let previousCharacter = beforeContext[beforeContext.endIndex.predecessor()]
+                    return self.characterIsWhitespace(previousCharacter)
+                }
+                else {
+                    return true
+                }
+            
+            case .Sentences:
+                if let beforeContext = documentProxy.documentContextBeforeInput {
+                    let offset = min(3, beforeContext.characters.count)
+                    var index = beforeContext.endIndex
+                    
+                    for i in 0 ..< offset {
+                        index = index.predecessor()
+                        let char = beforeContext[index]
+                        
+                        if characterIsPunctuation(char) {
+                            if i == 0 {
+                                return false //not enough spaces after punctuation
+                            }
+                            else {
+                                return true //punctuation with at least one space after it
+                            }
+                        }
+                        else {
+                            if !characterIsWhitespace(char) {
+                                return false //hit a foreign character before getting to 3 spaces
+                            }
+                            else if characterIsNewline(char) {
+                                return true //hit start of line
+                            }
+                        }
+                    }
+                    
+                    return true //either got 3 spaces or hit start of line
+                }
+                else {
+                    return true
+                }
+            case .AllCharacters:
+                return true
+            }
+        }
+        else {
+            return false
+        }
+    }
+    
+    // this only works if full access is enabled
+    func playKeySound() {
+        if !NSUserDefaults.standardUserDefaults().boolForKey(kKeyboardClicks) {
+            return
+        }
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+            AudioServicesPlaySystemSound(1104)
+        })
+    }
+    
+    //////////////////////////////////////
+    // MOST COMMONLY EXTENDABLE METHODS //
+    //////////////////////////////////////
+    
+    class var layoutClass: KeyboardLayout.Type { get { return KeyboardLayout.self }}
+    class var layoutConstants: LayoutConstants.Type { get { return LayoutConstants.self }}
+    class var globalColors: GlobalColors.Type { get { return GlobalColors.self }}
+    
+    func keyPressed(key: Key) {
+        self.textDocumentProxy.insertText(key.outputForCase(self.shiftState.uppercase()))
+    }
+    
+    // a banner that sits in the empty space on top of the keyboard
+    func createBanner() -> ExtraView? {
+        // note that dark mode is not yet valid here, so we just put false for clarity
+        //return ExtraView(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        return nil
+    }
+    
+    // a settings view that replaces the keyboard when the settings button is pressed
+    func createSettings() -> ExtraView? {
+        // note that dark mode is not yet valid here, so we just put false for clarity
+        let settingsView = DefaultSettings(globalColors: self.dynamicType.globalColors, darkMode: false, solidColorMode: self.solidColorMode())
+        settingsView.backButton?.addTarget(self, action: #selector(KeyboardViewController.toggleSettings), forControlEvents: UIControlEvents.TouchUpInside)
+        return settingsView
     }
 }
