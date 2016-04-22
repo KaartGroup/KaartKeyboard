@@ -35,7 +35,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     private var keyboardHeight: CGFloat {
         let interfaceOrientation = UIDevice.currentDevice().orientation
-        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 300.0 : 260.0
+        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 400.0 : 340.0
     }
     private var keyWidth: CGFloat {
         return (view.frame.width - 11 * spacing) / 10.0
@@ -44,7 +44,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     private var keyHeight: CGFloat {
-        return (keyboardHeight - 5 * spacing) / 5.0
+        return (keyboardHeight - 6 * spacing) / 6.0
     }
     
     // MARK: User interface
@@ -69,6 +69,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private var numpadButton: KeyButton!
     private var shortWordButton: KeyButton!
     private var dotButton: KeyButton!
+    private var eepButton: KeyButton!
+    private var iipButton: KeyButton!
     // MARK: Timers
     
     private var deleteButtonTimer: NSTimer?
@@ -111,7 +113,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         case Off, On, Caps
     }
     
-    private var shiftMode: ShiftMode = .Off {
+    private var shiftMode: ShiftMode = .On {
         didSet {
             shiftButton.selected = (shiftMode == .Caps)
             for row in characterButtons {
@@ -155,6 +157,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 210.0/255, green: 213.0/255, blue: 219.0/255, alpha: 1)
         heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
+        view.addConstraint(heightConstraint)
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -257,6 +260,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 shiftMode = .On
             }
         }
+        shiftMode = .On
         proxy.insertText(" ")
         updateSuggestions()
     }
@@ -285,6 +289,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // When the dotButton is pressed
     func dotButtonPressed(sender: KeyButton){
         proxy.insertText(".")
+    }
+    
+    func eepButtonPressed(sender: KeyButton){
+        proxy.insertText("é")
+    }
+    
+    func iipButtonPressed(sender: KeyButton){
+        proxy.insertText("í")
     }
     
     func handleLongPressForSpaceButtonWithGestureRecognizer(gestureRecognizer: UISwipeGestureRecognizer) {
@@ -338,6 +350,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func returnButtonPressed(sender: KeyButton) {
         proxy.insertText("\n")
+        shiftMode = .On
         updateSuggestions()
     }
     
@@ -419,6 +432,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addShortWordButton()
         addNumpadButton()
         addDotButton()
+        addEepButton()
+        addIipButton()
     }
     
     private func addPredictiveTextScrollView() {
@@ -434,7 +449,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addDeleteButton() {
-        deleteButton = KeyButton(frame: CGRectMake(keyWidth * 8.5 + spacing * 9.5, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5, keyHeight))
+        deleteButton = KeyButton(frame: CGRectMake(keyWidth * 8.5 + spacing * 9.5, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5 + spacing / 2, keyHeight))
         deleteButton.setTitle("\u{0000232B}", forState: .Normal)
         deleteButton.addTarget(self, action: "deleteButtonPressed:", forControlEvents: .TouchUpInside)
         self.view.addSubview(deleteButton)
@@ -462,21 +477,35 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addDotButton() {
-        dotButton = KeyButton(frame: CGRectMake(spacing * 10 + keyWidth * 9.5, spacing * 4 + keyHeight * 3, keyWidth / 2, keyHeight))
+        dotButton = KeyButton(frame: CGRectMake(spacing * 10.5 + keyWidth * 9.5, spacing * 4 + keyHeight * 3, keyWidth / 2 - spacing / 2, keyHeight))
         dotButton.setTitle(".", forState: .Normal)
         dotButton.addTarget(self, action: "dotButtonPressed:", forControlEvents: .TouchUpInside)
         self.view.addSubview(dotButton)
     }
     
+    private func addEepButton() {
+        eepButton = KeyButton(frame: CGRectMake(keyWidth * 2 + spacing * 3, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
+        eepButton.setTitle("é", forState: .Normal)
+        eepButton.addTarget(self, action: "eepButtonPressed:", forControlEvents: .TouchUpInside)
+        self.view.addSubview(eepButton)
+    }
+    
+    private func addIipButton() {
+        iipButton = KeyButton(frame: CGRectMake(keyWidth * 3 + spacing * 4, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
+        iipButton.setTitle("í", forState: .Normal)
+        iipButton.addTarget(self, action: "iipButtonPressed:", forControlEvents: .TouchUpInside)
+        self.view.addSubview(iipButton)
+    }
+    
     private func addNextKeyboardButton() {
-        nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 2 + spacing * 3, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
+        nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
         nextKeyboardButton.setTitle("\u{0001F310}", forState: .Normal)
         nextKeyboardButton.addTarget(self, action: "advanceToNextInputMode", forControlEvents: .TouchUpInside)
         self.view.addSubview(nextKeyboardButton)
     }
     
     private func addSpaceButton() {
-        spaceButton = KeyButton(frame: CGRectMake(keyWidth * 3 + spacing * 4, keyHeight * 5.0 + spacing * 6.0, keyWidth * 4.5 + spacing * 3.5, keyHeight))
+        spaceButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth * 3.5 + spacing * 2.5, keyHeight))
         spaceButton.setTitle("Space", forState: .Normal)
         spaceButton.addTarget(self, action: "spaceButtonPressed:", forControlEvents: .TouchUpInside)
         self.view.addSubview(spaceButton)
@@ -502,7 +531,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addReturnButton() {
-        returnButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth * 2.5 + spacing, keyHeight))
+        returnButton = KeyButton(frame: CGRectMake(keyWidth * 8.5 + spacing * 9.5, keyHeight * 5.0 + spacing * 6.0, keyWidth * 1.5 + spacing / 2, keyHeight))
         returnButton.setTitle("\u{000023CE}", forState: .Normal)
         returnButton.addTarget(self, action: "returnButtonPressed:", forControlEvents: .TouchUpInside)
         self.view.addSubview(returnButton)
@@ -527,7 +556,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 x = spacing
             }
             for (keyIndex, key) in row.enumerate() {
-                let characterButton = CharacterButton(frame: CGRectMake(x, y, keyWidth, keyHeight), primaryCharacter: key, secondaryCharacter: " ", tertiaryCharacter: " ", delegate: self)
+                let characterButton = CharacterButton(frame: CGRectMake(x, y, keyWidth, keyHeight), primaryCharacter: key.uppercaseString, secondaryCharacter: " ", tertiaryCharacter: " ", delegate: self)
                 self.view.addSubview(characterButton)
                 characterButtons[rowIndex].append(characterButton)
                 x += keyWidth + spacing
@@ -538,8 +567,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     private func addShortWordButton(){
         for index in 1...7{
-            shortWordButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), spacing, wordKeyWidth, keyHeight))
+            shortWordButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), 0.0, wordKeyWidth, keyHeight))
             shortWordButton.setTitle(shortWord[index-1], forState: .Normal)
+            shortWordButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), forState: UIControlState.Normal)
+            let gradient = CAGradientLayer()
+            gradient.frame = self.shortWordButton.bounds
+            let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).CGColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).CGColor]
+            gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
+            shortWordButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
             shortWordButton.addTarget(self, action: "shortWordButtonPressed:", forControlEvents: .TouchUpInside)
             self.view.addSubview(shortWordButton)
         }
@@ -547,14 +582,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private func addNumpadButton(){
         for index in 1...10{
             print("\(index) times 5 is \(index * 5)")
-            numpadButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + keyWidth * CGFloat(index-1), spacing * 2 + keyHeight, keyWidth, keyHeight))
+            numpadButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + keyWidth * CGFloat(index-1), spacing + keyHeight, keyWidth, keyHeight))
             if index == 10 {
                 numpadButton.setTitle("\(index - 10)", forState: .Normal)
                 }
             else{
             numpadButton.setTitle("\(index)", forState: .Normal)
             }
-            
+            numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), forState: UIControlState.Normal)
+            let gradient = CAGradientLayer()
+            gradient.frame = self.shortWordButton.bounds
+            let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).CGColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).CGColor]
+            gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
+            numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
+
             numpadButton.addTarget(self, action: "numpadButtonPressed:", forControlEvents: .TouchUpInside)
             self.view.addSubview(numpadButton)
         }
