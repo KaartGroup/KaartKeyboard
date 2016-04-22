@@ -35,7 +35,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     private var keyboardHeight: CGFloat {
         let interfaceOrientation = UIDevice.currentDevice().orientation
-        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 400.0 : 340.0
+        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 280.0
     }
     private var keyWidth: CGFloat {
         return (view.frame.width - 11 * spacing) / 10.0
@@ -44,7 +44,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     private var keyHeight: CGFloat {
-        return (keyboardHeight - 6 * spacing) / 6.0
+        return (keyboardHeight - 3 * spacing) / 5.5
     }
     
     // MARK: User interface
