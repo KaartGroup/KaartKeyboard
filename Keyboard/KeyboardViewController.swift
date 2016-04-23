@@ -44,7 +44,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     private var keyHeight: CGFloat {
-        return (keyboardHeight - 3 * spacing) / 5.5
+        return (keyboardHeight - 4 * spacing) / 5.5
     }
     
     // MARK: User interface
