@@ -29,13 +29,30 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
     
     private let spacing: CGFloat = 4.0
-    private let predictiveTextBoxHeight: CGFloat = 24.0
+    private let predictiveTextBoxHeight: CGFloat = 0.0
     private var predictiveTextButtonWidth: CGFloat {
         return (view.frame.width - 4 * spacing) / 3.0
     }
     private var keyboardHeight: CGFloat {
         let interfaceOrientation = UIDevice.currentDevice().orientation
-        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 280.0
+        switch interfaceOrientation{
+        case .Portrait:
+            NSLog("Device Orientation is: \(interfaceOrientation)")
+            return 320
+        case .PortraitUpsideDown:
+            NSLog("Device Orientation is: \(interfaceOrientation)")
+            return 320
+        case .LandscapeLeft:
+            NSLog("Device Orientation is: \(interfaceOrientation)")
+            return 400
+        case .LandscapeRight:
+            NSLog("Device Orientation is: \(interfaceOrientation)")
+            return 400
+        default:
+            NSLog("Device Orientation is: \(interfaceOrientation)")
+            return 320
+        }
+//        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 400.0
     }
     private var keyWidth: CGFloat {
         return (view.frame.width - 11 * spacing) / 10.0
@@ -44,7 +61,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     private var keyHeight: CGFloat {
-        return (keyboardHeight - 4 * spacing) / 5.5
+        return (keyboardHeight - 6.5 * spacing) / 6.0
     }
     
     // MARK: User interface
@@ -602,7 +619,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addSwipeView() {
-        swipeView = SwipeView(containerView: view, topOffset: predictiveTextBoxHeight)
+        swipeView = SwipeView(containerView: view, topOffset: 0)
         view.addSubview(swipeView)
     }
     
@@ -624,12 +641,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         if let lastWord = lastWordTyped {
             var x = spacing
             for suggestion in suggestionProvider.suggestionsForPrefix(lastWord) {
-                let suggestionButton = SuggestionButton(frame: CGRectMake(x, 0.0, predictiveTextButtonWidth, predictiveTextBoxHeight), title: suggestion, delegate: self)
+                let suggestionButton = SuggestionButton(frame: CGRectMake(x, 0.0, predictiveTextButtonWidth, 0), title: suggestion, delegate: self)
                 predictiveTextScrollView?.addSubview(suggestionButton)
                 suggestionButtons.append(suggestionButton)
                 x += predictiveTextButtonWidth + spacing
             }
-            predictiveTextScrollView!.contentSize = CGSizeMake(x, predictiveTextBoxHeight)
+            predictiveTextScrollView!.contentSize = CGSizeMake(x, 0)
         }
     }
 }
