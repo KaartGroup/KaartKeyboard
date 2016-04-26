@@ -290,11 +290,11 @@
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = MJ4F4S4E5M;
+						DevelopmentTeam = 2STHX823T6;
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = MJ4F4S4E5M;
+						DevelopmentTeam = 2STHX823T6;
 					};
 				};
 			};
@@ -473,11 +473,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+<<<<<<< Updated upstream
 				STRIP_STYLE = "non-global";
+=======
+				PROVISIONING_PROFILE = "";
+>>>>>>> Stashed changes
 			};
 			name = Debug;
 		};
@@ -487,11 +492,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+<<<<<<< Updated upstream
 				STRIP_STYLE = "non-global";
+=======
+				PROVISIONING_PROFILE = "";
+>>>>>>> Stashed changes
 			};
 			name = Release;
 		};
@@ -500,6 +510,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -509,6 +520,7 @@
 				METAL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -519,11 +531,13 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
