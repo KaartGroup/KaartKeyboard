@@ -35,12 +35,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private var keyboardHeight: CGFloat {
 //        let interfaceOrientation = UIDevice.currentDevice().orientation
         if(UIScreen.mainScreen().bounds.width < UIScreen.mainScreen().bounds.height ){
-            print("Portrait in ELView : 320")
-            return 320
+            print("Portrait in ELView : 300")
+            return 280
         }
         else{
-            print("landscape in ELView : 400")
-            return 400
+            print("landscape in ELView : 380")
+            return 370
         }
 
 //        switch interfaceOrientation{
@@ -447,7 +447,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             subview.removeFromSuperview() // Remove all buttons and gesture recognizers when view is recreated during orientation changes.
         }
 
-        addPredictiveTextScrollView()
+//        addPredictiveTextScrollView()
         addShiftButton()
         addDeleteButton()
         addTabButton()
