@@ -15,7 +15,6 @@ import UIKit
 class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate, TouchForwardingViewDelegate {
 
     // MARK: Constants
-    
     private let primaryCharacters = [
         ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
         ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
@@ -34,25 +33,35 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 4 * spacing) / 3.0
     }
     private var keyboardHeight: CGFloat {
-        let interfaceOrientation = UIDevice.currentDevice().orientation
-        switch interfaceOrientation{
-        case .Portrait:
-            NSLog("Device Orientation is: \(interfaceOrientation)")
-            return 320
-        case .PortraitUpsideDown:
-            NSLog("Device Orientation is: \(interfaceOrientation)")
-            return 320
-        case .LandscapeLeft:
-            NSLog("Device Orientation is: \(interfaceOrientation)")
-            return 400
-        case .LandscapeRight:
-            NSLog("Device Orientation is: \(interfaceOrientation)")
-            return 400
-        default:
-            NSLog("Device Orientation is: \(interfaceOrientation)")
+//        let interfaceOrientation = UIDevice.currentDevice().orientation
+        if(UIScreen.mainScreen().bounds.width < UIScreen.mainScreen().bounds.height ){
+            print("Portrait in ELView : 320")
             return 320
         }
-//        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 400.0
+        else{
+            print("landscape in ELView : 400")
+            return 400
+        }
+
+//        switch interfaceOrientation{
+//        case .Portrait:
+//            print("Device Orientation is: \(interfaceOrientation)")
+//            return 320
+//        case .PortraitUpsideDown:
+//            print("Device Orientation is: \(interfaceOrientation)")
+//            return 320
+//        case .LandscapeLeft:
+//            print("Device Orientation is: \(interfaceOrientation)")
+//            return 400
+//        case .LandscapeRight:
+//            print("Device Orientation is: \(interfaceOrientation)")
+//            return 400
+//        default:
+//            print("Device Orientation is: \(interfaceOrientation)")
+//            return 320
+//        }
+
+        //        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 400.0
     }
     private var keyWidth: CGFloat {
         return (view.frame.width - 11 * spacing) / 10.0
@@ -183,6 +192,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
         
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+        heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
+        view.addConstraint(heightConstraint)
         initializeKeyboard()
     }
     

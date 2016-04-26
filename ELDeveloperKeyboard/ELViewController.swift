@@ -8,6 +8,8 @@
 
 import UIKit
 
+//    var keyboardHeight: CGFloat!
+
 class ELViewController: UIViewController {
     
     var textView: UITextView!
