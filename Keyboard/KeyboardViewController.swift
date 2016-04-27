@@ -36,7 +36,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        let interfaceOrientation = UIDevice.currentDevice().orientation
         if(UIScreen.mainScreen().bounds.width < UIScreen.mainScreen().bounds.height ){
 //            print("Portrait in ELView : 300")
-            return 280
+            return 260
         }
         else{
 //            print("landscape in ELView : 380")
