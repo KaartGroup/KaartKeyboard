@@ -104,13 +104,13 @@ class CharacterButton: KeyButton {
         tertiaryLabel.text = tertiaryCharacter
         addSubview(tertiaryLabel)
         
-        addTarget(self, action: "buttonPressed:", forControlEvents: .TouchUpInside)
+        addTarget(self, action: #selector(CharacterButton.buttonPressed(_:)), forControlEvents: .TouchUpInside)
         
-        let swipeUpGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "buttonSwipedUp:")
+        let swipeUpGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(CharacterButton.buttonSwipedUp(_:)))
         swipeUpGestureRecognizer.direction = .Up
         addGestureRecognizer(swipeUpGestureRecognizer)
         
-        let swipeDownGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "buttonSwipedDown:")
+        let swipeDownGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(CharacterButton.buttonSwipedDown(_:)))
         swipeDownGestureRecognizer.direction = .Down
         addGestureRecognizer(swipeDownGestureRecognizer)
     }

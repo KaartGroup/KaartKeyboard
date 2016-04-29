@@ -48,7 +48,7 @@ class CircularArray<T> {
     
     func increment() {
         if items.count > 0 {
-            ++index
+            index += 1
             if index == items.count {
                 index = 0
             }
@@ -57,7 +57,7 @@ class CircularArray<T> {
     
     func decrement() {
         if items.count > 0 {
-            --index
+            index -= 1
             if index < 0 {
                 index = items.count - 1
             }

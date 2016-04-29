@@ -67,8 +67,12 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "1"
+         BundleIdentifier = "FreshLeaf.ELDeveloperKeyboard"
+         RemotePath = "/Users/David/Library/Developer/CoreSimulator/Devices/ADEC5B30-CC5D-43E9-AD9E-ACCF7D01AE32/data/Containers/Bundle/Application/39CD0B5F-C6BD-449D-AEA5-FA92493D1C22/ELDeveloperKeyboard.app">
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "076EF58719650431009A561C"
@@ -76,7 +80,7 @@
             BlueprintName = "ELDeveloperKeyboard"
             ReferencedContainer = "container:ELDeveloperKeyboard.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

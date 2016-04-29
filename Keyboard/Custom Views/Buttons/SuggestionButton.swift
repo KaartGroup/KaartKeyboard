@@ -47,7 +47,7 @@ class SuggestionButton: UIButton {
         setTitleColor(UIColor(white: 238.0/255, alpha: 1), forState: .Normal)
         setTitleColor(UIColor(red: 119.0/255, green: 198.0/255, blue: 237.0/255, alpha: 1.0), forState: .Highlighted)
         titleLabel?.sizeToFit()
-        addTarget(self, action: "buttonPressed:", forControlEvents: .TouchUpInside)
+        addTarget(self, action: #selector(SuggestionButton.buttonPressed(_:)), forControlEvents: .TouchUpInside)
     }
 
     required init?(coder aDecoder: NSCoder) {
