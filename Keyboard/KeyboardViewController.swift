@@ -1,4 +1,4 @@
-	//
+//
 //  KeyboardViewController.swift
 //  Keyboard
 //
@@ -33,42 +33,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 4 * spacing) / 3.0
     }
     private var keyboardHeight: CGFloat {
-//        let interfaceOrientation = UIDevice.currentDevice().orientation
         if(UIScreen.mainScreen().bounds.width < UIScreen.mainScreen().bounds.height ){
-//            print("Portrait in ELView : 300")
             return 260
         }
         else{
-//            print("landscape in ELView : 380")
             return 370
         }
-
-//        switch interfaceOrientation{
-//        case .Portrait:
-//            print("Device Orientation is: \(interfaceOrientation)")
-//            return 320
-//        case .PortraitUpsideDown:
-//            print("Device Orientation is: \(interfaceOrientation)")
-//            return 320
-//        case .LandscapeLeft:
-//            print("Device Orientation is: \(interfaceOrientation)")
-//            return 400
-//        case .LandscapeRight:
-//            print("Device Orientation is: \(interfaceOrientation)")
-//            return 400
-//        default:
-//            print("Device Orientation is: \(interfaceOrientation)")
-//            return 320
-//        }
-
-        //        return (interfaceOrientation == .Portrait || interfaceOrientation == .PortraitUpsideDown) ? 320.0 : 400.0
     }
+    
+    // Width of individual letter keys
     private var keyWidth: CGFloat {
         return (view.frame.width - 11 * spacing) / 10.0
     }
+    
+    // Width of individual short word keys
     private var wordKeyWidth: CGFloat {
         return (view.frame.width - 8 * spacing) / 7.0
     }
+    
+    //Height of individual keys
     private var keyHeight: CGFloat {
         return (keyboardHeight - 6.5 * spacing) / 6.0
     }
@@ -107,7 +90,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private var heightConstraint: NSLayoutConstraint!
     
     private var proxy: UITextDocumentProxy {
-        return textDocumentProxy 
+        return textDocumentProxy
     }
     
     private var lastWordTyped: String? {
@@ -160,30 +143,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // MARK: Constructors
-    // FIXME: Uncomment init methods when crash bug is fixed. Also need to move languageProvider initialization to constructor to prevent unnecessary creation of two DefaultLanguageProvider instances.
-//    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-//        self.shiftMode = .Off
-//        self.languageProvider = languageProviders.currentItem!
-//        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-//    }
-//
-//    required init(coder aDecoder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-    
-    // MARK: Overridden methods
-    
-//    override func loadView() {
-//        let screenRect = UIScreen.mainScreen().bounds
-//        self.view = TouchForwardingView(frame: CGRectMake(0.0, predictiveTextBoxHeight, screenRect.width, keyboardHeight - predictiveTextBoxHeight), delegate: self)
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 210.0/255, green: 213.0/255, blue: 219.0/255, alpha: 1)
         heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
-        view.addConstraint(heightConstraint)
+//        view.addConstraint(heightConstraint)
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -192,8 +156,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
         
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        heightConstraint = NSLayoutConstraint(item: self.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 0.0, constant: self.keyboardHeight)
-        view.addConstraint(heightConstraint)
+        shiftMode = .On
         initializeKeyboard()
     }
     
@@ -479,7 +442,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRectMake(keyWidth * 8.5 + spacing * 9.5, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5 + spacing / 2, keyHeight))
         deleteButton.setTitle("\u{0000232B}", forState: .Normal)
-        deleteButton.addTarget(self, action: "deleteButtonPressed:", forControlEvents: .TouchUpInside)
+        deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(deleteButton)
         
         let deleteButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPressForDeleteButtonWithGestureRecognizer:")
@@ -609,7 +572,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     private func addNumpadButton(){
         for index in 1...10{
-            print("\(index) times 5 is \(index * 5)")
+//            print("\(index) times 5 is \(index * 5)")
             numpadButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + keyWidth * CGFloat(index-1), spacing + keyHeight, keyWidth, keyHeight))
             if index == 10 {
                 numpadButton.setTitle("\(index - 10)", forState: .Normal)
