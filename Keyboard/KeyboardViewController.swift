@@ -3,7 +3,7 @@
 //  Keyboard
 //
 //  Created by Kari Kraam on 2016-04-20.
-//  Copyright (c) 2016 Kari Kraam. All rights reserved.
+//  Copyright (c) 2016 Kaart Group, LLC. All rights reserved.
 //
 
 import Foundation
