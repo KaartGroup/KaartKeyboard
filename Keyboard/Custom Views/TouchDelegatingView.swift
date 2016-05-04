@@ -2,8 +2,8 @@
 //  TouchForwardingView.swift
 //  ELDeveloperKeyboard
 //
-//  Created by Eric Lin on 2014-08-02.
-//  Copyright (c) 2014 Eric Lin. All rights reserved.
+//  Created by Kari Kraam on 2016-04-25.
+//  Copyright (c) 2016 Kari Kraam. All rights reserved.
 //
 
 import Foundation

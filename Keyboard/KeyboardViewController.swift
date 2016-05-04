@@ -501,25 +501,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         spaceButton.setTitle("Space", forState: .Normal)
         spaceButton.addTarget(self, action: #selector(KeyboardViewController.spaceButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(spaceButton)
-        
-//        currentLanguageLabel = UILabel(frame: CGRectMake(0.0, 0.0, spaceButton.frame.width, spaceButton.frame.height * 0.33))
-//        currentLanguageLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
-//        currentLanguageLabel.adjustsFontSizeToFitWidth = true
-//        currentLanguageLabel.textColor = UIColor(white: 187.0/255, alpha: 1)
-//        currentLanguageLabel.textAlignment = .Center
-//        currentLanguageLabel.text = "\(languageProvider.language)"
-//        spaceButton.addSubview(currentLanguageLabel)
-//        
-//        let spaceButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPressForSpaceButtonWithGestureRecognizer:")
-//        spaceButton.addGestureRecognizer(spaceButtonLongPressGestureRecognizer)
-//        
-//        let spaceButtonSwipeLeftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleSwipeLeftForSpaceButtonWithGestureRecognizer:")
-//        spaceButtonSwipeLeftGestureRecognizer.direction = .Left
-//        spaceButton.addGestureRecognizer(spaceButtonSwipeLeftGestureRecognizer)
-//        
-//        let spaceButtonSwipeRightGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "handleSwipeRightForSpaceButtonWithGestureRecognizer:")
-//        spaceButtonSwipeRightGestureRecognizer.direction = .Right
-//        spaceButton.addGestureRecognizer(spaceButtonSwipeRightGestureRecognizer)
+
     }
     
     private func addReturnButton() {

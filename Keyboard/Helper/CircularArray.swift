@@ -3,7 +3,7 @@
 //  ELDeveloperKeyboard
 //
 //  Created by Eric Lin on 2014-07-02.
-//  Copyright (c) 2014 Eric Lin. All rights reserved.
+//  Copyright (c) 2016 Kari Kraam. All rights reserved.
 //
 
 /**
