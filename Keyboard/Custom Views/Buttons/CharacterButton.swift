@@ -81,7 +81,7 @@ class CharacterButton: KeyButton {
         
         super.init(frame: frame)
         
-        primaryLabel = UILabel(frame: CGRectMake(frame.width * 0.45, 0.0, frame.width * 0.8, frame.height * 0.95))
+        primaryLabel = UILabel(frame: CGRectMake(frame.width * 0.45, 0.0, 60 , frame.height ))
         primaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
         primaryLabel.textAlignment = .Left
@@ -94,7 +94,7 @@ class CharacterButton: KeyButton {
         secondaryLabel.textColor = UIColor(white: 187.0/255, alpha: 1.0)
         secondaryLabel.textAlignment = .Right
         secondaryLabel.text = secondaryCharacter
-        addSubview(secondaryLabel)
+        //addSubview(secondaryLabel)
         
         tertiaryLabel = UILabel(frame: CGRectMake(0.0, frame.height * 0.65, frame.width * 0.9, frame.height * 0.25))
         tertiaryLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
@@ -102,7 +102,7 @@ class CharacterButton: KeyButton {
         tertiaryLabel.adjustsFontSizeToFitWidth = true
         tertiaryLabel.textAlignment = .Right
         tertiaryLabel.text = tertiaryCharacter
-        addSubview(tertiaryLabel)
+        //addSubview(tertiaryLabel)
         
         addTarget(self, action: #selector(CharacterButton.buttonPressed(_:)), forControlEvents: .TouchUpInside)
         

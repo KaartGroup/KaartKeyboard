@@ -29,6 +29,18 @@ class ELViewController: UIViewController {
         self.textView.scrollEnabled = true
         self.textView.userInteractionEnabled = true
         self.view.addSubview(self.textView)
+        if #available(iOS 9.0, *) {
+            //self.textView.inputAssistantItem.leadingBarButtonGroups = []
+            self.textView.autocorrectionType = .Default;
+        } else {
+            // Fallback on earlier versions
+        }
+        if #available(iOS 9.0, *) {
+            //self.textView.inputAssistantItem.trailingBarButtonGroups = []
+        } else {
+            // Fallback on earlier versions
+        }
+        
     }
     
     override func viewDidLoad() {

@@ -23,7 +23,6 @@
 		076EF5F019650BFA009A561C /* CircularArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EF19650BFA009A561C /* CircularArray.swift */; };
 		076EF5F219650C79009A561C /* KeyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F119650C79009A561C /* KeyButton.swift */; };
 		076EF5F419650C90009A561C /* CharacterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F319650C90009A561C /* CharacterButton.swift */; };
-		076EF5F619650D65009A561C /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 076EF5F519650D65009A561C /* .gitignore */; };
 		076EF5F819650F00009A561C /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F719650F00009A561C /* README.md */; };
 		076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FA19650F24009A561C /* SuggestionProvider.swift */; };
 		076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FC19650FB5009A561C /* SuggestionTrie.swift */; };
@@ -85,7 +84,6 @@
 		076EF5EF19650BFA009A561C /* CircularArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularArray.swift; sourceTree = "<group>"; };
 		076EF5F119650C79009A561C /* KeyButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyButton.swift; sourceTree = "<group>"; };
 		076EF5F319650C90009A561C /* CharacterButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterButton.swift; sourceTree = "<group>"; };
-		076EF5F519650D65009A561C /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		076EF5F719650F00009A561C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		076EF5FA19650F24009A561C /* SuggestionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
 		076EF5FC19650FB5009A561C /* SuggestionTrie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionTrie.swift; sourceTree = "<group>"; };
@@ -144,7 +142,6 @@
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
 				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
-				076EF5F519650D65009A561C /* .gitignore */,
 			);
 			sourceTree = "<group>";
 		};
@@ -290,11 +287,11 @@
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
+						DevelopmentTeam = 7BMB45567X;
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
+						DevelopmentTeam = 7BMB45567X;
 					};
 				};
 			};
@@ -331,7 +328,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				076EF5F619650D65009A561C /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,7 +473,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
@@ -493,7 +489,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
@@ -506,6 +502,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -513,7 +510,7 @@
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard.Keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
@@ -527,10 +524,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.ELDeveloperKeyboard.Keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
