@@ -816,18 +816,105 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         updateSuggestions()
     }
     
+    var longPressStoped:Bool = false;
+    
+    func startMoreDelete(timer: NSTimer)
+    {
+        while true {
+            
+            if( longPressStoped )
+            {
+                break;
+            }
+            
+            //proxy.deleteBackward();
+            if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
+                if documentContextBeforeInput.length > 0 {
+                    var charactersToDelete = 0
+                    switch documentContextBeforeInput {
+                    case let s where NSCharacterSet.letterCharacterSet().characterIsMember(s.characterAtIndex(s.length - 1)): // Cursor in front of letter, so delete up to first non-letter character.
+                        let range = documentContextBeforeInput.rangeOfCharacterFromSet(NSCharacterSet.letterCharacterSet().invertedSet, options: .BackwardsSearch)
+                        if range.location != NSNotFound {
+                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
+                        } else {
+                            charactersToDelete = documentContextBeforeInput.length
+                        }
+                    case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
+                        let range = documentContextBeforeInput.rangeOfCharacterFromSet(NSCharacterSet.whitespaceCharacterSet().invertedSet, options: .BackwardsSearch)
+                        if range.location != NSNotFound {
+                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
+                        } else {
+                            charactersToDelete = documentContextBeforeInput.length
+                        }
+                    default: // Just delete last character.
+                        
+                        charactersToDelete = 1
+                    }
+                    
+                    if( charactersToDelete == 0)
+                    {
+                        break;
+                    }
+                    for _ in 0..<charactersToDelete {
+                        proxy.deleteBackward()
+                    }
+                    
+                    //sleep(1)
+                }
+            }
+            else
+            {
+                break;
+            }
+            
+            timer.invalidate();
+            var longPressTime = NSTimer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
+            
+            NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
+            break
+        }
+        
+        timer.invalidate();
+        longPressStoped = false;
+    }
+    
+    func handleDeleteButtonLongPress(timer: NSTimer) {
+        
+        timer.invalidate();
+        //timer = nil
+        
+        deleteButtonTimer?.invalidate()
+        deleteButtonTimer = nil
+        
+        var longPressTime = NSTimer(timeInterval: 0.3, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
+        
+        NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
+    }
+    
     //Delete Button long press action
     func handleLongPressForDeleteButtonWithGestureRecognizer(gestureRecognizer: UILongPressGestureRecognizer) {
+       
+        
         switch gestureRecognizer.state {
+            
         case .Began:
+            
+            longPressStoped = false;
             if deleteButtonTimer == nil {
                 deleteButtonTimer = NSTimer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
                 deleteButtonTimer!.tolerance = 0.01
                 NSRunLoop.mainRunLoop().addTimer(deleteButtonTimer!, forMode: NSDefaultRunLoopMode)
+                
+                var longPressTime = NSTimer(timeInterval: 0.4, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)), userInfo: nil, repeats: false);
+                
+                NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
             }
+        
         default:
+            
             deleteButtonTimer?.invalidate()
             deleteButtonTimer = nil
+            longPressStoped = true;
             //updateSuggestions()
         }
     }

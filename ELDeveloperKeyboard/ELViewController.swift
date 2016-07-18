@@ -40,7 +40,7 @@ class ELViewController: UIViewController {
         } else {
             // Fallback on earlier versions
         }
-        
+        self.textView.deleteBackward()
     }
     
     override func viewDidLoad() {
