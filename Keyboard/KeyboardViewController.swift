@@ -21,7 +21,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         ["z", "x", "c", "v", "b", "n", "m"]
     ]
     
-    private let shortWord = ["Calle","Avenida","Callejón","Boulevard","Senda","Pasaje","Peatón"]
+    private let shortWord = ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
     
     lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
     
