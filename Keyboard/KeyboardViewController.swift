@@ -1279,13 +1279,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         for index in 1...7{
             shortWordButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), 0.0, wordKeyWidth, keyHeight))
             shortWordButton.setTitle(shortWord[index-1], forState: .Normal)
-            shortWordButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), forState: UIControlState.Normal)
+            shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), forState: UIControlState.Normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).CGColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).CGColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 44.0/255, green: 43.0/255, blue: 43.0/255, alpha: 1.0)), forState: .Normal)
+            shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), forState: .Normal)
             shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.blackColor()), forState: .Selected)
             shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), forControlEvents: .TouchUpInside)
             self.view.addSubview(shortWordButton)
@@ -1309,7 +1309,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).CGColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).CGColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 44.0/255, green: 43.0/255, blue: 43.0/255, alpha: 1.0)), forState: .Normal)
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 168.0/255, green: 168.0/255, blue: 168.0/255, alpha: 1.0)), forState: .Normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.blackColor()), forState: .Selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
