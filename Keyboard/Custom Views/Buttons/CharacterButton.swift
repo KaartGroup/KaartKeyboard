@@ -81,7 +81,7 @@ class CharacterButton: KeyButton {
         
         super.init(frame: frame)
         
-        primaryLabel = UILabel(frame: CGRectMake(frame.width * 0.45, 0.0, 60 , frame.height ))
+        primaryLabel = UILabel(frame: CGRectMake(frame.width * 0.45, 0.0, 90 , frame.height ))
         primaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
         primaryLabel.textAlignment = .Left
