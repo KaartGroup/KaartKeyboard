@@ -84,7 +84,7 @@ class CharacterButton: KeyButton {
         primaryLabel = UILabel(frame: CGRectMake(frame.width * 0.45, 0.0, 90 , frame.height ))
         primaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
-        primaryLabel.textAlignment = .Left
+        primaryLabel.textAlignment = .Center
         primaryLabel.text = primaryCharacter
         addSubview(primaryLabel)
         
