@@ -352,7 +352,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                             
                             let heightConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
                             
-                            let rightConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1.0, constant: spacing)
+                            let rightConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1.0, constant: -spacing)
                             
                             deleteButton.translatesAutoresizingMaskIntoConstraints = false
                             topConsShiftBtn.active = true;
