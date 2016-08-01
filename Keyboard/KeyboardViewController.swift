@@ -290,9 +290,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     if(  buttonIndex == 0)
                     {
                         //First Row First Btn "A"
-                        let topCons = NSLayoutConstraint(item: characterButton, attribute: .Top, relatedBy: .Equal, toItem: ACharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing);
+                        let topCons = NSLayoutConstraint(item: characterButton, attribute: .Top, relatedBy: .Equal, toItem: ACharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing)
                         
-                        let leftCons = NSLayoutConstraint(item: characterButton, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1.0, constant: x );
+                        let leftCons = NSLayoutConstraint(item: characterButton, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1.0, constant: keyWidth + spacing * 2)
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
@@ -310,17 +310,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let topConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Top, relatedBy: .Equal, toItem: ACharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing);
                         
-                        let leftConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1.0, constant: 0 );
+                        let leftConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1.0, constant: spacing );
                         
                         let heightConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let rightConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Trailing, relatedBy: .Equal, toItem: characterButton, attribute: .Leading, multiplier: 1.0, constant: -spacing)
+                        let widthConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyWidth)
                         
                         shiftButton.translatesAutoresizingMaskIntoConstraints = false
                         topConsShiftBtn.active = true;
                         leftConsShiftBtn.active = true;
                         heightConsShiftBtn.active = true;
-                        rightConsShiftBtn.active = true;
+                        widthConsShiftBtn.active = true;
                         
                     }
                     else
@@ -1151,7 +1151,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addShiftButton() {
-        shiftButton = KeyButton(frame: CGRectMake(spacing, keyHeight * 4.0 + spacing * 5.0, keyWidth * 1.5 + spacing * 0.5, keyHeight))
+        shiftButton = KeyButton(frame: CGRectMake(spacing, keyHeight * 4.0 + spacing * 5.0, keyWidth, keyHeight))
         shiftButton.setTitle("\u{000021E7}", forState: .Normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(shiftButton)
@@ -1215,7 +1215,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addNextKeyboardButton() {
-        nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
+        nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth / 2, keyHeight))
         nextKeyboardButton.setTitle("\u{0001F310}", forState: .Normal)
         nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.advanceToNextInputMode), forControlEvents: .TouchUpInside)
         self.view.addSubview(nextKeyboardButton)
