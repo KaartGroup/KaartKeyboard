@@ -259,24 +259,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         heightCons.active = true;
                         widthCons.active = true;
                         
-                        if( buttonIndex == 8)
-                        {
-                            removeAllConstrains(dotButton);
-                            // Add . BUtton Constraints
-                            let topCons = NSLayoutConstraint(item: dotButton, attribute: .Top, relatedBy: .Equal, toItem: QCharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing);
-                            
-                            let rightCons = NSLayoutConstraint(item: dotButton, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1.0, constant: -spacing );
-                            
-                            let heightCons = NSLayoutConstraint(item: dotButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
-                            
-                            let leftCons = NSLayoutConstraint(item: dotButton, attribute: .Leading, relatedBy: .Equal, toItem: characterButton, attribute: .Trailing, multiplier: 1.0, constant: spacing)
-                            
-                            dotButton.translatesAutoresizingMaskIntoConstraints = false;
-                            topCons.active = true;
-                            leftCons.active = true;
-                            heightCons.active = true;
-                            rightCons.active = true;
-                        }
+//                        if( buttonIndex == 8)
+//                        {
+//                            removeAllConstrains(dotButton);
+//                            // Add . BUtton Constraints
+//                            let topCons = NSLayoutConstraint(item: dotButton, attribute: .Top, relatedBy: .Equal, toItem: QCharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing);
+//                            
+//                            let rightCons = NSLayoutConstraint(item: dotButton, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1.0, constant: -spacing );
+//                            
+//                            let heightCons = NSLayoutConstraint(item: dotButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
+//                            
+//                            let leftCons = NSLayoutConstraint(item: dotButton, attribute: .Leading, relatedBy: .Equal, toItem: characterButton, attribute: .Trailing, multiplier: 1.0, constant: spacing)
+//                            
+//                            dotButton.translatesAutoresizingMaskIntoConstraints = false;
+//                            topCons.active = true;
+//                            leftCons.active = true;
+//                            heightCons.active = true;
+//                            rightCons.active = true;
+//                        }
                         
                         //dotButton = KeyButton(frame: CGRectMake(spacing * 10.5 + keyWidth * 9.5, spacing * 4 + keyHeight * 3, keyWidth / 2 - spacing / 2, keyHeight))
                     }
@@ -341,14 +341,38 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         heightCons.active = true;
                         widthCons.active = true;
                         
-                        if(  buttonIndex == 6 )
+                        // Constraints for Dot Button
+                        if( buttonIndex == 6)
                         {
+                            removeAllConstrains(dotButton);
+                            // Add Dot Button Constraints
+                            let topCons = NSLayoutConstraint(item: dotButton, attribute: .Top, relatedBy: .Equal, toItem: ACharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing)
+                            
+//                            let rightCons = NSLayoutConstraint(item: dotButton, attribute: .Trailing, relatedBy: .Equal, toItem: deleteButton, attribute: .Trailing, multiplier: 1.0, constant: spacing)
+                            
+                            let widthCons = NSLayoutConstraint(item: dotButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyWidth)
+                            
+                            let heightCons = NSLayoutConstraint(item: dotButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
+                            
+                            let leftCons = NSLayoutConstraint(item: dotButton, attribute: .Leading, relatedBy: .Equal, toItem: characterButton, attribute: .Trailing, multiplier: 1.0, constant: spacing)
+                            
+                            dotButton.translatesAutoresizingMaskIntoConstraints = false;
+                            topCons.active = true;
+                            leftCons.active = true;
+                            heightCons.active = true;
+                            widthCons.active = true;
+//                            rightCons.active = true;
+                        }
+
+                        // Constraints for Delete Button
+//                        if(  buttonIndex == 7 )
+//                        {
                             // Add Constraint for Delete Button
                             removeAllConstrains(deleteButton);
                             
                             let topConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Top, relatedBy: .Equal, toItem: ACharBtn, attribute: .Bottom, multiplier: 1.0, constant: spacing);
                             
-                            let leftConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Leading, relatedBy: .Equal, toItem: characterButton, attribute: .Trailing, multiplier: 1.0, constant: spacing );
+                            let leftConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Leading, relatedBy: .Equal, toItem: dotButton, attribute: .Trailing, multiplier: 1.0, constant: spacing );
                             
                             let heightConsShiftBtn = NSLayoutConstraint(item: deleteButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
                             
@@ -359,7 +383,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                             leftConsShiftBtn.active = true;
                             heightConsShiftBtn.active = true;
                             rightConsShiftBtn.active = true;
-                        }
+//                        }
                     }
                     
                 }
