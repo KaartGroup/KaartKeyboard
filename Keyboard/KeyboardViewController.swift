@@ -75,6 +75,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     private var returnButton: KeyButton!
     private var currentLanguageLabel: UILabel!
     private var oopButton: KeyButton!
+    private var nnpButton: KeyButton!
     
     // Number Buttons
     private var numpadButton: KeyButton!
@@ -474,7 +475,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let topConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .Top, relatedBy: .Equal, toItem: shiftButton, attribute: .Bottom, multiplier: 1.0, constant: spacing);
         
-        let leftConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .Leading, relatedBy: .Equal, toItem: uupButton, attribute: .Trailing, multiplier: 1.0, constant: spacing );
+        let leftConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .Leading, relatedBy: .Equal, toItem: nnpButton, attribute: .Trailing, multiplier: 1.0, constant: spacing);
         
         let heightConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
         
@@ -487,17 +488,34 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsOOPButton.active = true
         widthConsOOPButton.active = true
         
+        //Add Constraints for nnpButton
+        removeAllConstrains(nnpButton)
+        
+        let topConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .Top, relatedBy: .Equal, toItem: shiftButton, attribute: .Bottom, multiplier: 1.0, constant: spacing);
+        
+        let leftConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .Leading, relatedBy: .Equal, toItem: spaceButton, attribute: .Trailing, multiplier: 1.0, constant: spacing);
+        
+        let heightConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
+        
+        let widthConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyWidth)
+        
+        nnpButton.translatesAutoresizingMaskIntoConstraints = false;
+        
+        topConsNNPButton.active = true
+        leftConsNNPButton.active = true
+        heightConsNNPButton.active = true
+        widthConsNNPButton.active = true
         
         // Add Constraints for Space Button
         removeAllConstrains(spaceButton);
         
         let topConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Top, relatedBy: .Equal, toItem: shiftButton, attribute: .Bottom, multiplier: 1.0, constant: spacing);
         
-        let leftConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Leading, relatedBy: .Equal, toItem: oopButton, attribute: .Trailing, multiplier: 1.0, constant: spacing );
+        let leftConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Leading, relatedBy: .Equal, toItem: uupButton, attribute: .Trailing, multiplier: 1.0, constant: spacing );
         
         let heightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyWidth * 2.5)
+        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: keyWidth * 2)
         
         spaceButton.translatesAutoresizingMaskIntoConstraints = false;
         
@@ -683,6 +701,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addIipButton()
         addUupButton()
         addOopButton()
+        addNnpButton()
         addSpaceButton()
         addReturnButton()
         addPredictiveTextScrollView()
@@ -702,7 +721,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             item: nextKeyboardButton,
             attribute: .Leading,
             relatedBy: .Equal,
-            toItem: spaceButton,
+            toItem: oopButton,
             attribute: .Trailing,
             multiplier: 1.0,
             constant: spacing)
@@ -1013,6 +1032,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         proxy.insertText("ó")
     }
     
+    func nnpButtonPressed(sender: KeyButton) {
+        proxy.insertText("ń")
+    }
+    
     // When the numpadButton is pressed
     func numpadButtonPressed(sender: KeyButton){
         proxy.insertText(sender.currentTitle!)
@@ -1167,6 +1190,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDotButton()
         addEepButton()
         addIipButton()
+        addNnpButton()
     }
     
     private func addPredictiveTextScrollView() {
@@ -1237,7 +1261,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         oopButton.addTarget(self, action: #selector(KeyboardViewController.oopButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(oopButton)
     }
-    
+ 
+    private func addNnpButton() {
+        nnpButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
+        nnpButton.setTitle("ń", forState: .Normal)
+        nnpButton.addTarget(self, action: #selector(KeyboardViewController.nnpButtonPressed(_:)), forControlEvents: .TouchUpInside)
+        self.view.addSubview(nnpButton)
+    }
+   
     private func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRectMake(keyWidth * 7.5 + spacing * 8.5, keyHeight * 5.0 + spacing * 6.0, keyWidth / 2, keyHeight))
         nextKeyboardButton.setTitle("\u{0001F310}", forState: .Normal)
