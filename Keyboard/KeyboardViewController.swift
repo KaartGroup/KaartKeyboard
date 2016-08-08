@@ -139,12 +139,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     switch shiftMode {
                     case .Off:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercaseString
-                        characterButton.secondaryLabel.text = " "
-                        characterButton.tertiaryLabel.text = " "
+                        tabButton.setTitle("á", forState: .Normal)
+                        eepButton.setTitle("é", forState: .Normal)
+                        iipButton.setTitle("í", forState: .Normal)
+                        uupButton.setTitle("ú", forState: .Normal)
+                        nnpButton.setTitle("ń", forState: .Normal)
+                        oopButton.setTitle("ó", forState: .Normal)
+//                        characterButton.secondaryLabel.text = " "
+//                        characterButton.tertiaryLabel.text = " "
                     case .On, .Caps:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercaseString
-                        characterButton.secondaryLabel.text = " "
-                        characterButton.tertiaryLabel.text = " "
+                        tabButton.setTitle("Á", forState: .Normal)
+                        eepButton.setTitle("É", forState: .Normal)
+                        iipButton.setTitle("Í", forState: .Normal)
+                        uupButton.setTitle("Ú", forState: .Normal)
+                        nnpButton.setTitle("Ń", forState: .Normal)
+                        oopButton.setTitle("Ó", forState: .Normal)
+//                        characterButton.secondaryLabel.text = " "
+//                        characterButton.tertiaryLabel.text = " "
                     }
                 
                 }
@@ -1012,28 +1024,34 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // Input the character "ñ" instead of tab
     func aapButtonPressed(sender: KeyButton) {
-        proxy.insertText("á")
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
     }
     
     func eepButtonPressed(sender: KeyButton){
-        proxy.insertText("é")
-    }
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
+        }
     
     func iipButtonPressed(sender: KeyButton){
-        proxy.insertText("í")
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
     }
     
     func uupButtonPressed(sender: KeyButton){
-        proxy.insertText("ú")
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
     }
     
     // Input the character ""
     func oopButtonPressed(sender: KeyButton) {
-        proxy.insertText("ó")
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
     }
     
     func nnpButtonPressed(sender: KeyButton) {
-        proxy.insertText("ń")
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .Off
     }
     
     // When the numpadButton is pressed
@@ -1221,14 +1239,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     private func addAapButton() {
         tabButton = KeyButton(frame: CGRectMake(spacing, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        tabButton.setTitle("á", forState: .Normal)
+        tabButton.setTitle("Á", forState: .Normal)
         tabButton.addTarget(self, action: #selector(KeyboardViewController.aapButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(tabButton)
     }
     
     private func addEepButton() {
         eepButton = KeyButton(frame: CGRectMake(spacing * 2 + keyWidth, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        eepButton.setTitle("é", forState: .Normal)
+        eepButton.setTitle("É", forState: .Normal)
         eepButton.addTarget(self, action: #selector(KeyboardViewController.eepButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(eepButton)
     }
@@ -1243,28 +1261,28 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     private func addIipButton() {
         iipButton = KeyButton(frame: CGRectMake(keyWidth * 2 + spacing * 3, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        iipButton.setTitle("í", forState: .Normal)
+        iipButton.setTitle("Í", forState: .Normal)
         iipButton.addTarget(self, action: #selector(KeyboardViewController.iipButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(iipButton)
     }
     
     private func addUupButton() {
         uupButton = KeyButton(frame: CGRectMake(keyWidth * 3 + spacing * 4, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        uupButton.setTitle("ú", forState: .Normal)
+        uupButton.setTitle("Ú", forState: .Normal)
         uupButton.addTarget(self, action: #selector(KeyboardViewController.uupButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(uupButton)
     }
     
     private func addOopButton() {
         oopButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        oopButton.setTitle("ó", forState: .Normal)
+        oopButton.setTitle("Ó", forState: .Normal)
         oopButton.addTarget(self, action: #selector(KeyboardViewController.oopButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(oopButton)
     }
  
     private func addNnpButton() {
         nnpButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        nnpButton.setTitle("ń", forState: .Normal)
+        nnpButton.setTitle("Ń", forState: .Normal)
         nnpButton.addTarget(self, action: #selector(KeyboardViewController.nnpButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(nnpButton)
     }
