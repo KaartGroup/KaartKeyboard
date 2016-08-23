@@ -21,8 +21,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         ["z", "x", "c", "v", "b", "n", "m"]
     ]
     
-    private let shortWord = ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
-    
+    private var shortWord = ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
+
+//    func getShortWordArr() -> AnyObject {
+//        let userDefaults : NSUserDefaults = NSUserDefaults.standardUserDefaults()
+//
+//        if ((userDefaults.objectForKey("SHORT_WORD_ARR")) != nil){
+//            return userDefaults.objectForKey("SHORT_WORD_ARR")!
+//        }else{
+//            return ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
+//        }
+//    }
+
+
     lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
     
     lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
@@ -717,7 +728,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addSpaceButton()
         addReturnButton()
         addPredictiveTextScrollView()
-        
+
+        shortWordTxtFld.hidden = true
+
         self.requestSupplementaryLexiconWithCompletion { (lexObj) in
             self.lexicon = lexObj;
         }
@@ -800,6 +813,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         addCharacterButtons()
        setUpHeightConstraint()
+        updateshortWordTxtFldFrameOnRotareDevice()
     }
     
     func setUpHeightConstraint()
@@ -860,15 +874,27 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     //
     func deleteButtonPressed(sender: KeyButton) {
-//        switch proxy.documentContextBeforeInput {
-//        case let s where s?.hasSuffix("    ") == true: // Cursor in front of tab, so delete tab.
-//            for _ in 0..<4 { // TODO: Update to use tab setting.
-//                proxy.deleteBackward()
-//            }
-//        default:
+
+        if shortWordTxtFld.hidden == true {
+            //        switch proxy.documentContextBeforeInput {
+            //        case let s where s?.hasSuffix("    ") == true: // Cursor in front of tab, so delete tab.
+            //            for _ in 0..<4 { // TODO: Update to use tab setting.
+            //                proxy.deleteBackward()
+            //            }
+            //        default:
             proxy.deleteBackward()
-//        }
-        updateSuggestions()
+            //        }
+            updateSuggestions()
+
+        }else{
+
+            var tempStr : NSString = shortWordTxtFld.text!
+            if shortWordTxtFld.text?.isEmpty == false  {
+                tempStr = tempStr.substringToIndex(tempStr.length - 1)
+                shortWordTxtFld.text = tempStr as String
+            }
+        }
+
     }
     
     var longPressStoped:Bool = false;
@@ -923,7 +949,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
             
             timer.invalidate();
-            var longPressTime = NSTimer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
+            let longPressTime = NSTimer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
             
             NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
             break
@@ -941,7 +967,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButtonTimer?.invalidate()
         deleteButtonTimer = nil
         
-        var longPressTime = NSTimer(timeInterval: 0.3, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
+        let longPressTime = NSTimer(timeInterval: 0.3, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
         
         NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
     }
@@ -960,7 +986,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 deleteButtonTimer!.tolerance = 0.01
                 NSRunLoop.mainRunLoop().addTimer(deleteButtonTimer!, forMode: NSDefaultRunLoopMode)
                 
-                var longPressTime = NSTimer(timeInterval: 0.4, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)), userInfo: nil, repeats: false);
+                let longPressTime = NSTimer(timeInterval: 0.4, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)), userInfo: nil, repeats: false);
                 
                 NSRunLoop.mainRunLoop().addTimer(longPressTime, forMode: NSDefaultRunLoopMode)
             }
@@ -1012,61 +1038,112 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func spaceButtonPressed(sender: KeyButton) {
+
+        let charStr : String = " "
+
+        if updateShortField(charStr) == true{
+            return
+        }
+
         for suffix in languageProvider.autocapitalizeAfter {
             if proxy.documentContextBeforeInput!.hasSuffix(suffix) {
                 shiftMode = .On
             }
         }
         shiftMode = .On
-        proxy.insertText(" ")
+        proxy.insertText(charStr)
         updateSuggestions()
     }
     
     // Input the character "ñ" instead of tab
     func aapButtonPressed(sender: KeyButton) {
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
     }
     
     func eepButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
-        }
+    }
     
     func iipButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
     }
     
     func uupButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
     }
     
     // Input the character ""
     func oopButtonPressed(sender: KeyButton) {
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
     }
     
     func nnpButtonPressed(sender: KeyButton) {
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         shiftMode = .Off
     }
     
     // When the numpadButton is pressed
     func numpadButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
     }
     
     // When the shortWordButton is pressed
     func shortWordButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(sender.currentTitle!)
         proxy.insertText(" ")
     }
     
     // When the dotButton is pressed
     func dotButtonPressed(sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
         proxy.insertText(".")
     }
     
@@ -1122,23 +1199,40 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func returnButtonPressed(sender: KeyButton) {
-        proxy.insertText("\n")
+
+        let senderStr : String = "\n"
+
+        if updateShortField(senderStr) == true{
+            return
+        }
+
+        proxy.insertText(senderStr)
         shiftMode = .On
         updateSuggestions()
+
     }
     
     // MARK: CharacterButtonDelegate methods
     
     func handlePressForCharacterButton(button: CharacterButton) {
+
+        var charStr : String = ""
+
         switch shiftMode {
         case .Off:
-            proxy.insertText(button.primaryCharacter.lowercaseString)
+            charStr = button.primaryCharacter.lowercaseString
         case .On:
-            proxy.insertText(button.primaryCharacter.uppercaseString)
+            charStr = button.primaryCharacter.uppercaseString
             shiftMode = .Off
         case .Caps:
-            proxy.insertText(button.primaryCharacter.uppercaseString)
+            charStr = button.primaryCharacter.uppercaseString
         }
+
+        if updateShortField(charStr) == true{
+            return
+        }
+
+        proxy.insertText(charStr)
         updateSuggestions()
     }
     
@@ -1209,6 +1303,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addEepButton()
         addIipButton()
         addNnpButton()
+
     }
     
     private func addPredictiveTextScrollView() {
@@ -1349,6 +1444,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     private func addShortWordButton(){
+
+        let userDefaults : NSUserDefaults = NSUserDefaults.standardUserDefaults()
+
+        if ((userDefaults.objectForKey("SHORT_WORD_ARR")) != nil){
+            shortWord = userDefaults.objectForKey("SHORT_WORD_ARR")! as! [String]
+        }
+
         for index in 1...7{
             shortWordButton = KeyButton(frame: CGRectMake(spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), 0.0, wordKeyWidth, keyHeight))
             shortWordButton.setTitle(shortWord[index-1], forState: .Normal)
@@ -1361,10 +1463,127 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), forState: .Normal)
             shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.blackColor()), forState: .Selected)
             shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), forControlEvents: .TouchUpInside)
+
+            let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressShortWord(_:)))
+            gesture.minimumPressDuration = 0.4
+            shortWordButton.addGestureRecognizer(gesture)
+
             self.view.addSubview(shortWordButton)
             arrayOfShortWordButton.append(shortWordButton);
         }
     }
+
+    // MARK: Short Word method
+
+    var selectedShortWordBtn :UIButton = UIButton.init()
+
+    var shortWordTxtFld : UITextField = UITextField.init()
+
+    var doneBtn:KeyButton = KeyButton.init(frame: CGRectMake(0, 0, 50, 50))
+
+    func doneSelect(btn:UIButton){
+
+        let newStr : String = (shortWordTxtFld.text?.stringByTrimmingCharactersInSet(
+            NSCharacterSet.whitespaceAndNewlineCharacterSet()
+            ))!
+
+        if newStr.isEmpty == false {
+
+            let oldTitle : String = (selectedShortWordBtn.titleLabel?.text)!
+
+            let tempArr : NSMutableArray = NSMutableArray.init(array:shortWord)
+
+            if tempArr.containsObject(oldTitle){
+                let index : NSInteger = tempArr.indexOfObject(oldTitle)
+                tempArr.replaceObjectAtIndex(index, withObject: newStr)
+
+                shortWord = NSArray.init(array: tempArr) as! [String]
+
+                let defaults : NSUserDefaults = NSUserDefaults.standardUserDefaults()
+                defaults.setObject(shortWord, forKey: "SHORT_WORD_ARR")
+                defaults.synchronize()
+            }
+
+            selectedShortWordBtn.setTitle(newStr, forState: .Normal)
+            shortWordTxtFld.hidden = true
+            doneBtn.hidden = true
+            predictiveTextScrollView.hidden = false
+
+            selectedShortWordBtn.layer.borderWidth = 0.0
+            selectedShortWordBtn.layer.borderColor = UIColor.clearColor().CGColor
+
+        }
+
+    }
+
+    func updateShortField(senderStr : String) -> Bool {
+        if shortWordTxtFld.hidden == false {
+            var tmepStr : NSString = shortWordTxtFld.text!
+            tmepStr = tmepStr.stringByAppendingString(senderStr)
+            shortWordTxtFld.text = tmepStr as String
+            return true
+        }else{
+            return false
+        }
+    }
+
+    func longPressShortWord(gesture:UIGestureRecognizer)  {
+
+        if gesture.state == .Ended  {
+
+            selectedShortWordBtn.layer.borderWidth = 0.0
+            selectedShortWordBtn.layer.borderColor = UIColor.clearColor().CGColor
+
+            predictiveTextScrollView.hidden = true
+
+            selectedShortWordBtn = gesture.view as! UIButton
+            selectedShortWordBtn.layer.borderWidth = 3.0
+            selectedShortWordBtn.layer.borderColor = UIColor.whiteColor().CGColor
+            var tempRct: CGRect = predictiveTextScrollView.frame
+
+            tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
+
+            tempRct.origin.x =  spacing
+
+            shortWordTxtFld.removeFromSuperview()
+
+            shortWordTxtFld = UITextField.init(frame: tempRct)
+
+            self.shortWordTxtFld.backgroundColor = UIColor.lightGrayColor()
+            self.view.addSubview(self.shortWordTxtFld)
+            self.view.bringSubviewToFront(self.shortWordTxtFld)
+
+
+            tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
+
+            tempRct.size.width = keyWidth
+
+            doneBtn.removeFromSuperview()
+            doneBtn = KeyButton.init(frame: tempRct)
+
+            doneBtn.setTitle("Done", forState: .Normal)
+            doneBtn.setBackgroundImage(UIImage.fromColor(UIColor.whiteColor()), forState: .Normal)
+
+            doneBtn.addTarget(self, action: #selector(self.doneSelect(_:)), forControlEvents: .TouchUpInside)
+    
+            doneBtn.backgroundColor = UIColor.grayColor()
+            self.view.addSubview(doneBtn)
+        }
+    }
+
+    func updateshortWordTxtFldFrameOnRotareDevice() {
+        var tempRct: CGRect = predictiveTextScrollView.frame
+
+        tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
+        tempRct.origin.x =  spacing
+        shortWordTxtFld.frame = tempRct
+
+        tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
+        tempRct.size.width = keyWidth
+        doneBtn.frame = tempRct
+
+    }
+
     private func addNumpadButton()
     {
         for index in 1...10{
