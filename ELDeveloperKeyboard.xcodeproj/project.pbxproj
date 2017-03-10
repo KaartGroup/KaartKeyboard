@@ -288,10 +288,12 @@
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
 						DevelopmentTeam = 2STHX823T6;
+						LastSwiftMigration = 0800;
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
 						DevelopmentTeam = 2STHX823T6;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -477,6 +479,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -493,6 +496,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
@@ -515,6 +519,7 @@
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -532,6 +537,7 @@
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};

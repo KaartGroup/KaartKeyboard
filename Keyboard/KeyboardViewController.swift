@@ -3,7 +3,7 @@
 //  Keyboard
 //
 //  Created by Kari Kraam on 2016-04-20.
-//  Copyright (c) 2016 Kaart Group, LLC. All rights reserved.
+//  Copyright (c) 2017 Kaart Group, LLC. All rights reserved.
 //
 
 import Foundation
@@ -154,8 +154,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         eepButton.setTitle("é", forState: .Normal)
                         iipButton.setTitle("í", forState: .Normal)
                         uupButton.setTitle("ú", forState: .Normal)
-                        nnpButton.setTitle("ń", forState: .Normal)
-                        oopButton.setTitle("ó", forState: .Normal)
+                        nnpButton.setTitle("-", forState: .Normal)
+                        oopButton.setTitle("'", forState: .Normal)
 //                        characterButton.secondaryLabel.text = " "
 //                        characterButton.tertiaryLabel.text = " "
                     case .On, .Caps:
@@ -164,8 +164,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         eepButton.setTitle("É", forState: .Normal)
                         iipButton.setTitle("Í", forState: .Normal)
                         uupButton.setTitle("Ú", forState: .Normal)
-                        nnpButton.setTitle("Ń", forState: .Normal)
-                        oopButton.setTitle("Ó", forState: .Normal)
+                        nnpButton.setTitle("-", forState: .Normal)
+                        oopButton.setTitle("'", forState: .Normal)
 //                        characterButton.secondaryLabel.text = " "
 //                        characterButton.tertiaryLabel.text = " "
                     }
@@ -1370,14 +1370,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     private func addOopButton() {
         oopButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        oopButton.setTitle("Ó", forState: .Normal)
+        oopButton.setTitle("'", forState: .Normal)
         oopButton.addTarget(self, action: #selector(KeyboardViewController.oopButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(oopButton)
     }
  
     private func addNnpButton() {
         nnpButton = KeyButton(frame: CGRectMake(keyWidth * 4 + spacing * 5, keyHeight * 5.0 + spacing * 6.0, keyWidth, keyHeight))
-        nnpButton.setTitle("Ń", forState: .Normal)
+        nnpButton.setTitle("-", forState: .Normal)
         nnpButton.addTarget(self, action: #selector(KeyboardViewController.nnpButtonPressed(_:)), forControlEvents: .TouchUpInside)
         self.view.addSubview(nnpButton)
     }

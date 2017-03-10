@@ -61,8 +61,8 @@ class SwipeView: UIView {
             for i in 2..<points.count {
                 // Interpolate gradient and calculate line width.
                 let percentage = CGFloat(i) / CGFloat(points.count)
-                CGContextSetRGBStrokeColor(context, (41.0 + (67.0 - 41.0) * percentage)/255, (10.0 + (116.0 - 10.0) * percentage)/255, (199.0 + (224.0 - 199.0) * percentage)/255, 1.0)
-                CGContextSetLineWidth(context, pow(percentage, 0.5) * 4.0)
+                CGContextSetRGBStrokeColor(context!, (41.0 + (67.0 - 41.0) * percentage)/255, (10.0 + (116.0 - 10.0) * percentage)/255, (199.0 + (224.0 - 199.0) * percentage)/255, 1.0)
+                CGContextSetLineWidth(context!, pow(percentage, 0.5) * 4.0)
 
                 // Three points needed for quadratic bezier smoothing.
                 let currentPoint = points[i]
@@ -74,9 +74,9 @@ class SwipeView: UIView {
                 let midPoint2 = currentPoint.midPoint(previousPoint1)
             
                 // Draw bezier.
-                CGContextMoveToPoint(context, midPoint1.x, midPoint1.y)
-                CGContextAddQuadCurveToPoint(context, previousPoint1.x, previousPoint1.y, midPoint2.x, midPoint2.y)
-                CGContextStrokePath(context)
+                CGContextMoveToPoint(context!, midPoint1.x, midPoint1.y)
+                CGContextAddQuadCurveToPoint(context!, previousPoint1.x, previousPoint1.y, midPoint2.x, midPoint2.y)
+                CGContextStrokePath(context!)
             }
         }
     }
@@ -95,7 +95,7 @@ class SwipeView: UIView {
         clear()
     }
 
-    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
+    override func touchesCancelled(touches: Set<UITouch>, withEvent event: UIEvent?) {
         clear()
     }
 
