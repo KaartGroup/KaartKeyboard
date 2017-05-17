@@ -13,7 +13,6 @@
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
 		076EF5AA1965046D009A561C /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
-		076EF5D91965061C009A561C /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		076EF5DC1965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex */; };
 		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
 		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
@@ -30,6 +29,13 @@
 		07D5B820196622350046B202 /* WeightedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D5B81F196622350046B202 /* WeightedString.swift */; };
 		07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */; };
 		07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F620891979705D006C4C86 /* SwipeView.swift */; };
+		261472851ECCB62F00F1B57C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472831ECCB62F00F1B57C /* CoreData.framework */; };
+		261472861ECCB62F00F1B57C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472841ECCB62F00F1B57C /* CoreFoundation.framework */; };
+		2614728A1ECCB67800F1B57C /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472871ECCB67800F1B57C /* CoreText.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		2614728B1ECCB67800F1B57C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472881ECCB67800F1B57C /* Foundation.framework */; };
+		2614728C1ECCB67800F1B57C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472891ECCB67800F1B57C /* UIKit.framework */; };
+		2661F61A1ECA09BA006A0EEB /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
+		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63604CE81CCB00240066CD65 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -91,6 +97,12 @@
 		07D5B81F196622350046B202 /* WeightedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeightedString.swift; sourceTree = "<group>"; };
 		07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TouchDelegatingView.swift; sourceTree = "<group>"; };
 		07F620891979705D006C4C86 /* SwipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
+		261472811ECCB52000F1B57C /* ELDeveloperKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ELDeveloperKeyboard.entitlements; sourceTree = "<group>"; };
+		261472831ECCB62F00F1B57C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		261472841ECCB62F00F1B57C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -99,6 +111,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2614728A1ECCB67800F1B57C /* CoreText.framework in Frameworks */,
+				2614728B1ECCB67800F1B57C /* Foundation.framework in Frameworks */,
+				2614728C1ECCB67800F1B57C /* UIKit.framework in Frameworks */,
+				261472851ECCB62F00F1B57C /* CoreData.framework in Frameworks */,
+				261472861ECCB62F00F1B57C /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +159,7 @@
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
 				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
+				261472821ECCB62F00F1B57C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -157,6 +175,7 @@
 		076EF58A19650431009A561C /* ELDeveloperKeyboard */ = {
 			isa = PBXGroup;
 			children = (
+				261472811ECCB52000F1B57C /* ELDeveloperKeyboard.entitlements */,
 				076EF58D19650431009A561C /* AppDelegate.swift */,
 				076EF5A91965046D009A561C /* ELViewController.swift */,
 				076EF58F19650431009A561C /* Images.xcassets */,
@@ -234,6 +253,18 @@
 			path = Suggestion;
 			sourceTree = "<group>";
 		};
+		261472821ECCB62F00F1B57C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				261472871ECCB67800F1B57C /* CoreText.framework */,
+				261472881ECCB67800F1B57C /* Foundation.framework */,
+				261472891ECCB67800F1B57C /* UIKit.framework */,
+				261472831ECCB62F00F1B57C /* CoreData.framework */,
+				261472841ECCB62F00F1B57C /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -282,18 +313,26 @@
 			attributes = {
 				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Eric Lin";
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
 						DevelopmentTeam = 2STHX823T6;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0830;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+							com.apple.DataProtection = {
+								enabled = 0;
+							};
+						};
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
 						DevelopmentTeam = 2STHX823T6;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0830;
 					};
 				};
 			};
@@ -352,6 +391,7 @@
 				076EF5F019650BFA009A561C /* CircularArray.swift in Sources */,
 				076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */,
 				076EF5F819650F00009A561C /* README.md in Sources */,
+				2661F61A1ECA09BA006A0EEB /* ELViewController.swift in Sources */,
 				072711351967691600A896D1 /* SuggestionButton.swift in Sources */,
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
 				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
@@ -359,10 +399,10 @@
 				076EF5ED19650BD3009A561C /* UIImageFromCALayer.swift in Sources */,
 				074DC95A197ACA22000B913B /* CGPointExtensions.swift in Sources */,
 				07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */,
+				2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */,
 				07D5B820196622350046B202 /* WeightedString.swift in Sources */,
 				076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */,
 				076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */,
-				076EF5D91965061C009A561C /* KeyboardViewController.swift in Sources */,
 				076EF5F219650C79009A561C /* KeyButton.swift in Sources */,
 				07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */,
 				076EF5F419650C90009A561C /* CharacterButton.swift in Sources */,
@@ -399,8 +439,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -409,6 +451,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -427,6 +470,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				tes = "";
 			};
 			name = Debug;
 		};
@@ -443,8 +487,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -452,6 +498,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -461,8 +508,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				METAL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+				tes = "";
 			};
 			name = Release;
 		};
@@ -471,6 +520,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
@@ -479,7 +529,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -488,6 +539,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
@@ -496,7 +548,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -519,7 +572,7 @@
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -537,7 +590,7 @@
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

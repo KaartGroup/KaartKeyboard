@@ -18,7 +18,7 @@ protocol SuggestionButtonDelegate: class {
     
         - parameter button: The SuggestionButton that was pressed.
     */
-    func handlePressForSuggestionButton(button: SuggestionButton)
+    func handlePressForSuggestionButton(_ button: SuggestionButton)
 }
 
 class SuggestionButton: UIButton {
@@ -29,7 +29,7 @@ class SuggestionButton: UIButton {
     
     var title: String {
         didSet {
-            setTitle(title, forState: .Normal)
+            setTitle(title, for: UIControlState())
         }
     }
     
@@ -41,13 +41,13 @@ class SuggestionButton: UIButton {
         
         super.init(frame: frame)
         
-        setTitle(title, forState: .Normal)
+        setTitle(title, for: UIControlState())
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
-        titleLabel?.textAlignment = .Center
-        setTitleColor(UIColor.blackColor(), forState: .Normal)
-        setTitleColor(UIColor.darkGrayColor(), forState: .Highlighted)
+        titleLabel?.textAlignment = .center
+        setTitleColor(UIColor.black, for: UIControlState())
+        setTitleColor(UIColor.darkGray, for: .highlighted)
         titleLabel?.sizeToFit()
-        addTarget(self, action: #selector(SuggestionButton.buttonPressed(_:)), forControlEvents: .TouchUpInside)
+        addTarget(self, action: #selector(SuggestionButton.buttonPressed(_:)), for: .touchUpInside)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -56,7 +56,7 @@ class SuggestionButton: UIButton {
 
     // MARK: Event handlers
     
-    func buttonPressed(button: SuggestionButton) {
+    func buttonPressed(_ button: SuggestionButton) {
         delegate?.handlePressForSuggestionButton(self)
     }
 }

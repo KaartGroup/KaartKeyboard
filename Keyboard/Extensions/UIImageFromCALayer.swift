@@ -18,7 +18,7 @@ extension CALayer {
     */
     func UIImageFromCALayer() -> UIImage {
         UIGraphicsBeginImageContextWithOptions(frame.size, true, 0)
-        renderInContext(UIGraphicsGetCurrentContext()!)
+        render(in: UIGraphicsGetCurrentContext()!)
         let outputImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return outputImage!
@@ -26,12 +26,12 @@ extension CALayer {
 }
 
 extension UIImage {
-    static func fromColor(color: UIColor) -> UIImage {
+    static func fromColor(_ color: UIColor) -> UIImage {
         let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
         UIGraphicsBeginImageContext(rect.size)
         let context = UIGraphicsGetCurrentContext()
-        CGContextSetFillColorWithColor(context!, color.CGColor)
-        CGContextFillRect(context!, rect)
+        context!.setFillColor(color.cgColor)
+        context!.fill(rect)
         let img = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return img!

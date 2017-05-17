@@ -19,14 +19,14 @@ protocol SuggestionProvider {
     
         - returns: An array of autosuggest suggestions.
     */
-    func suggestionsForPrefix(prefix: String) -> [String]
+    func suggestionsForPrefix(_ prefix: String) -> [String]
     
     /**
         Loads autosuggest terms.
     
         - parameter weightedStrings: An array of WeightedStrings representing autosuggest terms and their relative frequencies.
     */
-    func loadWeightedStrings(weightedStrings: [WeightedString])
+    func loadWeightedStrings(_ weightedStrings: [WeightedString])
     
     /**
         Clears previously loaded autosuggest terms.

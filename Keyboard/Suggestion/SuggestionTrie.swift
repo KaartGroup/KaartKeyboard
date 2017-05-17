@@ -15,7 +15,7 @@ class SuggestionTrie: SuggestionProvider {
     
     // MARK: Properties
 
-    private var root: SuggestionNode?
+    fileprivate var root: SuggestionNode?
     
     // MARK: Constructors
     
@@ -23,18 +23,18 @@ class SuggestionTrie: SuggestionProvider {
     
     // MARK: SuggestionProvider methods
 
-    func suggestionsForPrefix(prefix: String) -> [String] {
+    func suggestionsForPrefix(_ prefix: String) -> [String] {
         if let node = searchForNodeMatchingPrefix(prefix, rootNode: root) {
             var weightedSuggestions = [WeightedString]()
             findSuggestionsForNode(node.equalKid, suggestions: &weightedSuggestions)
             return weightedSuggestions
-                .sort { $0.weight >= $1.weight }
+                .sorted { $0.weight >= $1.weight }
                 .map { $0.term }
         }
         return []
     }
     
-    func loadWeightedStrings(weightedStrings: [WeightedString]) {
+    func loadWeightedStrings(_ weightedStrings: [WeightedString]) {
         for ws in weightedStrings {
             insertString(ws.term, weight: ws.weight)
         }
@@ -46,7 +46,7 @@ class SuggestionTrie: SuggestionProvider {
     
     // MARK: Helper Methods
     
-    private func insertString(s: String, weight: Int) {
+    fileprivate func insertString(_ s: String, weight: Int) {
         if let node = searchForNodeMatchingPrefix(s, rootNode: root) {
             node.isWordEnd = true
             node.weight = weight
@@ -55,7 +55,7 @@ class SuggestionTrie: SuggestionProvider {
         }
     }
 
-    private func insertString(s: String, charIndex: Int, weight: Int, inout node: SuggestionNode?) {
+    fileprivate func insertString(_ s: String, charIndex: Int, weight: Int, node: inout SuggestionNode?) {
         let charCount = s.characters.count
         if charCount > 0 {
             if node == nil {
@@ -76,7 +76,7 @@ class SuggestionTrie: SuggestionProvider {
         }
     }
     
-    private func searchForNodeMatchingPrefix(prefix: String, rootNode: SuggestionNode?) -> SuggestionNode? {
+    fileprivate func searchForNodeMatchingPrefix(_ prefix: String, rootNode: SuggestionNode?) -> SuggestionNode? {
         let charCount = prefix.characters.count
         if rootNode == nil || charCount == 0 {
             return nil
@@ -93,7 +93,7 @@ class SuggestionTrie: SuggestionProvider {
         }
     }
     
-    private func findSuggestionsForNode(node: SuggestionNode?, inout suggestions: [WeightedString]) {
+    fileprivate func findSuggestionsForNode(_ node: SuggestionNode?, suggestions: inout [WeightedString]) {
         if let n = node {
             if n.isWordEnd {
                 suggestions.append(WeightedString(term: n.term, weight: n.weight))
@@ -105,7 +105,7 @@ class SuggestionTrie: SuggestionProvider {
         }
     }
     
-    private func deleteNode(inout node: SuggestionNode?) {
+    fileprivate func deleteNode(_ node: inout SuggestionNode?) {
         if let n = node {
             deleteNode(&n.loKid)
             deleteNode(&n.equalKid)
@@ -117,7 +117,7 @@ class SuggestionTrie: SuggestionProvider {
     /**
         A SuggestionTrie node, representing a term.
     */
-    private class SuggestionNode {
+    fileprivate class SuggestionNode {
         
         // MARK: Properties
 

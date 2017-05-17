@@ -16,13 +16,13 @@ class SwipeView: UIView {
     
     // MARK: Constants
     
-    private let maxLength = CGFloat(300.0)
+    fileprivate let maxLength = CGFloat(300.0)
     
     // MARK: Properties
     
-    private lazy var points = [CGPoint]()
+    fileprivate lazy var points = [CGPoint]()
     
-    private var swipeLength: CGFloat {
+    fileprivate var swipeLength: CGFloat {
         get {
             if (points.count < 2) {
                 return 0
@@ -42,10 +42,10 @@ class SwipeView: UIView {
     // MARK: Constructors
     
     init(containerView: UIView, topOffset: CGFloat) {
-        super.init(frame: CGRectMake(0.0, topOffset, containerView.frame.width, containerView.frame.height - topOffset))
-        opaque = false
-        backgroundColor = UIColor.clearColor()
-        userInteractionEnabled = false
+        super.init(frame: CGRect(x: 0.0, y: topOffset, width: containerView.frame.width, height: containerView.frame.height - topOffset))
+        isOpaque = false
+        backgroundColor = UIColor.clear
+        isUserInteractionEnabled = false
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -54,15 +54,15 @@ class SwipeView: UIView {
     
     // MARK: Overridden methods
     
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         if points.count >= 3 {
             let context = UIGraphicsGetCurrentContext()
             
             for i in 2..<points.count {
                 // Interpolate gradient and calculate line width.
                 let percentage = CGFloat(i) / CGFloat(points.count)
-                CGContextSetRGBStrokeColor(context!, (41.0 + (67.0 - 41.0) * percentage)/255, (10.0 + (116.0 - 10.0) * percentage)/255, (199.0 + (224.0 - 199.0) * percentage)/255, 1.0)
-                CGContextSetLineWidth(context!, pow(percentage, 0.5) * 4.0)
+                context!.setStrokeColor(red: (41.0 + (67.0 - 41.0) * percentage)/255, green: (10.0 + (116.0 - 10.0) * percentage)/255, blue: (199.0 + (224.0 - 199.0) * percentage)/255, alpha: 1.0)
+                context!.setLineWidth(pow(percentage, 0.5) * 4.0)
 
                 // Three points needed for quadratic bezier smoothing.
                 let currentPoint = points[i]
@@ -74,45 +74,46 @@ class SwipeView: UIView {
                 let midPoint2 = currentPoint.midPoint(previousPoint1)
             
                 // Draw bezier.
-                CGContextMoveToPoint(context!, midPoint1.x, midPoint1.y)
-                CGContextAddQuadCurveToPoint(context!, previousPoint1.x, previousPoint1.y, midPoint2.x, midPoint2.y)
-                CGContextStrokePath(context!)
+                context!.move(to: CGPoint(x: midPoint1.x, y: midPoint1.y))
+                //CGContextAddQuadCurveToPoint(context!, previousPoint1.x, previousPoint1.y, midPoint2.x, midPoint2.y)
+                context!.addQuadCurve(to: CGPoint(x:previousPoint1.x, y:previousPoint1.y), control: CGPoint(x:midPoint2.x, y:midPoint2.y))
+                context!.strokePath()
             }
         }
     }
     
     // MARK: Overridden methods
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         drawTouch(touches.first)
     }
     
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         drawTouch(touches.first)
     }
     
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         clear()
     }
 
-    override func touchesCancelled(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         clear()
     }
 
     // MARK: Helper methods
     
-    private func clear() {
-        points.removeAll(keepCapacity: false)
+    fileprivate func clear() {
+        points.removeAll(keepingCapacity: false)
         setNeedsDisplay()
     }
     
-    private func drawTouch(touch: UITouch?) {
+    fileprivate func drawTouch(_ touch: UITouch?) {
         if let touch = touch {
-            let touchPoint = touch.locationInView(self)
-            let point = CGPointMake(touchPoint.x, touchPoint.y)
+            let touchPoint = touch.location(in: self)
+            let point = CGPoint(x: touchPoint.x, y: touchPoint.y)
             points.append(point)
             while swipeLength > maxLength {
-                points.removeAtIndex(0)
+                points.remove(at: 0)
             }
             setNeedsDisplay()
         }

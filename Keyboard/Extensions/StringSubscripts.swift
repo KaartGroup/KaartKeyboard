@@ -16,8 +16,8 @@ extension String {
         return String(Array(self.characters)[i])
     }
     subscript(range: Range<Int>) -> String {
-        let start = startIndex.advancedBy(range.startIndex)
-        let end = startIndex.advancedBy(range.endIndex)
-        return substringWithRange(Range(start: start, end: end))
+        let start = characters.index(startIndex, offsetBy: range.lowerBound)
+        let end = characters.index(startIndex, offsetBy: range.upperBound)
+        return substring(with: (start ..< end))
     }
 }

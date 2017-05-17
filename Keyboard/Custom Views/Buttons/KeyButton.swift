@@ -21,28 +21,28 @@ class KeyButton: UIButton {
         super.init(frame: frame)
         
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: 20.0)
-        titleLabel?.textAlignment = .Center
-        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), forState: UIControlState.Normal)
+        titleLabel?.textAlignment = .center
+        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: UIControlState())
         titleLabel?.sizeToFit()
         
         let gradient = CAGradientLayer()
         gradient.frame = bounds
-        let gradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).CGColor, UIColor(red: 254.0/255, green: 254.0/255, blue: 254.0/255, alpha: 1.0).CGColor]
+        let gradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).cgColor, UIColor(red: 254.0/255, green: 254.0/255, blue: 254.0/255, alpha: 1.0).cgColor]
         gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
         //setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
         
-        setBackgroundImage(UIImage.fromColor(UIColor.whiteColor()), forState:.Normal  )
+        setBackgroundImage(UIImage.fromColor(UIColor.white), for:UIControlState()  )
         let selectedGradient = CAGradientLayer()
         selectedGradient.frame = bounds
-        let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).CGColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).CGColor]
+        let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).cgColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).cgColor]
         selectedGradient.colors = selectedGradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-        setBackgroundImage(selectedGradient.UIImageFromCALayer(), forState: .Selected)
+        setBackgroundImage(selectedGradient.UIImageFromCALayer(), for: .selected)
         
         layer.masksToBounds = true
         layer.cornerRadius = 3.0
         
-        contentVerticalAlignment = .Center
-        contentHorizontalAlignment = .Center
+        contentVerticalAlignment = .center
+        contentHorizontalAlignment = .center
         contentEdgeInsets = UIEdgeInsets(top: 0, left: 1, bottom: 0, right: 0)
     }
     

@@ -13,25 +13,27 @@ import UIKit
 class ELViewController: UIViewController {
     
     var textView: UITextView!
+    var alert: UIAlertController!
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override init(nibName nibNameOrNil: String!, bundle nibBundleOrNil: NSBundle!) {
+    override init(nibName nibNameOrNil: String!, bundle nibBundleOrNil: Bundle!) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
     override func loadView() {
         super.loadView()
-        self.view = UIView(frame: UIScreen.mainScreen().applicationFrame)
+        self.view = UIView(frame: UIScreen.main.applicationFrame)
         self.textView = UITextView(frame: self.view.frame)
-        self.textView.scrollEnabled = true
-        self.textView.userInteractionEnabled = true
+        self.textView.isScrollEnabled = true
+        self.textView.isUserInteractionEnabled = true
         self.view.addSubview(self.textView)
+            
         if #available(iOS 9.0, *) {
             //self.textView.inputAssistantItem.leadingBarButtonGroups = []
-            self.textView.autocorrectionType = .Default;
+            self.textView.autocorrectionType = .default;
         } else {
             // Fallback on earlier versions
         }
@@ -48,7 +50,7 @@ class ELViewController: UIViewController {
         self.textView.becomeFirstResponder()
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.becomeFirstResponder()
     }

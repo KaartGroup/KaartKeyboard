@@ -22,7 +22,7 @@ protocol TouchForwardingViewDelegate: class {
     
         - returns: A UIView that the delegate decides should receive the touch event.
     */
-    func viewForHitTestWithPoint(point: CGPoint, event: UIEvent?, superResult: UIView?) -> UIView?
+    func viewForHitTestWithPoint(_ point: CGPoint, event: UIEvent?, superResult: UIView?) -> UIView?
 }
 
 class TouchForwardingView: UIView {
@@ -44,8 +44,8 @@ class TouchForwardingView: UIView {
     
     // MARK: Overridden methods
     
-    override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
-        let result = super.hitTest(point, withEvent: event)
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let result = super.hitTest(point, with: event)
         if let unwrappedDelegate = delegate {
             return unwrappedDelegate.viewForHitTestWithPoint(point, event: event, superResult: result)
         }
