@@ -10,7 +10,9 @@ An iOS custom keyboard extension written in Swift designed to make it much, much
 ## Accented Character Usage
 1. Long press on base character to show accented characters
 2. To make the accented characters go away either:
+   
    a. Click on one of the accented characters
+   
    b. Double click the base character
 
 ## Accented Character Notes
