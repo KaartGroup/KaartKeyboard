@@ -1660,7 +1660,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
         }
     
-    func longPressShortWord(_ gesture:UIGestureRecognizer)  {
+    func longPressShortWord(_ gesture:UILongPressGestureRecognizer)  {
 
             selectedShortWordBtn.layer.borderWidth = 0.0
             selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
@@ -1691,6 +1691,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.shortWordTxtFld = UITextField.init(frame: tempRct)
         
         self.shortWordTxtFld.backgroundColor = UIColor.lightGray
+        
+        let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.pasteShortWord(_:)))
+        gesture.minimumPressDuration = 0.4
+        self.shortWordTxtFld.addGestureRecognizer(gesture)
+        
         self.view.addSubview(shortWordTxtFld)
         self.view.bringSubview(toFront: self.shortWordTxtFld)
         
@@ -1710,6 +1715,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.view.addSubview(doneBtn)
         
         shiftMode = .on
+    }
+    
+    func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
+        if gesture.state == .began{
+            self.shortWordTxtFld.text?.append(UIPasteboard.general.string!)
+        }
     }
 
     var doneBtn:KeyButton = KeyButton.init(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
