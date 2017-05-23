@@ -13,7 +13,6 @@ import UIKit
 class ELViewController: UIViewController {
     
     var textView: UITextView!
-    var alert: UIAlertController!
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -48,7 +47,7 @@ class ELViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.textView.becomeFirstResponder()
-    }
+            }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

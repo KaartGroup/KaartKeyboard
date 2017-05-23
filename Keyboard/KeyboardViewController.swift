@@ -21,7 +21,62 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         ["z", "x", "c", "v", "b", "n", "m"]
     ]
     
+    fileprivate let alphaSecondaryCharacters=["à", "á", "â", "ä", "æ", "ã", "å", "ā"]
+    
+    fileprivate var alphaSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let charlieSecondaryCharacters=["ç", "ć", "č"]
+    
+    fileprivate var charlieSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let echoSecondaryCharacters=["è", "é", "ê", "ë", "ē", "ė", "ę"]
+    
+    fileprivate var echoSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let indiaSecondaryCharacters=["î", "ï", "í", "ī", "į", "ì"]
+    
+    fileprivate var indiaSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let limaSecondaryCharacters=["ł"]
+    
+    fileprivate var limaSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let novemberSecondaryCharacters=["ñ", "ń"]
+    
+    fileprivate var novemberSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let oscarSecondaryCharacters=["ô", "ö", "ò", "ó", "œ", "ø", "ō", "õ"]
+    
+    fileprivate var oscarSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let sierraSecondaryCharacters=["ß", "ś", "š"]
+    
+    fileprivate var sierraSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let uniformSecondaryCharacters=["û", "ü", "ù", "ú", "ū"]
+    
+    fileprivate var uniformSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let yankeeSecondaryCharacters=["ÿ"]
+    
+    fileprivate var yankeeSecondaryButtons :[KeyButton] = []
+    
+    fileprivate let zuluSecondaryCharacters=["ž", "ź", "ż"]
+    
+    fileprivate var zuluSecondaryButtons :[KeyButton] = []
+    
     fileprivate var shortWord = ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
+    
+    fileprivate var hasSecondary : [String] = ["a","c", "e", "i", "l", "n", "o", "s", "u", "y", "z"]
+    
+    fileprivate var isSecondary:Bool = false
+    
+    fileprivate var secondaryChar:String = ""
+    
+    fileprivate var secondaryToShow : [KeyButton] = []
+    
+    fileprivate var charactersToUse : [String] = []
+
 
 //    func getShortWordArr() -> AnyObject {
 //        let userDefaults : NSUserDefaults = NSUserDefaults.standardUserDefaults()
@@ -172,8 +227,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 
                 }
             }
+            if isSecondary{
+                for secondary in secondaryToShow{
+                    switch shiftMode {
+                    case .off:
+                        secondary.titleLabel?.text = secondary.titleLabel?.text?.lowercased()
+                    case .on, .caps:
+                        secondary.titleLabel?.text = secondary.titleLabel?.text?.uppercased()
+                    }
+                }
+            }
         }
     }
+    
     
     //@IBOutlet var nextKeyboardButton: UIButton!
     //var heightConstraint: NSLayoutConstraint!
@@ -624,28 +690,35 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForShortWorld()
     {
-        for cons in arrayOfShortWordButton[0].constraints{
-            arrayOfShortWordButton[0].removeConstraint(cons);
+        var arrayToUse :[KeyButton] = []
+        if(isSecondary){
+            arrayToUse=secondaryToShow
+        }
+        else{
+            arrayToUse=arrayOfShortWordButton
+        }
+        for cons in arrayToUse[0].constraints{
+            arrayToUse[0].removeConstraint(cons);
         }
         
-        let topCons = NSLayoutConstraint(item: arrayOfShortWordButton[0], attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: 40 + spacing);
+        let topCons = NSLayoutConstraint(item: arrayToUse[0], attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: 40 + spacing);
         
-        let leftCons = NSLayoutConstraint(item: arrayOfShortWordButton[0], attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: spacing );
+        let leftCons = NSLayoutConstraint(item: arrayToUse[0], attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: spacing );
         
-        let heightCons = NSLayoutConstraint(item: arrayOfShortWordButton[0], attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+        let heightCons = NSLayoutConstraint(item: arrayToUse[0], attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthCons = NSLayoutConstraint(item: arrayOfShortWordButton[0], attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: wordKeyWidth)
+        let widthCons = NSLayoutConstraint(item: arrayToUse[0], attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: wordKeyWidth)
         
-        arrayOfShortWordButton[0].translatesAutoresizingMaskIntoConstraints = false
+        arrayToUse[0].translatesAutoresizingMaskIntoConstraints = false
         topCons.isActive = true;
         leftCons.isActive = true;
         heightCons.isActive = true;
         widthCons.isActive = true;
         
-        for  i in 1..<arrayOfShortWordButton.count
+        for  i in 1..<arrayToUse.count
         {
-            let previosBtn = arrayOfShortWordButton[i-1]
-            let shortWordButtonObj = arrayOfShortWordButton[i];
+            let previosBtn = arrayToUse[i-1]
+            let shortWordButtonObj = arrayToUse[i];
             
             for cons in shortWordButtonObj.constraints{
                 shortWordButtonObj.removeConstraint(cons);
@@ -868,7 +941,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         case .on:
             shiftMode = .off
         case .caps:
-            shiftMode = .off
+            shiftMode = .caps
         }
     }
     
@@ -1128,14 +1201,27 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // When the shortWordButton is pressed
     func shortWordButtonPressed(_ sender: KeyButton){
-
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
+        if !isSecondary{
+            if updateShortField((sender.titleLabel?.text)!) == true{
+                return
+            }
+            
+            proxy.insertText(sender.currentTitle! + " ")
         }
 
-        proxy.insertText(sender.currentTitle!)
-        proxy.insertText(" ")
+        else {
+            if updateShortField((sender.titleLabel?.text)!) == true{
+                return
+            }
+            isSecondary=false
+            proxy.insertText((sender.titleLabel?.text)!)
+            for item in secondaryToShow{
+                item.isHidden = true
+            }
+            self.addShortWordButton()
+        }
     }
+    
     
     // When the dotButton is pressed
     func dotButtonPressed(_ sender: KeyButton){
@@ -1406,7 +1492,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addCharacterButtons() {
         
-        
         for (_, row) in characterButtons.enumerated() {
             
             for (_, key) in row.enumerated() {
@@ -1435,22 +1520,97 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
             for (_, key) in row.enumerated() {
                 let characterButton = CharacterButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight), primaryCharacter: key.uppercased(), secondaryCharacter: " ", tertiaryCharacter: " ", delegate: self)
+                if (hasSecondary.contains(characterButton.primaryCharacter.lowercased())){
+                    let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressCharacterButton(_:)))
+                    gesture.minimumPressDuration = 0.3
+                    characterButton.addGestureRecognizer(gesture)
+
+                }
                 self.view.addSubview(characterButton)
                 characterButtons[rowIndex].append(characterButton)
                 x += keyWidth + spacing
-            }
+                }
             y += keyHeight + spacing
         }
     }
     
-    fileprivate func addShortWordButton(){
+    func longPressCharacterButton(_ gesture:UILongPressGestureRecognizer){
+        if(!isSecondary){
+            isSecondary=true
+            let button = gesture.view as? CharacterButton
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.doubleTapCharacterButton(_:)))
+            tap.numberOfTapsRequired = 2
+            button?.addGestureRecognizer(tap)
+            secondaryChar = (button?.primaryCharacter.lowercased())!
 
+            switch secondaryChar{
+            case "a":
+                charactersToUse = alphaSecondaryCharacters
+                secondaryToShow = alphaSecondaryButtons
+            case "c":
+                charactersToUse = charlieSecondaryCharacters
+                secondaryToShow = charlieSecondaryButtons
+            case "e":
+                charactersToUse = echoSecondaryCharacters
+                secondaryToShow = echoSecondaryButtons
+            case "i":
+                charactersToUse = indiaSecondaryCharacters
+                secondaryToShow = indiaSecondaryButtons
+            case "l":
+                charactersToUse = limaSecondaryCharacters
+                secondaryToShow = limaSecondaryButtons
+            case "n":
+                charactersToUse = novemberSecondaryCharacters
+                secondaryToShow = novemberSecondaryButtons
+            case "o":
+                charactersToUse = oscarSecondaryCharacters
+                secondaryToShow = oscarSecondaryButtons
+            case "s":
+                charactersToUse = sierraSecondaryCharacters
+                secondaryToShow = sierraSecondaryButtons
+            case "u":
+                charactersToUse = uniformSecondaryCharacters
+                secondaryToShow = uniformSecondaryButtons
+            case "y":
+                charactersToUse = yankeeSecondaryCharacters
+                secondaryToShow = yankeeSecondaryButtons
+            case "z":
+                charactersToUse = zuluSecondaryCharacters
+                secondaryToShow = zuluSecondaryButtons
+            default:
+                charactersToUse = []
+                secondaryToShow=[]
+            }
+
+            self.addShortWordButton()
+            for item in arrayOfShortWordButton{
+                item.isHidden = true
+            }
+        }
+    }
+    func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
+        if(isSecondary){
+            isSecondary=false
+
+            for item in secondaryToShow{
+                item.isHidden = true
+            }
+            for item in arrayOfShortWordButton{
+                item.isHidden = false
+            }
+        }
+    }
+    
+    
+    fileprivate func addShortWordButton(){
+        
+        if(!isSecondary){
         let userDefaults : UserDefaults = UserDefaults.standard
 
         if ((userDefaults.object(forKey: "SHORT_WORD_ARR")) != nil){
             shortWord = userDefaults.object(forKey: "SHORT_WORD_ARR")! as! [String]
         }
-
+        
         for index in 1...7{
             shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: 0.0, width: wordKeyWidth, height: keyHeight))
             shortWordButton.setTitle(shortWord[index-1], for: UIControlState())
@@ -1470,38 +1630,53 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
             self.view.addSubview(shortWordButton)
             arrayOfShortWordButton.append(shortWordButton);
+            }
         }
+        else{
+ 
+            for index in 1...charactersToUse.endIndex{
+                shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: 0.0, width: keyWidth, height: keyHeight))
+                shortWordButton.setTitle(charactersToUse[index-1], for: UIControlState())
+                
+                switch shiftMode {
+                case .off:
+                    shortWordButton.setTitle(charactersToUse[index-1].lowercased(), for: UIControlState())
+                case .on, .caps:
+                    shortWordButton.setTitle(charactersToUse[index-1].uppercased(), for: UIControlState())
+                }
+
+                shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), for: UIControlState())
+                let gradient = CAGradientLayer()
+                gradient.frame = self.shortWordButton.bounds
+                let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
+                gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
+                
+                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), for: UIControlState())
+                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
+                shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
+                self.view.addSubview(shortWordButton)
+                secondaryToShow.append(shortWordButton)
+                }
+            }
+        }
+    
+    func longPressShortWord(_ gesture:UIGestureRecognizer)  {
+
+            selectedShortWordBtn.layer.borderWidth = 0.0
+            selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
+
+            predictiveTextScrollView.isHidden = true
+
+            selectedShortWordBtn = gesture.view as! UIButton
+            selectedShortWordBtn.layer.borderWidth = 3.0
+            selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
+            addShortWordTxtFld()
     }
+
     var selectedShortWordBtn :UIButton = UIButton.init()
     
     var shortWordTxtFld : UITextField = UITextField.init()
     
-//    var editMenu : UIMenuController = UIMenuController.init()
-//    
-//    let copyItem = UIMenuItem(title: "Copy", action: #selector(UIResponderStandardEditActions.copy(_:)))
-    
-//        func longPressShortWordTxtFld(_ gesture:UIGestureRecognizer){
-//        self.editMenu = UIMenuController.init()
-//        //        if let selectedRange = self.shortWordTxtFld.selectedTextRange {
-//        //
-//        //            let cursorPosition = self.shortWordTxtFld.offset(from: self.shortWordTxtFld.beginningOfDocument, to: selectedRange.start)
-//        //
-//        //            editMenu.setTargetRect(CGRect(selectedRange.end), in: self.view)
-//        //        }
-//        
-//        //            if let pasteString = UIPasteboard.general.string{
-//        //                self.shortWordTxtFld.insertText(pasteString)
-//        //            }
-//        
-//        //        let copyItem = UIMenuItem(title: "Copy", action: #selector(UIPasteboard.copy))
-//        editMenu.menuItems = [copyItem]
-//        ////            editMenu.menuItems?.insert(copyItem, at: 0)
-//        editMenu.update()
-//        
-//        editMenu.setMenuVisible(true, animated: true)
-//        
-//    }
-
     // MARK: Short Word method
     
     func addShortWordTxtFld(){
@@ -1514,12 +1689,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.shortWordTxtFld.removeFromSuperview()
         
         self.shortWordTxtFld = UITextField.init(frame: tempRct)
-        
-//        shortWordTxtFld.becomeFirstResponder()
-        
-//        let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressShortWordTxtFld(_:)))
-//        gesture.minimumPressDuration = 0.4
-//        shortWordTxtFld.addGestureRecognizer(gesture)
         
         self.shortWordTxtFld.backgroundColor = UIColor.lightGray
         self.view.addSubview(shortWordTxtFld)
@@ -1540,35 +1709,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         doneBtn.backgroundColor = UIColor.gray
         self.view.addSubview(doneBtn)
         
-//        copyBtn.removeFromSuperview()
-//        copyBtn = KeyButton.init(frame: tempRct)
-//        
-//        copyBtn.setTitle("Copy", for: UIControlState())
-//        copyBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: UIControlState())
-//        
-//        copyBtn.addTarget(self, action: #selector(self.doneSelect(_:)), for: .touchUpInside)
-//        
-//        copyBtn.backgroundColor = UIColor.gray
-//        self.view.addSubview(copyBtn)
-//
-//        pasteBtn.removeFromSuperview()
-//        pasteBtn = KeyButton.init(frame: tempRct)
-//        
-//        pasteBtn.setTitle("Paste", for: UIControlState())
-//        pasteBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: UIControlState())
-//        
-//        pasteBtn.addTarget(self, action: #selector(self.doneSelect(_:)), for: .touchUpInside)
-//        
-//        pasteBtn.backgroundColor = UIColor.gray
-//        self.view.addSubview(pasteBtn)
-
-        
+        shiftMode = .on
     }
 
-//    var copyBtn:KeyButton = KeyButton.init(frame: CGRect(x:0, y: 0, width: 50, height: 50))
-//    
-//    var pasteBtn:KeyButton = KeyButton.init(frame: CGRect(x:0, y: 0, width: 50, height: 50))
-//
     var doneBtn:KeyButton = KeyButton.init(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 
     func doneSelect(_ btn:UIButton){
@@ -1601,8 +1744,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         doneBtn.isHidden = true
         predictiveTextScrollView.isHidden = false
         
-        //            shortWordTxtFld.resignFirstResponder()
+        
         shortWordTxtFld.removeFromSuperview()
+        
+        self.removeFromParentViewController()
+        self.viewDidLoad()
+        self.initializeKeyboard()
+        self.updateViewConstraints()
         
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
@@ -1610,32 +1758,26 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
 
     func updateShortField(_ senderStr : String) -> Bool {
-        if shortWordTxtFld.isHidden == false {
-            var tmepStr : NSString = shortWordTxtFld.text! as NSString
-            tmepStr = tmepStr.appending(senderStr) as NSString
-            shortWordTxtFld.text = tmepStr as String
-            return true
-        }else{
-            return false
-        }
+            if shortWordTxtFld.isHidden == false {
+                var tmepStr : NSString = shortWordTxtFld.text! as NSString
+                tmepStr = tmepStr.appending(senderStr) as NSString
+                shortWordTxtFld.text = tmepStr as String
+                if isSecondary{
+                    isSecondary=false
+                    for item in secondaryToShow{
+                        item.isHidden=true
+                    }
+                    for item in arrayOfShortWordButton{
+                        item.isHidden=false
+                    }
+                }
+                return true
+            }else{
+                return false
+            }
     }
 
-    func longPressShortWord(_ gesture:UIGestureRecognizer)  {
-
-        if gesture.state == .ended  {
-
-            selectedShortWordBtn.layer.borderWidth = 0.0
-            selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
-
-            predictiveTextScrollView.isHidden = true
-
-            selectedShortWordBtn = gesture.view as! UIButton
-            selectedShortWordBtn.layer.borderWidth = 3.0
-            selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
-            addShortWordTxtFld()
-        }
-    }
-
+   
     func updateshortWordTxtFldFrameOnRotareDevice() {
         var tempRct: CGRect = predictiveTextScrollView.frame
 

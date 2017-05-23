@@ -103,6 +103,7 @@
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		261472BA1ECD0DEC00F1B57C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements"; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -155,7 +156,6 @@
 			children = (
 				63604CE81CCB00240066CD65 /* Launch Screen.storyboard */,
 				076EF58A19650431009A561C /* ELDeveloperKeyboard */,
-				076EF5D51965061C009A561C /* Keyboard */,
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
 				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
@@ -175,6 +175,7 @@
 		076EF58A19650431009A561C /* ELDeveloperKeyboard */ = {
 			isa = PBXGroup;
 			children = (
+				076EF5D51965061C009A561C /* Keyboard */,
 				261472811ECCB52000F1B57C /* ELDeveloperKeyboard.entitlements */,
 				076EF58D19650431009A561C /* AppDelegate.swift */,
 				076EF5A91965046D009A561C /* ELViewController.swift */,
@@ -195,6 +196,7 @@
 		076EF5D51965061C009A561C /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
+				261472BA1ECD0DEC00F1B57C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements */,
 				076EF5D81965061C009A561C /* KeyboardViewController.swift */,
 				07D5B81F196622350046B202 /* WeightedString.swift */,
 				072711361967692900A896D1 /* Custom Views */,
@@ -204,7 +206,8 @@
 				076EF5EE19650BE8009A561C /* Helper */,
 				076EF5D61965061C009A561C /* Supporting Files */,
 			);
-			path = Keyboard;
+			name = Keyboard;
+			path = ../Keyboard;
 			sourceTree = "<group>";
 		};
 		076EF5D61965061C009A561C /* Supporting Files */ = {
@@ -318,7 +321,7 @@
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
+						DevelopmentTeam = 7JU794H348;
 						LastSwiftMigration = 0830;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -331,8 +334,13 @@
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
+						DevelopmentTeam = 7JU794H348;
 						LastSwiftMigration = 0830;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -523,9 +531,10 @@
 				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7JU794H348;
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
@@ -542,9 +551,10 @@
 				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7JU794H348;
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				STRIP_STYLE = "non-global";
@@ -557,8 +567,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Keyboard/Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7JU794H348;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -567,7 +579,7 @@
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard.Keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
@@ -580,13 +592,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Keyboard/Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7JU794H348;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = FreshLeaf.GoMapKeyboard.Keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard.Keyboard;
 				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
