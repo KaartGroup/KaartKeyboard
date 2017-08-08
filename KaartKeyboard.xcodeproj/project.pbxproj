@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,7 +13,6 @@
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
 		076EF5AA1965046D009A561C /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
-		076EF5DC1965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex */; };
 		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
 		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
 		076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E719650727009A561C /* SwiftLanguageProvider.swift */; };
@@ -29,24 +28,14 @@
 		07D5B820196622350046B202 /* WeightedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D5B81F196622350046B202 /* WeightedString.swift */; };
 		07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */; };
 		07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F620891979705D006C4C86 /* SwipeView.swift */; };
-		261472851ECCB62F00F1B57C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472831ECCB62F00F1B57C /* CoreData.framework */; };
-		261472861ECCB62F00F1B57C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472841ECCB62F00F1B57C /* CoreFoundation.framework */; };
-		2614728A1ECCB67800F1B57C /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472871ECCB67800F1B57C /* CoreText.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		2614728B1ECCB67800F1B57C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472881ECCB67800F1B57C /* Foundation.framework */; };
-		2614728C1ECCB67800F1B57C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 261472891ECCB67800F1B57C /* UIKit.framework */; };
+		262FE1D91F210089007023BF /* KaartKeyboard.Keyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.Keyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		263F4CBF1EE5C7210085F9DB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58C19650431009A561C /* Info.plist */; };
 		2661F61A1ECA09BA006A0EEB /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63604CE81CCB00240066CD65 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		076EF5DA1965061C009A561C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 076EF58019650431009A561C /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 076EF5D31965061C009A561C;
-			remoteInfo = Keyboard;
-		};
 		076EF5DD1965061C009A561C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 076EF58019650431009A561C /* Project object */;
@@ -57,13 +46,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		076EF5BD196505E2009A561C /* Embed App Extensions */ = {
+		262FE1DA1F210089007023BF /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				076EF5DC1965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex in Embed App Extensions */,
+				262FE1D91F210089007023BF /* KaartKeyboard.Keyboard.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -74,12 +63,12 @@
 		072711341967691600A896D1 /* SuggestionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionButton.swift; sourceTree = "<group>"; };
 		0727113819684B4700A896D1 /* PredictiveTextScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PredictiveTextScrollView.swift; sourceTree = "<group>"; };
 		074DC959197ACA22000B913B /* CGPointExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPointExtensions.swift; sourceTree = "<group>"; };
-		076EF58819650431009A561C /* ELDeveloperKeyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ELDeveloperKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		076EF58819650431009A561C /* KaartKeyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KaartKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF58C19650431009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF58D19650431009A561C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		076EF58F19650431009A561C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		076EF5A91965046D009A561C /* ELViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ELViewController.swift; sourceTree = "<group>"; };
-		076EF5D41965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Eric-Lin.ELDeveloperKeyboard.Keyboard.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		076EF5D41965061C009A561C /* KaartKeyboard.Keyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KaartKeyboard.Keyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF5D71965061C009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF5D81965061C009A561C /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		076EF5E3196506A6009A561C /* LanguageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageProvider.swift; sourceTree = "<group>"; };
@@ -97,13 +86,11 @@
 		07D5B81F196622350046B202 /* WeightedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeightedString.swift; sourceTree = "<group>"; };
 		07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TouchDelegatingView.swift; sourceTree = "<group>"; };
 		07F620891979705D006C4C86 /* SwipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
-		261472811ECCB52000F1B57C /* ELDeveloperKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ELDeveloperKeyboard.entitlements; sourceTree = "<group>"; };
 		261472831ECCB62F00F1B57C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		261472841ECCB62F00F1B57C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		261472BA1ECD0DEC00F1B57C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements"; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,11 +99,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2614728A1ECCB67800F1B57C /* CoreText.framework in Frameworks */,
-				2614728B1ECCB67800F1B57C /* Foundation.framework in Frameworks */,
-				2614728C1ECCB67800F1B57C /* UIKit.framework in Frameworks */,
-				261472851ECCB62F00F1B57C /* CoreData.framework in Frameworks */,
-				261472861ECCB62F00F1B57C /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,7 +137,8 @@
 			isa = PBXGroup;
 			children = (
 				63604CE81CCB00240066CD65 /* Launch Screen.storyboard */,
-				076EF58A19650431009A561C /* ELDeveloperKeyboard */,
+				076EF58A19650431009A561C /* KaartKeyboard */,
+				076EF5D51965061C009A561C /* Keyboard */,
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
 				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
@@ -166,22 +149,21 @@
 		076EF58919650431009A561C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				076EF58819650431009A561C /* ELDeveloperKeyboard.app */,
-				076EF5D41965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex */,
+				076EF58819650431009A561C /* KaartKeyboard.app */,
+				076EF5D41965061C009A561C /* KaartKeyboard.Keyboard.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		076EF58A19650431009A561C /* ELDeveloperKeyboard */ = {
+		076EF58A19650431009A561C /* KaartKeyboard */ = {
 			isa = PBXGroup;
 			children = (
-				076EF5D51965061C009A561C /* Keyboard */,
-				261472811ECCB52000F1B57C /* ELDeveloperKeyboard.entitlements */,
 				076EF58D19650431009A561C /* AppDelegate.swift */,
 				076EF5A91965046D009A561C /* ELViewController.swift */,
 				076EF58F19650431009A561C /* Images.xcassets */,
 				076EF58B19650431009A561C /* Supporting Files */,
 			);
+			name = KaartKeyboard;
 			path = ELDeveloperKeyboard;
 			sourceTree = "<group>";
 		};
@@ -196,7 +178,6 @@
 		076EF5D51965061C009A561C /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
-				261472BA1ECD0DEC00F1B57C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements */,
 				076EF5D81965061C009A561C /* KeyboardViewController.swift */,
 				07D5B81F196622350046B202 /* WeightedString.swift */,
 				072711361967692900A896D1 /* Custom Views */,
@@ -206,8 +187,7 @@
 				076EF5EE19650BE8009A561C /* Helper */,
 				076EF5D61965061C009A561C /* Supporting Files */,
 			);
-			name = Keyboard;
-			path = ../Keyboard;
+			path = Keyboard;
 			sourceTree = "<group>";
 		};
 		076EF5D61965061C009A561C /* Supporting Files */ = {
@@ -271,24 +251,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		076EF58719650431009A561C /* ELDeveloperKeyboard */ = {
+		076EF58719650431009A561C /* KaartKeyboard */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 076EF59F19650431009A561C /* Build configuration list for PBXNativeTarget "ELDeveloperKeyboard" */;
+			buildConfigurationList = 076EF59F19650431009A561C /* Build configuration list for PBXNativeTarget "KaartKeyboard" */;
 			buildPhases = (
 				076EF58419650431009A561C /* Sources */,
 				076EF58519650431009A561C /* Frameworks */,
 				076EF58619650431009A561C /* Resources */,
-				076EF5BD196505E2009A561C /* Embed App Extensions */,
+				262FE1DA1F210089007023BF /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				076EF5DB1965061C009A561C /* PBXTargetDependency */,
 				076EF5DE1965061C009A561C /* PBXTargetDependency */,
 			);
-			name = ELDeveloperKeyboard;
+			name = KaartKeyboard;
 			productName = ELDeveloperKeyboard;
-			productReference = 076EF58819650431009A561C /* ELDeveloperKeyboard.app */;
+			productReference = 076EF58819650431009A561C /* KaartKeyboard.app */;
 			productType = "com.apple.product-type.application";
 		};
 		076EF5D31965061C009A561C /* Keyboard */ = {
@@ -305,7 +284,7 @@
 			);
 			name = Keyboard;
 			productName = Keyboard;
-			productReference = 076EF5D41965061C009A561C /* Eric-Lin.ELDeveloperKeyboard.Keyboard.appex */;
+			productReference = 076EF5D41965061C009A561C /* KaartKeyboard.Keyboard.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -317,15 +296,16 @@
 				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0830;
-				ORGANIZATIONNAME = "Eric Lin";
+				ORGANIZATIONNAME = "Kaart Group";
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 7JU794H348;
+						DevelopmentTeam = 2STHX823T6;
 						LastSwiftMigration = 0830;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
-								enabled = 1;
+								enabled = 0;
 							};
 							com.apple.DataProtection = {
 								enabled = 0;
@@ -334,18 +314,18 @@
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 7JU794H348;
+						DevelopmentTeam = 2STHX823T6;
 						LastSwiftMigration = 0830;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
 				};
 			};
-			buildConfigurationList = 076EF58319650431009A561C /* Build configuration list for PBXProject "ELDeveloperKeyboard" */;
-			compatibilityVersion = "Xcode 3.2";
+			buildConfigurationList = 076EF58319650431009A561C /* Build configuration list for PBXProject "KaartKeyboard" */;
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -356,7 +336,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				076EF58719650431009A561C /* ELDeveloperKeyboard */,
+				076EF58719650431009A561C /* KaartKeyboard */,
 				076EF5D31965061C009A561C /* Keyboard */,
 			);
 		};
@@ -367,6 +347,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				263F4CBF1EE5C7210085F9DB /* Info.plist in Resources */,
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
 				0786C55D1968A92500E4E410 /* iOS Simulator Screenshot.png in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
@@ -421,11 +402,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		076EF5DB1965061C009A561C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 076EF5D31965061C009A561C /* Keyboard */;
-			targetProxy = 076EF5DA1965061C009A561C /* PBXContainerItemProxy */;
-		};
 		076EF5DE1965061C009A561C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 076EF5D31965061C009A561C /* Keyboard */;
@@ -453,8 +429,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -475,6 +453,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				METAL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -503,6 +482,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -515,6 +495,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				METAL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -526,17 +507,20 @@
 		076EF5A019650431009A561C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
+				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7JU794H348;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
+				PRODUCT_MODULE_NAME = KaartKeyboard;
+				PRODUCT_NAME = KaartKeyboard;
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -546,17 +530,20 @@
 		076EF5A119650431009A561C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_ENTITLEMENTS = ELDeveloperKeyboard/ELDeveloperKeyboard.entitlements;
+				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7JU794H348;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				INFOPLIST_FILE = ELDeveloperKeyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
+				PRODUCT_MODULE_NAME = KaartKeyboard;
+				PRODUCT_NAME = KaartKeyboard;
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -567,10 +554,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "Keyboard/Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7JU794H348;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -579,8 +565,8 @@
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard.Keyboard;
-				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard.Keyboard;
+				PRODUCT_NAME = KaartKeyboard.Keyboard;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -592,16 +578,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "Keyboard/Eric-Lin.ELDeveloperKeyboard.Keyboard.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7JU794H348;
+				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = GoMapKeyboard.Keyboard;
-				PRODUCT_NAME = "Eric-Lin.ELDeveloperKeyboard.$(TARGET_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard.Keyboard;
+				PRODUCT_NAME = KaartKeyboard.Keyboard;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 3.0;
@@ -611,7 +596,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		076EF58319650431009A561C /* Build configuration list for PBXProject "ELDeveloperKeyboard" */ = {
+		076EF58319650431009A561C /* Build configuration list for PBXProject "KaartKeyboard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				076EF59D19650431009A561C /* Debug */,
@@ -620,7 +605,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		076EF59F19650431009A561C /* Build configuration list for PBXNativeTarget "ELDeveloperKeyboard" */ = {
+		076EF59F19650431009A561C /* Build configuration list for PBXNativeTarget "KaartKeyboard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				076EF5A019650431009A561C /* Debug */,

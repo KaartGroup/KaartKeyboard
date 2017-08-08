@@ -140,8 +140,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var spaceButton: KeyButton!
     fileprivate var returnButton: KeyButton!
     fileprivate var currentLanguageLabel: UILabel!
-    fileprivate var oopButton: KeyButton!
-    fileprivate var nnpButton: KeyButton!
+//    fileprivate var oopButton: KeyButton!
+//    fileprivate var nnpButton: KeyButton!
     
     // Number Buttons
     fileprivate var numpadButton: KeyButton!
@@ -207,20 +207,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercased()
                         tabButton.setTitle("á", for: UIControlState())
                         eepButton.setTitle("é", for: UIControlState())
-                        iipButton.setTitle("í", for: UIControlState())
-                        uupButton.setTitle("ú", for: UIControlState())
-                        nnpButton.setTitle("-", for: UIControlState())
-                        oopButton.setTitle("'", for: UIControlState())
+                        iipButton.setTitle(":", for: UIControlState())
+                        uupButton.setTitle("_", for: UIControlState())
+//                        nnpButton.setTitle("-", for: UIControlState())
+//                        oopButton.setTitle("'", for: UIControlState())
 //                        characterButton.secondaryLabel.text = " "
 //                        characterButton.tertiaryLabel.text = " "
                     case .on, .caps:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercased()
                         tabButton.setTitle("Á", for: UIControlState())
                         eepButton.setTitle("É", for: UIControlState())
-                        iipButton.setTitle("Í", for: UIControlState())
-                        uupButton.setTitle("Ú", for: UIControlState())
-                        nnpButton.setTitle("-", for: UIControlState())
-                        oopButton.setTitle("'", for: UIControlState())
+                        iipButton.setTitle(":", for: UIControlState())
+                        uupButton.setTitle("_", for: UIControlState())
+//                        nnpButton.setTitle("-", for: UIControlState())
+//                        oopButton.setTitle("'", for: UIControlState())
 //                        characterButton.secondaryLabel.text = " "
 //                        characterButton.tertiaryLabel.text = " "
                     }
@@ -560,40 +560,40 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         widthConsUUPButton.isActive = true
 
         // Add Constraints for oopButton
-        removeAllConstrains(oopButton);
-        
-        let topConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .top, relatedBy: .equal, toItem: shiftButton, attribute: .bottom, multiplier: 1.0, constant: spacing);
-        
-        let leftConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .leading, relatedBy: .equal, toItem: nnpButton, attribute: .trailing, multiplier: 1.0, constant: spacing);
-        
-        let heightConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
-        
-        let widthConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
-        
-        oopButton.translatesAutoresizingMaskIntoConstraints = false;
-        
-        topConsOOPButton.isActive = true
-        leftConsOOPButton.isActive = true
-        heightConsOOPButton.isActive = true
-        widthConsOOPButton.isActive = true
+//        removeAllConstrains(oopButton);
+//        
+//        let topConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .top, relatedBy: .equal, toItem: shiftButton, attribute: .bottom, multiplier: 1.0, constant: spacing);
+//        
+//        let leftConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .leading, relatedBy: .equal, toItem: nnpButton, attribute: .trailing, multiplier: 1.0, constant: spacing);
+//        
+//        let heightConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+//        
+//        let widthConsOOPButton = NSLayoutConstraint(item: oopButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+//        
+//        oopButton.translatesAutoresizingMaskIntoConstraints = false;
+//        
+//        topConsOOPButton.isActive = true
+//        leftConsOOPButton.isActive = true
+//        heightConsOOPButton.isActive = true
+//        widthConsOOPButton.isActive = true
         
         //Add Constraints for nnpButton
-        removeAllConstrains(nnpButton)
-        
-        let topConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .top, relatedBy: .equal, toItem: shiftButton, attribute: .bottom, multiplier: 1.0, constant: spacing);
-        
-        let leftConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .leading, relatedBy: .equal, toItem: spaceButton, attribute: .trailing, multiplier: 1.0, constant: spacing);
-        
-        let heightConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
-        
-        let widthConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
-        
-        nnpButton.translatesAutoresizingMaskIntoConstraints = false;
-        
-        topConsNNPButton.isActive = true
-        leftConsNNPButton.isActive = true
-        heightConsNNPButton.isActive = true
-        widthConsNNPButton.isActive = true
+//        removeAllConstrains(nnpButton)
+//        
+//        let topConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .top, relatedBy: .equal, toItem: shiftButton, attribute: .bottom, multiplier: 1.0, constant: spacing);
+//        
+//        let leftConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .leading, relatedBy: .equal, toItem: spaceButton, attribute: .trailing, multiplier: 1.0, constant: spacing);
+//        
+//        let heightConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+//        
+//        let widthConsNNPButton = NSLayoutConstraint(item: nnpButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+//        
+//        nnpButton.translatesAutoresizingMaskIntoConstraints = false;
+//        
+//        topConsNNPButton.isActive = true
+//        leftConsNNPButton.isActive = true
+//        heightConsNNPButton.isActive = true
+//        widthConsNNPButton.isActive = true
         
         // Add Constraints for Space Button
         removeAllConstrains(spaceButton);
@@ -604,7 +604,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let heightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 2)
+        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 4)
         
         spaceButton.translatesAutoresizingMaskIntoConstraints = false;
         
@@ -796,8 +796,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addEepButton()
         addIipButton()
         addUupButton()
-        addOopButton()
-        addNnpButton()
+//        addOopButton()
+//        addNnpButton()
         addSpaceButton()
         addReturnButton()
         addPredictiveTextScrollView()
@@ -819,7 +819,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             item: nextKeyboardButton,
             attribute: .leading,
             relatedBy: .equal,
-            toItem: oopButton,
+            toItem: spaceButton,
             attribute: .trailing,
             multiplier: 1.0,
             constant: spacing)
@@ -1169,26 +1169,26 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     // Input the character ""
-    func oopButtonPressed(_ sender: KeyButton) {
-
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    func nnpButtonPressed(_ sender: KeyButton) {
-
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
+//    func oopButtonPressed(_ sender: KeyButton) {
+//
+//        if updateShortField((sender.titleLabel?.text)!) == true{
+//            return
+//        }
+//
+//        proxy.insertText(sender.currentTitle!)
+//        shiftMode = .off
+//    }
+//    
+//    func nnpButtonPressed(_ sender: KeyButton) {
+//
+//        if updateShortField((sender.titleLabel?.text)!) == true{
+//            return
+//        }
+//
+//        proxy.insertText(sender.currentTitle!)
+//        shiftMode = .off
+//    }
+//    
     // When the numpadButton is pressed
     func numpadButtonPressed(_ sender: KeyButton){
 
@@ -1377,7 +1377,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDeleteButton()
         addAapButton()
         addUupButton()
-        addOopButton()
+//        addOopButton()
         addNextKeyboardButton()
         addSpaceButton()
         addReturnButton()
@@ -1388,7 +1388,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDotButton()
         addEepButton()
         addIipButton()
-        addNnpButton()
+//        addNnpButton()
 
     }
     
@@ -1420,14 +1420,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addAapButton() {
         tabButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        tabButton.setTitle("Á", for: UIControlState())
+        tabButton.setTitle("'", for: UIControlState())
         tabButton.addTarget(self, action: #selector(KeyboardViewController.aapButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(tabButton)
     }
     
     fileprivate func addEepButton() {
         eepButton = KeyButton(frame: CGRect(x: spacing * 2 + keyWidth, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        eepButton.setTitle("É", for: UIControlState())
+        eepButton.setTitle("-", for: UIControlState())
         eepButton.addTarget(self, action: #selector(KeyboardViewController.eepButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(eepButton)
     }
@@ -1442,31 +1442,31 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addIipButton() {
         iipButton = KeyButton(frame: CGRect(x: keyWidth * 2 + spacing * 3, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        iipButton.setTitle("Í", for: UIControlState())
+        iipButton.setTitle(":", for: UIControlState())
         iipButton.addTarget(self, action: #selector(KeyboardViewController.iipButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(iipButton)
     }
     
     fileprivate func addUupButton() {
         uupButton = KeyButton(frame: CGRect(x: keyWidth * 3 + spacing * 4, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        uupButton.setTitle("Ú", for: UIControlState())
+        uupButton.setTitle("_", for: UIControlState())
         uupButton.addTarget(self, action: #selector(KeyboardViewController.uupButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(uupButton)
     }
     
-    fileprivate func addOopButton() {
-        oopButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        oopButton.setTitle("'", for: UIControlState())
-        oopButton.addTarget(self, action: #selector(KeyboardViewController.oopButtonPressed(_:)), for: .touchUpInside)
-        self.view.addSubview(oopButton)
-    }
+//    fileprivate func addOopButton() {
+//        oopButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
+//        oopButton.setTitle("'", for: UIControlState())
+//        oopButton.addTarget(self, action: #selector(KeyboardViewController.oopButtonPressed(_:)), for: .touchUpInside)
+//        self.view.addSubview(oopButton)
+//    }
  
-    fileprivate func addNnpButton() {
-        nnpButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
-        nnpButton.setTitle("-", for: UIControlState())
-        nnpButton.addTarget(self, action: #selector(KeyboardViewController.nnpButtonPressed(_:)), for: .touchUpInside)
-        self.view.addSubview(nnpButton)
-    }
+//    fileprivate func addNnpButton() {
+//        nnpButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth, height: keyHeight))
+//        nnpButton.setTitle("-", for: UIControlState())
+//        nnpButton.addTarget(self, action: #selector(KeyboardViewController.nnpButtonPressed(_:)), for: .touchUpInside)
+//        self.view.addSubview(nnpButton)
+//    }
    
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 7.5 + spacing * 8.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
