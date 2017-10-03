@@ -33,7 +33,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var echoSecondaryButtons :[KeyButton] = []
     
-    fileprivate let indiaSecondaryCharacters=["î", "ï", "í", "ī", "į", "ì"]
+    fileprivate let golfSecondaryCharacters=["ǧ"]
+    
+    fileprivate var golfsecondaryButtons :[KeyButton] = []
+
+    fileprivate let indiaSecondaryCharacters=["î", "ï", "í", "ī", "į", "ì", "ı", "İ"]
     
     fileprivate var indiaSecondaryButtons :[KeyButton] = []
     
@@ -49,7 +53,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var oscarSecondaryButtons :[KeyButton] = []
     
-    fileprivate let sierraSecondaryCharacters=["ß", "ś", "š"]
+    fileprivate let sierraSecondaryCharacters=["ß", "ś", "š", "ş"]
     
     fileprivate var sierraSecondaryButtons :[KeyButton] = []
     
@@ -67,9 +71,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var shortWord = ["Calle","Avenida","Callejón","Paseo","Jirón","Pasaje","Peatonal"]
     
-    fileprivate var hasSecondary : [String] = ["a","c", "e", "i", "l", "n", "o", "s", "u", "y", "z"]
+    fileprivate var hasSecondary : [String] = ["a","c", "e", "g", "i", "l", "n", "o", "s", "u", "y", "z"]
     
     fileprivate var isSecondary:Bool = false
+    
+    fileprivate var secondaryIsActive : CharacterButton!
+    
+    fileprivate var secondaryTap : UIGestureRecognizer!
     
     fileprivate var secondaryChar:String = ""
     
@@ -205,8 +213,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     switch shiftMode {
                     case .off:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercased()
-                        tabButton.setTitle("á", for: UIControlState())
-                        eepButton.setTitle("é", for: UIControlState())
+                        tabButton.setTitle("'", for: UIControlState())
+                        eepButton.setTitle("_", for: UIControlState())
                         iipButton.setTitle(":", for: UIControlState())
                         uupButton.setTitle("_", for: UIControlState())
 //                        nnpButton.setTitle("-", for: UIControlState())
@@ -215,8 +223,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //                        characterButton.tertiaryLabel.text = " "
                     case .on, .caps:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercased()
-                        tabButton.setTitle("Á", for: UIControlState())
-                        eepButton.setTitle("É", for: UIControlState())
+                        tabButton.setTitle("'", for: UIControlState())
+                        eepButton.setTitle("_", for: UIControlState())
                         iipButton.setTitle(":", for: UIControlState())
                         uupButton.setTitle("_", for: UIControlState())
 //                        nnpButton.setTitle("-", for: UIControlState())
@@ -1214,11 +1222,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 return
             }
             isSecondary=false
+            secondaryIsActive.removeGestureRecognizer(secondaryTap)
             proxy.insertText((sender.titleLabel?.text)!)
+            
             for item in secondaryToShow{
                 item.isHidden = true
             }
             self.addShortWordButton()
+            
+            
+            
+//                isSecondary=false
+//                
+//                for item in secondaryToShow{
+//                    item.isHidden = true
+//                }
+//                for item in arrayOfShortWordButton{
+//                    item.isHidden = false
+//                }
+
         }
     }
     
@@ -1542,6 +1564,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             tap.numberOfTapsRequired = 2
             button?.addGestureRecognizer(tap)
             secondaryChar = (button?.primaryCharacter.lowercased())!
+            secondaryIsActive = (button)!
+            secondaryTap = tap
 
             switch secondaryChar{
             case "a":
@@ -1553,6 +1577,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             case "e":
                 charactersToUse = echoSecondaryCharacters
                 secondaryToShow = echoSecondaryButtons
+            case "g":
+                charactersToUse = golfSecondaryCharacters
+                secondaryToShow = golfsecondaryButtons
             case "i":
                 charactersToUse = indiaSecondaryCharacters
                 secondaryToShow = indiaSecondaryButtons
@@ -1591,13 +1618,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
         if(isSecondary){
             isSecondary=false
+            
+//            let button = gesture.view as? CharacterButton
+//            let press : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressCharacterButton(_:)))
+//            press.minimumPressDuration = 0.3
+//            button?.addGestureRecognizer(press)
+//            button?.removeGestureRecognizer(gesture)
+            
+//            let button = gesture.view as? CharacterButton
+//            button?.removeGestureRecognizer(gesture)
+            
+            secondaryIsActive.removeGestureRecognizer(gesture)
 
             for item in secondaryToShow{
                 item.isHidden = true
             }
-            for item in arrayOfShortWordButton{
-                item.isHidden = false
-            }
+//            for item in arrayOfShortWordButton{
+//                item.isHidden = false
+//            }
+            self.addShortWordButton()
         }
     }
     

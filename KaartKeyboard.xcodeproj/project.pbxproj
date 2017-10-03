@@ -300,7 +300,6 @@
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
 						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -314,7 +313,6 @@
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = 2STHX823T6;
 						LastSwiftMigration = 0830;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
