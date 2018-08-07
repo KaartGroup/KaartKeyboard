@@ -24,12 +24,10 @@
 		076EF5F819650F00009A561C /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F719650F00009A561C /* README.md */; };
 		076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FA19650F24009A561C /* SuggestionProvider.swift */; };
 		076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FC19650FB5009A561C /* SuggestionTrie.swift */; };
-		0786C55D1968A92500E4E410 /* iOS Simulator Screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */; };
 		07D5B820196622350046B202 /* WeightedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D5B81F196622350046B202 /* WeightedString.swift */; };
 		07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */; };
 		07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F620891979705D006C4C86 /* SwipeView.swift */; };
 		262FE1D91F210089007023BF /* KaartKeyboard.KaartKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		265D78CC211A16570046FA5B /* kaart17_globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CB211A16560046FA5B /* kaart17_globe.png */; };
 		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
 		2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
@@ -83,7 +81,6 @@
 		076EF5F719650F00009A561C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		076EF5FA19650F24009A561C /* SuggestionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
 		076EF5FC19650FB5009A561C /* SuggestionTrie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionTrie.swift; sourceTree = "<group>"; };
-		0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iOS Simulator Screenshot.png"; sourceTree = "<group>"; };
 		07D5B81F196622350046B202 /* WeightedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeightedString.swift; sourceTree = "<group>"; };
 		07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TouchDelegatingView.swift; sourceTree = "<group>"; };
 		07F620891979705D006C4C86 /* SwipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
@@ -92,7 +89,6 @@
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		265D78CB211A16560046FA5B /* kaart17_globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kaart17_globe.png; sourceTree = "<group>"; };
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -144,8 +140,6 @@
 				076EF5D51965061C009A561C /* Keyboard */,
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
-				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
-				265D78CB211A16560046FA5B /* kaart17_globe.png */,
 				261472821ECCB62F00F1B57C /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -352,9 +346,7 @@
 			files = (
 				265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */,
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
-				0786C55D1968A92500E4E410 /* iOS Simulator Screenshot.png in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
-				265D78CC211A16570046FA5B /* kaart17_globe.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
