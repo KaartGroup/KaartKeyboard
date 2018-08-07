@@ -214,7 +214,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     case .off:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercased()
                         tabButton.setTitle("'", for: UIControlState())
-                        eepButton.setTitle("_", for: UIControlState())
+                        eepButton.setTitle("-", for: UIControlState())
                         iipButton.setTitle(":", for: UIControlState())
                         uupButton.setTitle("_", for: UIControlState())
 //                        nnpButton.setTitle("-", for: UIControlState())
@@ -224,7 +224,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     case .on, .caps:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercased()
                         tabButton.setTitle("'", for: UIControlState())
-                        eepButton.setTitle("_", for: UIControlState())
+                        eepButton.setTitle("-", for: UIControlState())
                         iipButton.setTitle(":", for: UIControlState())
                         uupButton.setTitle("_", for: UIControlState())
 //                        nnpButton.setTitle("-", for: UIControlState())
