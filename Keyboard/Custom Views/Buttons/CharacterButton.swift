@@ -1,9 +1,9 @@
 //
 //  CharacterButton.swift
-//  ELDeveloperKeyboard
+//  KaartKeyboard
 //
-//  Created by Eric Lin on 2014-07-02.
-//  Copyright (c) 2014 Eric Lin. All rights reserved.
+//  Created by Zack LaVergne on 5/17/2017.
+//  Copyright (c) 2017 Kaart Group. All rights reserved.
 //
 
 import Foundation
@@ -121,15 +121,15 @@ class CharacterButton: KeyButton {
     
     // MARK: Event handlers
     
-    func buttonPressed(_ sender: KeyButton) {
+    @objc func buttonPressed(_ sender: KeyButton) {
         delegate?.handlePressForCharacterButton(self)
     }
     
-    func buttonSwipedUp(_ swipeUpGestureRecognizer: UISwipeGestureRecognizer) {
+    @objc func buttonSwipedUp(_ swipeUpGestureRecognizer: UISwipeGestureRecognizer) {
         delegate?.handleSwipeUpForButton(self)
     }
     
-    func buttonSwipedDown(_ swipeDownGestureRecognizer: UISwipeGestureRecognizer) {
+    @objc func buttonSwipedDown(_ swipeDownGestureRecognizer: UISwipeGestureRecognizer) {
         delegate?.handleSwipeDownForButton(self)
     }
 }

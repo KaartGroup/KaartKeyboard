@@ -1,9 +1,9 @@
 //
 //  TouchForwardingView.swift
-//  ELDeveloperKeyboard
+//  KaartKeyboard
 //
-//  Created by Kari Kraam on 2016-04-25.
-//  Copyright (c) 2016 Kari Kraam. All rights reserved.
+//  Created by Zack LaVergne on 5/17/2017.
+//  Copyright (c) 2017 Kaart Group. All rights reserved.
 //
 
 import Foundation

@@ -1,9 +1,9 @@
 //
 //  KeyButton.swift
-//  ELDeveloperKeyboard
+//  KaartKeyboard
 //
-//  Created by Eric Lin on 2014-07-02.
-//  Copyright (c) 2014 Eric Lin. All rights reserved.
+//  Created by Zack LaVergne on 5/17/2017.
+//  Copyright (c) 2017 Kaart Group. All rights reserved.
 //
 
 import Foundation

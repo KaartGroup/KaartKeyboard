@@ -924,7 +924,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                                                   attribute: .notAnAttribute,
                                                   multiplier: 1,
                                                   constant: customHeight)
-            heightConstraint.priority = UILayoutPriority(UILayoutPriorityRequired)
+            heightConstraint.priority = UILayoutPriority.required
             
             view.addConstraint(heightConstraint)
         }
@@ -942,7 +942,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: Event handlers
     // Shift Buttton Action(Uppercase, Lowercase disabled the Caps Mode)
-    func shiftButtonPressed(_ sender: KeyButton) {
+    @objc func shiftButtonPressed(_ sender: KeyButton) {
         switch shiftMode {
         case .off:
             shiftMode = .on
@@ -954,7 +954,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     //
-    func deleteButtonPressed(_ sender: KeyButton) {
+    @objc func deleteButtonPressed(_ sender: KeyButton) {
 
         if shortWordTxtFld.isHidden == true {
             //        switch proxy.documentContextBeforeInput {
@@ -980,7 +980,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     var longPressStoped:Bool = false;
     
-    func startMoreDelete(_ timer: Timer)
+    @objc func startMoreDelete(_ timer: Timer)
     {
         while true {
             
@@ -1040,7 +1040,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         longPressStoped = false;
     }
     
-    func handleDeleteButtonLongPress(_ timer: Timer) {
+    @objc func handleDeleteButtonLongPress(_ timer: Timer) {
         
         timer.invalidate();
         //timer = nil
@@ -1054,7 +1054,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     //Delete Button long press action
-    func handleLongPressForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UILongPressGestureRecognizer) {
+    @objc func handleLongPressForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UILongPressGestureRecognizer) {
        
         
         switch gestureRecognizer.state {
@@ -1114,11 +1114,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         updateSuggestions()
     }
     
-    func handleDeleteButtonTimerTick(_ timer: Timer) {
+    @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
         proxy.deleteBackward()
     }
     
-    func spaceButtonPressed(_ sender: KeyButton) {
+    @objc func spaceButtonPressed(_ sender: KeyButton) {
 
         let charStr : String = " "
 
@@ -1137,7 +1137,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     // Input the character "ñ" instead of tab
-    func aapButtonPressed(_ sender: KeyButton) {
+    @objc func aapButtonPressed(_ sender: KeyButton) {
 
         if updateShortField((sender.titleLabel?.text)!) == true{
             return
@@ -1146,17 +1146,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftMode = .off
     }
     
-    func eepButtonPressed(_ sender: KeyButton){
-
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    func iipButtonPressed(_ sender: KeyButton){
+    @objc func eepButtonPressed(_ sender: KeyButton){
 
         if updateShortField((sender.titleLabel?.text)!) == true{
             return
@@ -1166,7 +1156,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftMode = .off
     }
     
-    func uupButtonPressed(_ sender: KeyButton){
+    @objc func iipButtonPressed(_ sender: KeyButton){
+
+        if updateShortField((sender.titleLabel?.text)!) == true{
+            return
+        }
+
+        proxy.insertText(sender.currentTitle!)
+        shiftMode = .off
+    }
+    
+    @objc func uupButtonPressed(_ sender: KeyButton){
 
         if updateShortField((sender.titleLabel?.text)!) == true{
             return
@@ -1198,7 +1198,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //    }
 //    
     // When the numpadButton is pressed
-    func numpadButtonPressed(_ sender: KeyButton){
+    @objc func numpadButtonPressed(_ sender: KeyButton){
 
         if updateShortField((sender.titleLabel?.text)!) == true{
             return
@@ -1208,7 +1208,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     // When the shortWordButton is pressed
-    func shortWordButtonPressed(_ sender: KeyButton){
+    @objc func shortWordButtonPressed(_ sender: KeyButton){
         if !isSecondary{
             if updateShortField((sender.titleLabel?.text)!) == true{
                 return
@@ -1246,7 +1246,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     
     // When the dotButton is pressed
-    func dotButtonPressed(_ sender: KeyButton){
+    @objc func dotButtonPressed(_ sender: KeyButton){
 
         if updateShortField((sender.titleLabel?.text)!) == true{
             return
@@ -1272,7 +1272,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    func handleSpaceButtonTimerTick(_ timer: Timer) {
+    @objc func handleSpaceButtonTimerTick(_ timer: Timer) {
         proxy.insertText(" ")
     }
     
@@ -1306,7 +1306,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         )
     }
     
-    func returnButtonPressed(_ sender: KeyButton) {
+    @objc func returnButtonPressed(_ sender: KeyButton) {
 
         let senderStr : String = "\n"
 
@@ -1556,7 +1556,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    func longPressCharacterButton(_ gesture:UILongPressGestureRecognizer){
+    @objc func longPressCharacterButton(_ gesture:UILongPressGestureRecognizer){
         if(!isSecondary){
             isSecondary=true
             let button = gesture.view as? CharacterButton
@@ -1615,7 +1615,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
         }
     }
-    func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
+    @objc func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
         if(isSecondary){
             isSecondary=false
             
@@ -1699,7 +1699,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
         }
     
-    func longPressShortWord(_ gesture:UILongPressGestureRecognizer)  {
+    @objc func longPressShortWord(_ gesture:UILongPressGestureRecognizer)  {
 
             selectedShortWordBtn.layer.borderWidth = 0.0
             selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
@@ -1756,7 +1756,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftMode = .on
     }
     
-    func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
+    @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
         if gesture.state == .began{
             self.shortWordTxtFld.text?.append(UIPasteboard.general.string!)
         }
@@ -1764,7 +1764,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
     var doneBtn:KeyButton = KeyButton.init(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 
-    func doneSelect(_ btn:UIButton){
+    @objc func doneSelect(_ btn:UIButton){
 
         let newStr : String = (shortWordTxtFld.text?.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines

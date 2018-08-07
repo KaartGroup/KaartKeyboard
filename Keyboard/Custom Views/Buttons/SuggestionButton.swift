@@ -56,7 +56,7 @@ class SuggestionButton: UIButton {
 
     // MARK: Event handlers
     
-    func buttonPressed(_ button: SuggestionButton) {
+    @objc func buttonPressed(_ button: SuggestionButton) {
         delegate?.handlePressForSuggestionButton(self)
     }
 }

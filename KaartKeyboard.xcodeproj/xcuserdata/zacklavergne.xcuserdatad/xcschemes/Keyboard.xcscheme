@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0940"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "076EF5D31965061C009A561C"
-               BuildableName = "KaartKeyboard.Keyboard.appex"
-               BlueprintName = "Keyboard"
+               BuildableName = "KaartKeyboard.KaartKeyboard.appex"
+               BlueprintName = "Kaart Keyboard"
                ReferencedContainer = "container:KaartKeyboard.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -48,8 +48,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "076EF5D31965061C009A561C"
-            BuildableName = "KaartKeyboard.Keyboard.appex"
-            BlueprintName = "Keyboard"
+            BuildableName = "KaartKeyboard.KaartKeyboard.appex"
+            BlueprintName = "Kaart Keyboard"
             ReferencedContainer = "container:KaartKeyboard.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

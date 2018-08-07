@@ -12,7 +12,7 @@
 		074DC95A197ACA22000B913B /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074DC959197ACA22000B913B /* CGPointExtensions.swift */; };
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
-		076EF5AA1965046D009A561C /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
+		076EF5AA1965046D009A561C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
 		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
 		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
 		076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E719650727009A561C /* SwiftLanguageProvider.swift */; };
@@ -29,8 +29,9 @@
 		07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */; };
 		07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F620891979705D006C4C86 /* SwipeView.swift */; };
 		262FE1D91F210089007023BF /* KaartKeyboard.KaartKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		263F4CBF1EE5C7210085F9DB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58C19650431009A561C /* Info.plist */; };
-		2661F61A1ECA09BA006A0EEB /* ELViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ELViewController.swift */; };
+		265D78CC211A16570046FA5B /* kaart17_globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CB211A16560046FA5B /* kaart17_globe.png */; };
+		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
+		2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63604CE81CCB00240066CD65 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
@@ -67,7 +68,7 @@
 		076EF58C19650431009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF58D19650431009A561C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		076EF58F19650431009A561C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		076EF5A91965046D009A561C /* ELViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ELViewController.swift; sourceTree = "<group>"; };
+		076EF5A91965046D009A561C /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KaartKeyboard.KaartKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF5D71965061C009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF5D81965061C009A561C /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
@@ -91,6 +92,8 @@
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		265D78CB211A16560046FA5B /* kaart17_globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kaart17_globe.png; sourceTree = "<group>"; };
+		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -142,6 +145,7 @@
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
 				0786C55C1968A92500E4E410 /* iOS Simulator Screenshot.png */,
+				265D78CB211A16560046FA5B /* kaart17_globe.png */,
 				261472821ECCB62F00F1B57C /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -159,7 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				076EF58D19650431009A561C /* AppDelegate.swift */,
-				076EF5A91965046D009A561C /* ELViewController.swift */,
+				076EF5A91965046D009A561C /* ViewController.swift */,
 				076EF58F19650431009A561C /* Images.xcassets */,
 				076EF58B19650431009A561C /* Supporting Files */,
 			);
@@ -239,6 +243,7 @@
 		261472821ECCB62F00F1B57C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */,
 				261472871ECCB67800F1B57C /* CoreText.framework */,
 				261472881ECCB67800F1B57C /* Foundation.framework */,
 				261472891ECCB67800F1B57C /* UIKit.framework */,
@@ -295,12 +300,12 @@
 			attributes = {
 				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Kaart Group";
 				TargetAttributes = {
 					076EF58719650431009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						LastSwiftMigration = 0830;
+						LastSwiftMigration = 0940;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -313,7 +318,7 @@
 					};
 					076EF5D31965061C009A561C = {
 						CreatedOnToolsVersion = 6.0;
-						LastSwiftMigration = 0830;
+						LastSwiftMigration = 0940;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 0;
@@ -345,10 +350,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				263F4CBF1EE5C7210085F9DB /* Info.plist in Resources */,
+				265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */,
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
 				0786C55D1968A92500E4E410 /* iOS Simulator Screenshot.png in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
+				265D78CC211A16570046FA5B /* kaart17_globe.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,7 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				076EF58E19650431009A561C /* AppDelegate.swift in Sources */,
-				076EF5AA1965046D009A561C /* ELViewController.swift in Sources */,
+				076EF5AA1965046D009A561C /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,7 +384,7 @@
 				076EF5F019650BFA009A561C /* CircularArray.swift in Sources */,
 				076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */,
 				076EF5F819650F00009A561C /* README.md in Sources */,
-				2661F61A1ECA09BA006A0EEB /* ELViewController.swift in Sources */,
+				2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */,
 				072711351967691600A896D1 /* SuggestionButton.swift in Sources */,
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
 				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
@@ -416,14 +422,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -467,14 +481,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -521,7 +543,8 @@
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -545,7 +568,8 @@
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -570,7 +594,8 @@
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -589,7 +614,8 @@
 				PRODUCT_NAME = KaartKeyboard.KaartKeyboard;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
