@@ -893,7 +893,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         //shiftMode = .On
         
         addCharacterButtons()
-       setUpHeightConstraint()
+        setUpHeightConstraint()
         updateshortWordTxtFldFrameOnRotareDevice()
     }
     

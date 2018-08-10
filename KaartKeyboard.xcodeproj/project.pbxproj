@@ -31,6 +31,11 @@
 		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
 		2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
+		26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
+		26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
+		26E7E646211E09AB0073CAF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
+		26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E64C211E19EB0073CAF5 /* Settings.bundle */; };
+		26E7E64E211E19EB0073CAF5 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E64C211E19EB0073CAF5 /* Settings.bundle */; };
 		63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63604CE81CCB00240066CD65 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -90,6 +95,8 @@
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
+		26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
+		26E7E64C211E19EB0073CAF5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -140,6 +147,7 @@
 				076EF5D51965061C009A561C /* Keyboard */,
 				076EF58919650431009A561C /* Products */,
 				076EF5F719650F00009A561C /* README.md */,
+				265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */,
 				261472821ECCB62F00F1B57C /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -158,8 +166,10 @@
 			children = (
 				076EF58D19650431009A561C /* AppDelegate.swift */,
 				076EF5A91965046D009A561C /* ViewController.swift */,
+				26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */,
 				076EF58F19650431009A561C /* Images.xcassets */,
 				076EF58B19650431009A561C /* Supporting Files */,
+				26E7E64C211E19EB0073CAF5 /* Settings.bundle */,
 			);
 			name = KaartKeyboard;
 			path = ELDeveloperKeyboard;
@@ -237,7 +247,6 @@
 		261472821ECCB62F00F1B57C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */,
 				261472871ECCB67800F1B57C /* CoreText.framework */,
 				261472881ECCB67800F1B57C /* Foundation.framework */,
 				261472891ECCB67800F1B57C /* UIKit.framework */,
@@ -346,6 +355,8 @@
 			files = (
 				265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */,
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
+				26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */,
+				26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -354,6 +365,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26E7E64E211E19EB0073CAF5 /* Settings.bundle in Resources */,
+				26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,6 +394,7 @@
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
 				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
 				0727113919684B4700A896D1 /* PredictiveTextScrollView.swift in Sources */,
+				26E7E646211E09AB0073CAF5 /* AppDelegate.swift in Sources */,
 				076EF5ED19650BD3009A561C /* UIImageFromCALayer.swift in Sources */,
 				074DC95A197ACA22000B913B /* CGPointExtensions.swift in Sources */,
 				07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */,
@@ -520,6 +534,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
@@ -537,7 +552,7 @@
 				STRIP_STYLE = "non-global";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -545,6 +560,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
@@ -562,13 +578,14 @@
 				STRIP_STYLE = "non-global";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
 		076EF5E01965061C009A561C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -588,12 +605,14 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
 		076EF5E11965061C009A561C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -608,6 +627,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};

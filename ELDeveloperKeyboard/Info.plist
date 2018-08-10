@@ -26,6 +26,8 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen</string>
+	<key>UIMainStoryboardFile~ipad</key>
+	<string>MainStoryboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -37,6 +39,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
 </dict>
 </plist>
