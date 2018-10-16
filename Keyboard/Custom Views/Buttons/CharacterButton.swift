@@ -33,6 +33,13 @@ protocol CharacterButtonDelegate: class {
         - parameter button: The CharacterButton that was down-swiped.
     */
     func handleSwipeDownForButton(_ button: CharacterButton)
+    
+    /**
+     Respond to the CharacterButton being long-pressed.
+     
+     - parameter button: The CharacterButton that was long-pressed.
+     */
+    func handleLongPressForButton(_ button: CharacterButton)
 }
 
 /**
@@ -58,10 +65,10 @@ class CharacterButton: KeyButton {
             }
         }
     }
-    var tertiaryCharacter: String {
+    var tertiaryCharacters: [String] {
         didSet {
             if tertiaryLabel != nil {
-                tertiaryLabel.text = tertiaryCharacter
+                tertiaryLabel.text = tertiaryCharacters.count > 0 ? tertiaryCharacters[0] : "-"
             }
         }
     }
@@ -72,36 +79,39 @@ class CharacterButton: KeyButton {
     
     // MARK: Constructors
     
-    init(frame: CGRect, primaryCharacter: String, secondaryCharacter: String, tertiaryCharacter: String, delegate: CharacterButtonDelegate?) {
+    init(frame: CGRect, primaryCharacter: String, secondaryCharacter: String, tertiaryCharacters: [String], delegate: CharacterButtonDelegate?) {
         
         self.primaryCharacter = primaryCharacter
         self.secondaryCharacter = secondaryCharacter
-        self.tertiaryCharacter = tertiaryCharacter
+        self.tertiaryCharacters = tertiaryCharacters
         self.delegate = delegate
         
         super.init(frame: frame)
+        print(frame.width < 60 ? "TRUE" : "FALSE")
+        print(frame.width)
         
-        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
+//        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
+        primaryLabel = UILabel(frame: CGRect(x: frame.width < 50 ? frame.width * 0.5 : 0.0, y: 0.0, width: frame.width < 50 ? 60 :frame.width, height: frame.height ))
         primaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
         primaryLabel.textAlignment = .center
         primaryLabel.text = primaryCharacter
         addSubview(primaryLabel)
         
-        secondaryLabel = UILabel(frame: CGRect(x: 0.0, y: 0.0, width: frame.width * 0.9, height: frame.height * 0.3))
-        secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
+        secondaryLabel = UILabel(frame: CGRect(x: 0.0, y: 0.0, width: 60, height: frame.height * 0.5)) // width = 60
+        secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         secondaryLabel.adjustsFontSizeToFitWidth = true
         secondaryLabel.textColor = UIColor(white: 187.0/255, alpha: 1.0)
-        secondaryLabel.textAlignment = .right
+        secondaryLabel.textAlignment = .left
         secondaryLabel.text = secondaryCharacter
-        //addSubview(secondaryLabel)
+        addSubview(secondaryLabel)
         
         tertiaryLabel = UILabel(frame: CGRect(x: 0.0, y: frame.height * 0.65, width: frame.width * 0.9, height: frame.height * 0.25))
         tertiaryLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
         tertiaryLabel.textColor = UIColor(white: 187.0/255, alpha: 1.0)
         tertiaryLabel.adjustsFontSizeToFitWidth = true
-        tertiaryLabel.textAlignment = .right
-        tertiaryLabel.text = tertiaryCharacter
+        tertiaryLabel.textAlignment = .center
+        tertiaryLabel.text = tertiaryCharacters.count > 0 ? tertiaryCharacters[0] : "-"
         //addSubview(tertiaryLabel)
         
         addTarget(self, action: #selector(CharacterButton.buttonPressed(_:)), for: .touchUpInside)
@@ -113,6 +123,10 @@ class CharacterButton: KeyButton {
         let swipeDownGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(CharacterButton.buttonSwipedDown(_:)))
         swipeDownGestureRecognizer.direction = .down
         addGestureRecognizer(swipeDownGestureRecognizer)
+        
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(CharacterButton.buttonLongPressed(_:)))
+        longPressGestureRecognizer.minimumPressDuration = 0.3
+        addGestureRecognizer(longPressGestureRecognizer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -131,5 +145,9 @@ class CharacterButton: KeyButton {
     
     @objc func buttonSwipedDown(_ swipeDownGestureRecognizer: UISwipeGestureRecognizer) {
         delegate?.handleSwipeDownForButton(self)
+    }
+    
+    @objc func buttonLongPressed(_ longPressGestureRecognizer: UILongPressGestureRecognizer) {
+        delegate?.handleLongPressForButton(self)
     }
 }

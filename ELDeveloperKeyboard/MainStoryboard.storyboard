@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Kax-oo-Acl">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="w99-qA-NKe">
     <device id="ipad12_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Set Up Controller-->
         <scene sceneID="igb-1C-II0">
             <objects>
-                <viewController id="Kax-oo-Acl" customClass="ELViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SetUpController" id="Kax-oo-Acl" customClass="SetUpController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Hc1-kj-1Sn"/>
                         <viewControllerLayoutGuide type="bottom" id="YcJ-oe-bDL"/>
@@ -31,12 +31,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ST4-Qw-E8h">
-                                <rect key="frame" x="380" y="609" width="19" height="43"/>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="36"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Kaart_Keyboard.png" translatesAutoresizingMaskIntoConstraints="NO" id="UmT-re-qD8">
                                 <rect key="frame" x="362" y="289" width="300" height="300"/>
                                 <constraints>
@@ -47,6 +41,12 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Keyboards" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kT0-Ov-0DJ">
                                 <rect key="frame" x="469" y="609" width="175" height="43"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ST4-Qw-E8h">
+                                <rect key="frame" x="380" y="609" width="19" height="43"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="36"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -150,7 +150,225 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Yhv-80-Rkf" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="ezE-u5-ThE" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-242.57812499999997" y="91.800878477306"/>
+            <point key="canvasLocation" x="1425" y="1351"/>
+        </scene>
+        <!--Languages Table View Controller-->
+        <scene sceneID="EOv-5E-6hU">
+            <objects>
+                <tableViewController id="kkM-Gr-Wd8" userLabel="Languages Table View Controller" customClass="LanguagesTableViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="7qr-IG-7Zi">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <view key="tableFooterView" contentMode="scaleToFill" id="iZo-pB-vfb">
+                            <rect key="frame" x="0.0" y="132" width="1024" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </view>
+                        <sections>
+                            <tableViewSection headerTitle="Languages" id="Zev-9j-lnK">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="fd6-5T-Xcv">
+                                        <rect key="frame" x="0.0" y="28" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="fd6-5T-Xcv" id="ofl-Rf-WwV">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qQO-RP-cQF" userLabel="English Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="englishSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="DvS-RR-hK4"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="English" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="muc-IA-LhE">
+                                                    <rect key="frame" x="20" y="11" width="58.5" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="muc-IA-LhE" firstAttribute="top" secondItem="ofl-Rf-WwV" secondAttribute="top" constant="11" id="0ul-uA-VNA"/>
+                                                <constraint firstAttribute="trailing" secondItem="qQO-RP-cQF" secondAttribute="trailing" constant="20" symbolic="YES" id="Bqr-p4-Hj8"/>
+                                                <constraint firstItem="muc-IA-LhE" firstAttribute="leading" secondItem="ofl-Rf-WwV" secondAttribute="leading" constant="20" symbolic="YES" id="LIk-fF-8aP"/>
+                                                <constraint firstAttribute="bottom" secondItem="muc-IA-LhE" secondAttribute="bottom" constant="11" id="inh-UW-hF3"/>
+                                                <constraint firstItem="qQO-RP-cQF" firstAttribute="centerY" secondItem="ofl-Rf-WwV" secondAttribute="centerY" id="nfg-sO-ryX"/>
+                                                <constraint firstItem="qQO-RP-cQF" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="muc-IA-LhE" secondAttribute="trailing" constant="8" symbolic="YES" id="xZq-Ia-Gi8"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="aCU-9Q-Vpd">
+                                        <rect key="frame" x="0.0" y="80" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="aCU-9Q-Vpd" id="4Dm-gG-KKZ">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Sz6-fJ-hY5" userLabel="Greek Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="greekSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="oCz-Hj-ywI"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Greek" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nKT-ov-9KY">
+                                                    <rect key="frame" x="20" y="11" width="48" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="Sz6-fJ-hY5" secondAttribute="trailing" constant="20" symbolic="YES" id="CGm-Nf-FWA"/>
+                                                <constraint firstItem="Sz6-fJ-hY5" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="nKT-ov-9KY" secondAttribute="trailing" constant="8" symbolic="YES" id="Ek7-SD-G3P"/>
+                                                <constraint firstItem="nKT-ov-9KY" firstAttribute="top" secondItem="4Dm-gG-KKZ" secondAttribute="top" constant="11" id="Nqp-9S-xq4"/>
+                                                <constraint firstItem="Sz6-fJ-hY5" firstAttribute="centerY" secondItem="4Dm-gG-KKZ" secondAttribute="centerY" id="Pfl-UT-HRw"/>
+                                                <constraint firstAttribute="bottom" secondItem="nKT-ov-9KY" secondAttribute="bottom" constant="11" id="Su3-gz-SLz"/>
+                                                <constraint firstItem="nKT-ov-9KY" firstAttribute="leading" secondItem="4Dm-gG-KKZ" secondAttribute="leading" constant="20" symbolic="YES" id="ftX-z0-zmA"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                        </sections>
+                        <connections>
+                            <outlet property="dataSource" destination="kkM-Gr-Wd8" id="4cG-5q-YnV"/>
+                            <outlet property="delegate" destination="kkM-Gr-Wd8" id="pdn-lL-O95"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jKF-ob-HqR" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1425" y="2043"/>
+        </scene>
+        <!--Detail View Contoller-->
+        <scene sceneID="KAD-B4-OKG">
+            <objects>
+                <viewController id="fgj-jT-7Jx" userLabel="Detail View Contoller" customClass="DetailViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="pcp-ct-pn1"/>
+                        <viewControllerLayoutGuide type="bottom" id="YCU-c1-Lv8"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="p93-xS-uQg">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="KAART KEYBOARD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edI-c8-ugU">
+                                <rect key="frame" x="439" y="672.5" width="146.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="edI-c8-ugU" firstAttribute="centerY" secondItem="p93-xS-uQg" secondAttribute="centerY" id="nDu-gb-Oy9"/>
+                            <constraint firstItem="edI-c8-ugU" firstAttribute="centerX" secondItem="p93-xS-uQg" secondAttribute="centerX" id="toz-hn-Tph"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="KNE-1z-hHu" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-243" y="1006"/>
+        </scene>
+        <!--Kaart Keyboard-->
+        <scene sceneID="IBR-Bm-bYi">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VMv-I5-uU5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tableViewController clearsSelectionOnViewWillAppear="NO" id="0gz-dl-G3M" customClass="MasterTableViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="w3A-Jn-Cg0">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="1366"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <view key="tableFooterView" contentMode="scaleToFill" id="N0m-G9-bBL">
+                            <rect key="frame" x="0.0" y="104" width="375" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </view>
+                        <sections>
+                            <tableViewSection id="hhj-1g-VqS">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="BjM-x2-xBd" style="IBUITableViewCellStyleDefault" id="2PR-gH-IMP">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="2PR-gH-IMP" id="txi-Up-WAK">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Set-Up" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="BjM-x2-xBd">
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="51.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="Kax-oo-Acl" kind="showDetail" id="sn8-w3-AXX"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ILH-gR-uHL" style="IBUITableViewCellStyleDefault" id="nxy-7A-RYq">
+                                        <rect key="frame" x="0.0" y="52" width="375" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nxy-7A-RYq" id="8MO-XN-boH">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Languages" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ILH-gR-uHL">
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="51.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="kkM-Gr-Wd8" kind="showDetail" id="c1F-eN-cl6"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                        </sections>
+                        <connections>
+                            <outlet property="dataSource" destination="0gz-dl-G3M" id="oG4-BH-esR"/>
+                            <outlet property="delegate" destination="0gz-dl-G3M" id="sfk-Fx-RLH"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Kaart Keyboard" id="Vya-Rv-Yeu"/>
+                </tableViewController>
+            </objects>
+            <point key="canvasLocation" x="574" y="1693"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="oZw-hy-suB">
+            <objects>
+                <navigationController id="ijq-4U-d7l" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="WFp-Mc-nMH">
+                        <rect key="frame" x="0.0" y="20" width="375" height="50"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="0gz-dl-G3M" kind="relationship" relationship="rootViewController" id="RlZ-vA-Evt"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="oT5-Zw-SKh" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-243" y="1693"/>
+        </scene>
+        <!--Split View Controller-->
+        <scene sceneID="YqB-09-MCS">
+            <objects>
+                <splitViewController storyboardIdentifier="SplitViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="w99-qA-NKe" customClass="SplitViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
+                    <connections>
+                        <segue destination="ijq-4U-d7l" kind="relationship" relationship="masterViewController" id="0lD-H3-3MB"/>
+                        <segue destination="fgj-jT-7Jx" kind="relationship" relationship="detailViewController" id="fgM-ke-Kgb"/>
+                    </connections>
+                </splitViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FBW-Kl-D6R" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1185" y="1351"/>
         </scene>
     </scenes>
     <resources>

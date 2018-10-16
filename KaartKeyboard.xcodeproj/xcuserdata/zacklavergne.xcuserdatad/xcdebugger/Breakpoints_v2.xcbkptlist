@@ -4,34 +4,38 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Keyboard/KeyboardViewController.swift"
-            timestampString = "555626724.005637"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1702"
-            endingLineNumber = "1702"
-            landmarkName = "addShortWordButton()"
-            landmarkType = "7">
+            symbolName = "UIViewAlertForUnsatisfiableConstraints">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "UIViewAlertForUnsatisfiableConstraints"
+                  moduleName = "UIKitCore"
+                  usesParentBreakpointCondition = "Yes"
+                  offsetFromSymbolStart = "0">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Keyboard/KeyboardViewController.swift"
-            timestampString = "555626724.0057811"
+            filePath = "Keyboard/Custom Views/Buttons/CharacterButton.swift"
+            timestampString = "561417926.971957"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1702"
-            endingLineNumber = "1702"
-            landmarkName = "addShortWordButton()"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "init(frame:primaryCharacter:secondaryCharacter:tertiaryCharacters:delegate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

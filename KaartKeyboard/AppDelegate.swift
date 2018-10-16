@@ -12,31 +12,12 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
                             
     var window: UIWindow?
-    var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
-    
-    public func isKeyboardExtensionEnabled() -> Bool {
-        guard let appBundleIdentifier = Bundle.main.bundleIdentifier else {
-            fatalError("isKeyboardExtensionEnabled(): Cannot retrieve bundle identifier.")
-        }
-        
-        guard let keyboards = UserDefaults.standard.dictionaryRepresentation()["AppleKeyboards"] as? [String] else {
-            // There is no key `AppleKeyboards` in NSUserDefaults. That happens sometimes.
-            return false
-        }
-        
-        let keyboardExtensionBundleIdentifierPrefix = appBundleIdentifier + "."
-        for keyboard in keyboards {
-            if keyboard.hasPrefix(keyboardExtensionBundleIdentifierPrefix) {
-                print("Keyboard Enabled")
-                return true
-            }
-        }
-        print("Keyboard Disabled")
-        return false
-    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        defaults?.set(true, forKey: "english")
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window!.rootViewController = ViewController()
+        window!.backgroundColor = UIColor.white
+        window!.makeKeyAndVisible()
         return true
     }
 

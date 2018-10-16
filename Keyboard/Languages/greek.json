@@ -1,0 +1,157 @@
+{
+    "title": "greek",
+    "rows": [
+        {
+            "row": [
+                {
+                    "primary": ";",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ς",
+                    "secondary": "΅",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ε",
+                    "secondary": "«",
+                    "tertiary": ["έ"]
+                },
+                {
+                    "primary": "ρ",
+                    "secondary": "΄",
+                    "tertiary": []
+                },
+                {
+                    "primary": "τ",
+                    "secondary": "῏",
+                    "tertiary": []
+                },
+                {
+                    "primary": "υ",
+                    "secondary": "῟",
+                    "tertiary": ["ύ", "ϋ", "ΰ"]
+                },
+                {
+                    "primary": "θ",
+                    "secondary": "῍",
+                    "tertiary": ["û", "ü", "ù", "ú", "ū"]
+                },
+                {
+                    "primary": "ι",
+                    "secondary": "῝",
+                    "tertiary": ["ί", "ϊ", "ΐ"]
+                },
+                {
+                    "primary": "ο",
+                    "secondary": "᾽",
+                    "tertiary": ["ό"]
+                },
+                {
+                    "primary": "π",
+                    "secondary": "῾",
+                    "tertiary": []
+                }
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "α",
+                    "secondary": "@",
+                    "tertiary": ["ά"]
+                },
+                {
+                    "primary": "σ",
+                    "secondary": "#",
+                    "tertiary": []
+                },
+                {
+                    "primary": "δ",
+                    "secondary": "$",
+                    "tertiary": []
+                },
+                {
+                    "primary": "φ",
+                    "secondary": "&",
+                    "tertiary": []
+                },
+                {
+                    "primary": "γ",
+                    "secondary": "*",
+                    "tertiary": []
+                },
+                {
+                    "primary": "η",
+                    "secondary": "(",
+                    "tertiary": ["ή"]
+                },
+                {
+                    "primary": "ξ",
+                    "secondary": ")",
+                    "tertiary": []
+                },
+                {
+                    "primary": "κ",
+                    "secondary": "'",
+                    "tertiary": []
+                },
+                {
+                    "primary": "λ",
+                    "secondary": "\"",
+                    "tertiary": []
+                }
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "ζ",
+                    "secondary": "_",
+                    "tertiary": []
+                },
+                {
+                    "primary": "χ",
+                    "secondary": "-",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ψ",
+                    "secondary": "@",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ω",
+                    "secondary": "=",
+                    "tertiary": ["ώ"]
+                },
+                {
+                    "primary": "β",
+                    "secondary": "/",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ν",
+                    "secondary": ";",
+                    "tertiary": []
+                },
+                {
+                    "primary": "μ",
+                    "secondary": ":",
+                    "tertiary": []
+                },
+                {
+                    "primary": ",",
+                    "secondary": "!",
+                    "tertiary": ["'", "¡"]
+                },
+                {
+                    "primary": ".",
+                    "secondary": "?",
+                    "tertiary": ["¿", "…", "\""]
+                }
+            ]
+        }
+    ]
+}

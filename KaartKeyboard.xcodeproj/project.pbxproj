@@ -12,7 +12,7 @@
 		074DC95A197ACA22000B913B /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074DC959197ACA22000B913B /* CGPointExtensions.swift */; };
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
-		076EF5AA1965046D009A561C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
+		076EF5AA1965046D009A561C /* SetUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* SetUpController.swift */; };
 		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
 		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
 		076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E719650727009A561C /* SwiftLanguageProvider.swift */; };
@@ -27,9 +27,19 @@
 		07D5B820196622350046B202 /* WeightedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D5B81F196622350046B202 /* WeightedString.swift */; };
 		07D7AE90198D9726006200DA /* TouchDelegatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7AE8F198D9726006200DA /* TouchDelegatingView.swift */; };
 		07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F620891979705D006C4C86 /* SwipeView.swift */; };
+		261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261D758121652F2500182E80 /* MasterTableViewController.swift */; };
+		261D75842165309800182E80 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261D75832165309800182E80 /* DetailViewController.swift */; };
+		262A4911216D601D00E794E1 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4910216D601D00E794E1 /* SplitViewController.swift */; };
+		262A4913216E565C00E794E1 /* LanguagesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */; };
+		262A491B216EB25F00E794E1 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4914216EAD2300E794E1 /* Language.swift */; };
+		262A491D216FA3EF00E794E1 /* english.json in Resources */ = {isa = PBXBuildFile; fileRef = 261D7589216571E800182E80 /* english.json */; };
+		262A491F216FCC6000E794E1 /* KeyPop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A491E216FCC6000E794E1 /* KeyPop.swift */; };
+		262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
+		262A492221751D0700E794E1 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
+		262A49232175339C00E794E1 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
 		262FE1D91F210089007023BF /* KaartKeyboard.KaartKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
-		2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* ViewController.swift */; };
+		2661F61A1ECA09BA006A0EEB /* SetUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* SetUpController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
 		26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
@@ -71,7 +81,7 @@
 		076EF58C19650431009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF58D19650431009A561C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		076EF58F19650431009A561C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		076EF5A91965046D009A561C /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		076EF5A91965046D009A561C /* SetUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetUpController.swift; sourceTree = "<group>"; };
 		076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KaartKeyboard.KaartKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF5D71965061C009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF5D81965061C009A561C /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
@@ -94,6 +104,16 @@
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		261472881ECCB67800F1B57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		261472891ECCB67800F1B57C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		261D758121652F2500182E80 /* MasterTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterTableViewController.swift; sourceTree = "<group>"; };
+		261D75832165309800182E80 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		261D7589216571E800182E80 /* english.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = english.json; sourceTree = "<group>"; };
+		262A490C216D4DF100E794E1 /* KaartKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = KaartKeyboard.entitlements; path = KaartKeyboard/KaartKeyboard.entitlements; sourceTree = SOURCE_ROOT; };
+		262A490D216D53F300E794E1 /* KaartKeyboard.KaartKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KaartKeyboard.KaartKeyboard.entitlements; sourceTree = "<group>"; };
+		262A4910216D601D00E794E1 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagesTableViewController.swift; sourceTree = "<group>"; };
+		262A4914216EAD2300E794E1 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
+		262A491E216FCC6000E794E1 /* KeyPop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPop.swift; sourceTree = "<group>"; };
+		262A492121751D0500E794E1 /* greek.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = greek.json; sourceTree = "<group>"; };
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
 		26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		26E7E64C211E19EB0073CAF5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -135,6 +155,7 @@
 				076EF5F119650C79009A561C /* KeyButton.swift */,
 				076EF5F319650C90009A561C /* CharacterButton.swift */,
 				072711341967691600A896D1 /* SuggestionButton.swift */,
+				262A491E216FCC6000E794E1 /* KeyPop.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -142,6 +163,7 @@
 		076EF57F19650431009A561C = {
 			isa = PBXGroup;
 			children = (
+				262A490D216D53F300E794E1 /* KaartKeyboard.KaartKeyboard.entitlements */,
 				63604CE81CCB00240066CD65 /* Launch Screen.storyboard */,
 				076EF58A19650431009A561C /* KaartKeyboard */,
 				076EF5D51965061C009A561C /* Keyboard */,
@@ -164,12 +186,17 @@
 		076EF58A19650431009A561C /* KaartKeyboard */ = {
 			isa = PBXGroup;
 			children = (
+				262A490C216D4DF100E794E1 /* KaartKeyboard.entitlements */,
 				076EF58D19650431009A561C /* AppDelegate.swift */,
-				076EF5A91965046D009A561C /* ViewController.swift */,
+				076EF5A91965046D009A561C /* SetUpController.swift */,
 				26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */,
+				261D75832165309800182E80 /* DetailViewController.swift */,
+				261D758121652F2500182E80 /* MasterTableViewController.swift */,
 				076EF58F19650431009A561C /* Images.xcassets */,
 				076EF58B19650431009A561C /* Supporting Files */,
 				26E7E64C211E19EB0073CAF5 /* Settings.bundle */,
+				262A4910216D601D00E794E1 /* SplitViewController.swift */,
+				262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */,
 			);
 			name = KaartKeyboard;
 			path = ELDeveloperKeyboard;
@@ -186,6 +213,8 @@
 		076EF5D51965061C009A561C /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
+				262A4914216EAD2300E794E1 /* Language.swift */,
+				261D75882165719E00182E80 /* Languages */,
 				076EF5D81965061C009A561C /* KeyboardViewController.swift */,
 				07D5B81F196622350046B202 /* WeightedString.swift */,
 				072711361967692900A896D1 /* Custom Views */,
@@ -256,6 +285,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		261D75882165719E00182E80 /* Languages */ = {
+			isa = PBXGroup;
+			children = (
+				262A492121751D0500E794E1 /* greek.json */,
+				261D7589216571E800182E80 /* english.json */,
+			);
+			path = Languages;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -312,7 +350,7 @@
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
-								enabled = 0;
+								enabled = 1;
 							};
 							com.apple.DataProtection = {
 								enabled = 0;
@@ -324,7 +362,7 @@
 						LastSwiftMigration = 0940;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -357,6 +395,7 @@
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
 				26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */,
 				26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */,
+				262A492221751D0700E794E1 /* greek.json in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,6 +404,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				262A49232175339C00E794E1 /* greek.json in Resources */,
+				262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */,
+				262A491D216FA3EF00E794E1 /* english.json in Resources */,
 				26E7E64E211E19EB0073CAF5 /* Settings.bundle in Resources */,
 				26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */,
 			);
@@ -377,8 +419,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				262A4911216D601D00E794E1 /* SplitViewController.swift in Sources */,
+				262A4913216E565C00E794E1 /* LanguagesTableViewController.swift in Sources */,
 				076EF58E19650431009A561C /* AppDelegate.swift in Sources */,
-				076EF5AA1965046D009A561C /* ViewController.swift in Sources */,
+				261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */,
+				076EF5AA1965046D009A561C /* SetUpController.swift in Sources */,
+				261D75842165309800182E80 /* DetailViewController.swift in Sources */,
+				262A491F216FCC6000E794E1 /* KeyPop.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,7 +436,8 @@
 				076EF5F019650BFA009A561C /* CircularArray.swift in Sources */,
 				076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */,
 				076EF5F819650F00009A561C /* README.md in Sources */,
-				2661F61A1ECA09BA006A0EEB /* ViewController.swift in Sources */,
+				262A491B216EB25F00E794E1 /* Language.swift in Sources */,
+				2661F61A1ECA09BA006A0EEB /* SetUpController.swift in Sources */,
 				072711351967691600A896D1 /* SuggestionButton.swift in Sources */,
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
 				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
@@ -538,6 +586,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
+				CODE_SIGN_ENTITLEMENTS = KaartKeyboard/KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -564,6 +613,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
+				CODE_SIGN_ENTITLEMENTS = KaartKeyboard/KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -587,6 +637,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KaartKeyboard.KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 2STHX823T6;
@@ -614,6 +665,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KaartKeyboard.KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 2STHX823T6;
