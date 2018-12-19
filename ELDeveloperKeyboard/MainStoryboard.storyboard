@@ -161,7 +161,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableFooterView" contentMode="scaleToFill" id="iZo-pB-vfb">
-                            <rect key="frame" x="0.0" y="236" width="1024" height="44"/>
+                            <rect key="frame" x="0.0" y="288" width="1024" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
@@ -242,8 +242,8 @@
                                                         <action selector="serbiancyrillicSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="XrX-mX-iJ0"/>
                                                     </connections>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Serbian (Crillic)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="23M-Zp-cmt" userLabel="Serbian-Cyrillic">
-                                                    <rect key="frame" x="20" y="11" width="124" height="29.5"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Serbian (Cyrillic)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="23M-Zp-cmt" userLabel="Serbian-Cyrillic">
+                                                    <rect key="frame" x="20" y="11" width="134" height="29.5"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -291,6 +291,39 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="GPs-Xn-FS8">
+                                        <rect key="frame" x="0.0" y="236" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="GPs-Xn-FS8" id="n7b-xj-q3h">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="rUH-na-Z1e" userLabel="Macedonian Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="greekSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="M3w-PU-2sX"/>
+                                                        <action selector="macedonianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="aTQ-Kp-Us2"/>
+                                                        <action selector="romanianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="jyi-ed-uvn"/>
+                                                        <action selector="serbiancyrillicSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="Ws2-NZ-lRG"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Macedonian" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IUg-qx-Xf2" userLabel="Macedonian">
+                                                    <rect key="frame" x="20" y="11" width="98" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="rUH-na-Z1e" firstAttribute="centerY" secondItem="n7b-xj-q3h" secondAttribute="centerY" id="Ef1-iB-Ccl"/>
+                                                <constraint firstItem="IUg-qx-Xf2" firstAttribute="top" secondItem="n7b-xj-q3h" secondAttribute="top" constant="11" id="Fyf-Kg-G6Y"/>
+                                                <constraint firstItem="IUg-qx-Xf2" firstAttribute="leading" secondItem="n7b-xj-q3h" secondAttribute="leading" constant="20" symbolic="YES" id="M36-SX-LfX"/>
+                                                <constraint firstAttribute="bottom" secondItem="IUg-qx-Xf2" secondAttribute="bottom" constant="11" id="UnQ-x7-vLi"/>
+                                                <constraint firstAttribute="trailing" secondItem="rUH-na-Z1e" secondAttribute="trailing" constant="20" symbolic="YES" id="iV5-43-Kbx"/>
+                                                <constraint firstItem="rUH-na-Z1e" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="IUg-qx-Xf2" secondAttribute="trailing" constant="8" symbolic="YES" id="vjZ-Ju-X3y"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -302,13 +335,14 @@
                     <connections>
                         <outlet property="englishSwitch" destination="qQO-RP-cQF" id="wgu-wv-ycu"/>
                         <outlet property="greekSwitch" destination="Sz6-fJ-hY5" id="RjP-M0-yag"/>
+                        <outlet property="macedonianSwitch" destination="rUH-na-Z1e" id="eM9-Va-IJh"/>
                         <outlet property="romanianSwitch" destination="d0m-g8-HQn" id="o9E-sV-VJE"/>
                         <outlet property="serbainCyrillicSwitch" destination="2ra-HJ-xQW" id="oSz-Le-V3c"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jKF-ob-HqR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1425" y="2043"/>
+            <point key="canvasLocation" x="1425" y="2042.8989751098095"/>
         </scene>
         <!--Detail View Contoller-->
         <scene sceneID="KAD-B4-OKG">

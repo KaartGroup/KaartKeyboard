@@ -43,6 +43,8 @@
 		26A490B021CAA880002BBD7D /* serbian-cyrillic.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */; };
 		26A490B221CAD514002BBD7D /* romanian.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490B121CAD514002BBD7D /* romanian.json */; };
 		26A490B321CAD514002BBD7D /* romanian.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490B121CAD514002BBD7D /* romanian.json */; };
+		26A490B521CAE2F4002BBD7D /* macedonian.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490B421CAE2F4002BBD7D /* macedonian.json */; };
+		26A490B621CAE2F4002BBD7D /* macedonian.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490B421CAE2F4002BBD7D /* macedonian.json */; };
 		26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
 		26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
 		26E7E646211E09AB0073CAF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
@@ -119,6 +121,7 @@
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
 		26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "serbian-cyrillic.json"; sourceTree = "<group>"; };
 		26A490B121CAD514002BBD7D /* romanian.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = romanian.json; sourceTree = "<group>"; };
+		26A490B421CAE2F4002BBD7D /* macedonian.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = macedonian.json; sourceTree = "<group>"; };
 		26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		26E7E64C211E19EB0073CAF5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
@@ -296,6 +299,7 @@
 				26A490B121CAD514002BBD7D /* romanian.json */,
 				261D7589216571E800182E80 /* english.json */,
 				26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */,
+				26A490B421CAE2F4002BBD7D /* macedonian.json */,
 			);
 			path = Languages;
 			sourceTree = "<group>";
@@ -401,6 +405,7 @@
 				265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */,
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
 				26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */,
+				26A490B521CAE2F4002BBD7D /* macedonian.json in Resources */,
 				26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
 			);
@@ -416,6 +421,7 @@
 				262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */,
 				262A491D216FA3EF00E794E1 /* english.json in Resources */,
 				26E7E64E211E19EB0073CAF5 /* Settings.bundle in Resources */,
+				26A490B621CAE2F4002BBD7D /* macedonian.json in Resources */,
 				26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
