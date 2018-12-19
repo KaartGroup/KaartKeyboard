@@ -64,58 +64,58 @@
             "row": [
                 {
                     "primary": "а",
-                    "secondary": "",
+                    "secondary": "@",
                     "tertiary": []
                 },
                 {
                     "primary": "с",
-                    "secondary": "",
+                    "secondary": "#",
                     "tertiary": []
                 },
                 {
                     "primary": "д",
-                    "secondary": "",
+                    "secondary": "$",
                     "tertiary": []
                 },
                 {
                     "primary": "ф",
-                    "secondary": "",
+                    "secondary": "´",
                     "tertiary": []
                 },
                 {
                     "primary": "г",
-                    "secondary": "",
+                    "secondary": "&",
                     "tertiary": []
                 },
                 {
                     "primary": "х",
-                    "secondary": "",
+                    "secondary": "*",
                     "tertiary": []
                 },
                 {
                     "primary": "ј",
-                    "secondary": "",
+                    "secondary": "_",
                     "tertiary": []
                 },
                 {
                     "primary": "к",
-                    "secondary": "",
+                    "secondary": "(",
                     "tertiary": []
                 },
                 {
                     "primary": "л",
-                    "secondary": "",
-                    "tertiary": [""]
+                    "secondary": ")",
+                    "tertiary": []
                 },
                 {
                     "primary": "ч",
-                    "secondary": "",
-                    "tertiary": [""]
+                    "secondary": "‘",
+                    "tertiary": []
                 },
                 {
                     "primary": "ћ",
-                    "secondary": "",
-                    "tertiary": [""]
+                    "secondary": "\"",
+                    "tertiary": []
                 }
                 
             ]
@@ -124,8 +124,8 @@
             "row": [
                 {
                     "primary": "ѕ",
-                    "secondary": "_",
-                    "tertiary": ["ž", "ź", "ż"]
+                    "secondary": "%",
+                    "tertiary": []
                 },
                 {
                     "primary": "џ",
@@ -134,8 +134,8 @@
                 },
                 {
                     "primary": "ц",
-                    "secondary": "@",
-                    "tertiary": ["ç", "ć", "č"]
+                    "secondary": "+",
+                    "tertiary": []
                 },
                 {
                     "primary": "в",
@@ -150,7 +150,7 @@
                 {
                     "primary": "н",
                     "secondary": ";",
-                    "tertiary": ["ñ", "ń"]
+                    "tertiary": []
                 },
                 {
                     "primary": "м",
@@ -159,17 +159,12 @@
                 },
                 {
                     "primary": "ђ",
-                    "secondary": "",
-                    "tertiary": [""]
+                    "secondary": ",",
+                    "tertiary": []
                 },
                 {
                     "primary": "ж",
-                    "secondary": "",
-                    "tertiary": [""]
-                },
-                {
-                    "primary": ".",
-                    "secondary": "?",
+                    "secondary": ".",
                     "tertiary": []
                 }
             ]

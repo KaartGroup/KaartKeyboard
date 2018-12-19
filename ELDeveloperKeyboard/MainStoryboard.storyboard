@@ -267,6 +267,11 @@
                             <outlet property="delegate" destination="kkM-Gr-Wd8" id="pdn-lL-O95"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="englishSwitch" destination="qQO-RP-cQF" id="wgu-wv-ycu"/>
+                        <outlet property="greekSwitch" destination="Sz6-fJ-hY5" id="RjP-M0-yag"/>
+                        <outlet property="serbainCyrillicSwitch" destination="2ra-HJ-xQW" id="oSz-Le-V3c"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jKF-ob-HqR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

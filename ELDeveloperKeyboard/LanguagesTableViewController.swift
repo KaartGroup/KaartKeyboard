@@ -22,6 +22,18 @@ class LanguagesTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
+    
+    
+    @IBOutlet weak var englishSwitch: UISwitch!
+    @IBOutlet weak var greekSwitch: UISwitch!
+    @IBOutlet weak var serbainCyrillicSwitch: UISwitch!
+    
+    override func viewDidAppear(_ animated: Bool) {
+        englishSwitch.isOn = (defaults?.bool(forKey: "english"))!
+        greekSwitch.isOn = (defaults?.bool(forKey: "greek"))!
+        serbainCyrillicSwitch.isOn = (defaults?.bool(forKey: "serbian-cyrillic"))!
+    }
+    
     @IBAction func englishSwitchChanged(_ sender: UISwitch) {
         defaults?.set(sender.isOn, forKey: "english")
     }
