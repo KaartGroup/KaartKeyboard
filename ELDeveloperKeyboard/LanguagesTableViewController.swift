@@ -29,6 +29,9 @@ class LanguagesTableViewController: UITableViewController {
     @IBAction func greekSwitchChanged(_ sender: UISwitch) {
         defaults?.set(sender.isOn, forKey: "greek")
     }
+    @IBAction func serbiancyrillicSwitchChanged(_ sender: UISwitch) {
+        defaults?.set(sender.isOn, forKey: "serbian-cyrillic")
+    }
     // MARK: - Table view data source
 
 //    override func numberOfSections(in tableView: UITableView) -> Int {

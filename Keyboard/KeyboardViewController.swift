@@ -19,7 +19,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var shortWord = [
         ["Press &","Hold","To","Edit","These","Presets","!"],
-        ["Use", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
+        ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
     ]
     
     fileprivate var isSecondary:Bool = false
@@ -40,9 +40,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var _showEnglish : Bool = false
     fileprivate var _showGreek: Bool = false
+    fileprivate var _showSerbianCyrillic: Bool = false
     
     fileprivate var english: Language!
     fileprivate var greek: Language!
+    fileprivate var serbian_cyrillic: Language!
     
     fileprivate var languages: [Language] = []
     
@@ -51,7 +53,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var showLanguages: [String:Bool] {
         return [
             "english": _showEnglish,
-            "greek": _showGreek
+            "greek": _showGreek,
+            "serbian-cyrillic": _showSerbianCyrillic
         ]
     }
     
@@ -73,9 +76,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
+    fileprivate var rowCount: CGFloat = 9.0
+    
     // Width of individual letter keys
     fileprivate var keyWidth: CGFloat {
-        return (view.frame.width - 11 * spacing) / 10.0
+        return (view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1)
     }
     
     // Width of individual short word keys
@@ -222,13 +227,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         var y = spacing * 3 + keyHeight * 2
         for (rowIndex, row) in characterButtons.enumerated()
         {
+            
+
             var x: CGFloat
             switch rowIndex {
             case 1:
+                rowCount = CGFloat(row.count)
                 x = spacing * 1.5 + keyWidth * 0.5
             case 2:
+                rowCount = CGFloat(row.count)
                 x = spacing * 2.5 + keyWidth * 1.5
             default:
+                rowCount = CGFloat(row.count)
                 x = spacing
             }
             
@@ -458,6 +468,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             }
             y += keyHeight + spacing
         }
+//        rowCount = 11.0
     }
     
     func updateConstraintForDelete() {
@@ -484,6 +495,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForSpeceRow()
     {
+        rowCount = 9.0
         // Add Constraints for Kaart Button
         removeAllConstrains(kaartKeyboardButton)
 
@@ -557,6 +569,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     func updateConstraintForNumberButton()
     {
+        rowCount = 9.0
         let firstButton = arrayOfNumberButton[0];
         let shortWordBtn:KeyButton = arrayOfShortWordButton[1][0];
 
@@ -691,6 +704,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addPredictiveTextScrollView()
         
         shortWordTxtFld.isHidden = true
+        shiftMode = .on
         
         self.requestSupplementaryLexicon { (lexObj) in
             self.lexicon = lexObj;
@@ -701,7 +715,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         super.loadView()
         _showEnglish = (defaults?.bool(forKey: "english"))!
         _showGreek = (defaults?.bool(forKey: "greek"))!
-        
+        _showSerbianCyrillic = (defaults?.bool(forKey: "serbian-cyrillic"))!
+
         languages = []
     
         for (key, value) in showLanguages {
@@ -717,6 +732,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     case "greek":
                         greek = try? JSONDecoder().decode(Language.self, from: data)
                         languages.append(greek)
+                    case "serbian-cyrillic":
+                        serbian_cyrillic = try? JSONDecoder().decode(Language.self, from: data)
+                        print(data)
+                        languages.append(serbian_cyrillic)
                     default:
                         print("not a recognized language")
                     }
@@ -804,6 +823,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
         //shiftMode = .On
+        self.setUpHeightConstraint()
         self.updateViewConstraints()
     }
     
@@ -818,7 +838,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         else if( iOrientation == .landscapeLeft || iOrientation == .landscapeRight  )
         {
-            customHeight = UIScreen.main.bounds.height / 2 + 50;
+            customHeight = UIScreen.main.bounds.height / 2 + 90;
         }
         else{
             return;
@@ -1261,6 +1281,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        self.loadView()
 //        print(view.frame.width)
         addCharacterButtons()
+        shiftMode = .on
 //        updateConstraintForCharacter()
 //        self.viewDidLoad()
 //        self.viewDidAppear(false)
@@ -1341,6 +1362,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addPredictiveTextScrollView()
         
         shortWordTxtFld.isHidden = true
+        shiftMode = .on
+
         
         self.requestSupplementaryLexicon { (lexObj) in
             self.lexicon = lexObj;
@@ -1429,23 +1452,28 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         for (rowIndex, row) in currentLanguage.rows.enumerated() {
             
+            
             var x: CGFloat = 0
             switch rowIndex {
             case 1:
+                rowCount = CGFloat(row.row.count)
                 x = spacing * 1.5 + keyWidth * 0.5
             case 2:
+                rowCount = CGFloat(row.row.count + 1)
                 x = spacing * 2.5 + keyWidth * 1.5
             default:
+                rowCount = CGFloat(row.row.count)
                 x = spacing
             }
             for char in row.row {
-                let characterButton = CharacterButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight), primaryCharacter: char.primary.uppercased(), secondaryCharacter: char.secondary, tertiaryCharacters: char.tertiary, delegate: self)
+                let characterButton = CharacterButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight), primaryCharacter: char.primary.lowercased(), secondaryCharacter: char.secondary, tertiaryCharacters: char.tertiary, delegate: self)
                 self.view.addSubview(characterButton)
                 characterButtons[rowIndex].append(characterButton)
                 x += keyWidth + spacing
             }
             y += keyHeight + spacing
         }
+//        rowCount = 11.0
     }
     
     @objc func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
@@ -1670,6 +1698,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     {
         for index in 1...10{
             //            print("\(index) times 5 is \(index * 5)")
+            rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             if index == 10 {
                 numpadButton.setTitle("\(index - 10)", for: UIControlState())

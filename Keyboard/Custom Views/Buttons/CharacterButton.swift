@@ -92,7 +92,7 @@ class CharacterButton: KeyButton {
         
 //        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
         primaryLabel = UILabel(frame: CGRect(x: frame.width < 50 ? frame.width * 0.5 : 0.0, y: 0.0, width: frame.width < 50 ? 60 :frame.width, height: frame.height ))
-        primaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        primaryLabel.font = UIFont(name: "Helvetica", size: 20.0)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
         primaryLabel.textAlignment = .center
         primaryLabel.text = primaryCharacter

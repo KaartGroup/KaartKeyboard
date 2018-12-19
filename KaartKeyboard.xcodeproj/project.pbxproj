@@ -35,12 +35,12 @@
 		262A491D216FA3EF00E794E1 /* english.json in Resources */ = {isa = PBXBuildFile; fileRef = 261D7589216571E800182E80 /* english.json */; };
 		262A491F216FCC6000E794E1 /* KeyPop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A491E216FCC6000E794E1 /* KeyPop.swift */; };
 		262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
-		262A492221751D0700E794E1 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
 		262A49232175339C00E794E1 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
 		262FE1D91F210089007023BF /* KaartKeyboard.KaartKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
 		2661F61A1ECA09BA006A0EEB /* SetUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* SetUpController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
+		26A490B021CAA880002BBD7D /* serbian-cyrillic.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */; };
 		26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
 		26E7E645211E09540073CAF5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */; };
 		26E7E646211E09AB0073CAF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
@@ -115,6 +115,7 @@
 		262A491E216FCC6000E794E1 /* KeyPop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPop.swift; sourceTree = "<group>"; };
 		262A492121751D0500E794E1 /* greek.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = greek.json; sourceTree = "<group>"; };
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
+		26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "serbian-cyrillic.json"; sourceTree = "<group>"; };
 		26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		26E7E64C211E19EB0073CAF5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
@@ -290,6 +291,7 @@
 			children = (
 				262A492121751D0500E794E1 /* greek.json */,
 				261D7589216571E800182E80 /* english.json */,
+				26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */,
 			);
 			path = Languages;
 			sourceTree = "<group>";
@@ -395,7 +397,6 @@
 				63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */,
 				26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */,
 				26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */,
-				262A492221751D0700E794E1 /* greek.json in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -404,6 +405,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26A490B021CAA880002BBD7D /* serbian-cyrillic.json in Resources */,
 				262A49232175339C00E794E1 /* greek.json in Resources */,
 				262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */,
 				262A491D216FA3EF00E794E1 /* english.json in Resources */,

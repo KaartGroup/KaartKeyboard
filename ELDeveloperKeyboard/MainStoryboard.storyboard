@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="w99-qA-NKe">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="w99-qA-NKe">
     <device id="ipad12_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -161,7 +161,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableFooterView" contentMode="scaleToFill" id="iZo-pB-vfb">
-                            <rect key="frame" x="0.0" y="132" width="1024" height="44"/>
+                            <rect key="frame" x="0.0" y="184" width="1024" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
@@ -228,6 +228,37 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="3pm-t3-Swy">
+                                        <rect key="frame" x="0.0" y="132" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3pm-t3-Swy" id="uZg-CH-CIr">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="2ra-HJ-xQW" userLabel="Serbian-Cyrillic Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="greekSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="YnU-Yv-6vj"/>
+                                                        <action selector="serbiancyrillicSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="XrX-mX-iJ0"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Serbian (Crillic)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="23M-Zp-cmt" userLabel="Serbian-Cyrillic">
+                                                    <rect key="frame" x="20" y="11" width="124" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="23M-Zp-cmt" secondAttribute="bottom" constant="11" id="6zi-AM-CR4"/>
+                                                <constraint firstItem="23M-Zp-cmt" firstAttribute="top" secondItem="uZg-CH-CIr" secondAttribute="top" constant="11" id="OWC-QP-jpv"/>
+                                                <constraint firstItem="2ra-HJ-xQW" firstAttribute="centerY" secondItem="uZg-CH-CIr" secondAttribute="centerY" id="Wvn-14-PSx"/>
+                                                <constraint firstAttribute="trailing" secondItem="2ra-HJ-xQW" secondAttribute="trailing" constant="20" symbolic="YES" id="ozs-yS-BGI"/>
+                                                <constraint firstItem="23M-Zp-cmt" firstAttribute="leading" secondItem="uZg-CH-CIr" secondAttribute="leading" constant="20" symbolic="YES" id="r4t-8i-pvt"/>
+                                                <constraint firstItem="2ra-HJ-xQW" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="23M-Zp-cmt" secondAttribute="trailing" constant="8" symbolic="YES" id="t1l-29-Sfv"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -274,7 +305,6 @@
         <!--Kaart Keyboard-->
         <scene sceneID="IBR-Bm-bYi">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="VMv-I5-uU5" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController clearsSelectionOnViewWillAppear="NO" id="0gz-dl-G3M" customClass="MasterTableViewController" customModule="KaartKeyboard" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="w3A-Jn-Cg0">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="1366"/>
@@ -338,6 +368,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Kaart Keyboard" id="Vya-Rv-Yeu"/>
                 </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VMv-I5-uU5" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="574" y="1693"/>
         </scene>

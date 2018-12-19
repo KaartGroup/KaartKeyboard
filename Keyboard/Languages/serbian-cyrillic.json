@@ -1,0 +1,178 @@
+{
+    "title": "serbian–cyrillic",
+    "rows": [
+        {
+            "row": [
+                {
+                    "primary": "љ",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "њ",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "е",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "р",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "т",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "з",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "у",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "и",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "о",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "п",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ш",
+                    "secondary": "",
+                    "tertiary": [""]
+                }
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "а",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "с",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "д",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ф",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "г",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "х",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ј",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "к",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "л",
+                    "secondary": "",
+                    "tertiary": [""]
+                },
+                {
+                    "primary": "ч",
+                    "secondary": "",
+                    "tertiary": [""]
+                },
+                {
+                    "primary": "ћ",
+                    "secondary": "",
+                    "tertiary": [""]
+                }
+                
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "ѕ",
+                    "secondary": "_",
+                    "tertiary": ["ž", "ź", "ż"]
+                },
+                {
+                    "primary": "џ",
+                    "secondary": "-",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ц",
+                    "secondary": "@",
+                    "tertiary": ["ç", "ć", "č"]
+                },
+                {
+                    "primary": "в",
+                    "secondary": "=",
+                    "tertiary": []
+                },
+                {
+                    "primary": "б",
+                    "secondary": "/",
+                    "tertiary": []
+                },
+                {
+                    "primary": "н",
+                    "secondary": ";",
+                    "tertiary": ["ñ", "ń"]
+                },
+                {
+                    "primary": "м",
+                    "secondary": ":",
+                    "tertiary": []
+                },
+                {
+                    "primary": "ђ",
+                    "secondary": "",
+                    "tertiary": [""]
+                },
+                {
+                    "primary": "ж",
+                    "secondary": "",
+                    "tertiary": [""]
+                },
+                {
+                    "primary": ".",
+                    "secondary": "?",
+                    "tertiary": []
+                }
+            ]
+        }
+    ]
+}
