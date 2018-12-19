@@ -161,7 +161,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableFooterView" contentMode="scaleToFill" id="iZo-pB-vfb">
-                            <rect key="frame" x="0.0" y="288" width="1024" height="44"/>
+                            <rect key="frame" x="0.0" y="340" width="1024" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
@@ -324,6 +324,40 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="Dje-vH-CPy">
+                                        <rect key="frame" x="0.0" y="288" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Dje-vH-CPy" id="TBe-5B-lPX">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="lrE-fN-4mi" userLabel="Bulgarian Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="bulgarianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="zrk-bb-a2g"/>
+                                                        <action selector="greekSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="SKD-0F-x19"/>
+                                                        <action selector="macedonianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="cFf-7p-QIo"/>
+                                                        <action selector="romanianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="q6M-8F-SFL"/>
+                                                        <action selector="serbiancyrillicSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="VaE-Zu-BGd"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bulgarian" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M4h-wb-qKd" userLabel="Bulgarian">
+                                                    <rect key="frame" x="20" y="11" width="76" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="M4h-wb-qKd" firstAttribute="leading" secondItem="TBe-5B-lPX" secondAttribute="leading" constant="20" symbolic="YES" id="3kh-W9-0JU"/>
+                                                <constraint firstItem="lrE-fN-4mi" firstAttribute="centerY" secondItem="TBe-5B-lPX" secondAttribute="centerY" id="Emf-G7-etc"/>
+                                                <constraint firstItem="M4h-wb-qKd" firstAttribute="top" secondItem="TBe-5B-lPX" secondAttribute="top" constant="11" id="OGS-fz-0Wi"/>
+                                                <constraint firstAttribute="bottom" secondItem="M4h-wb-qKd" secondAttribute="bottom" constant="11" id="lcQ-DL-Jpc"/>
+                                                <constraint firstAttribute="trailing" secondItem="lrE-fN-4mi" secondAttribute="trailing" constant="20" symbolic="YES" id="nk7-sg-IJS"/>
+                                                <constraint firstItem="lrE-fN-4mi" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="M4h-wb-qKd" secondAttribute="trailing" constant="8" symbolic="YES" id="uyD-8h-AZ7"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -333,6 +367,7 @@
                         </connections>
                     </tableView>
                     <connections>
+                        <outlet property="bulgarianSwitch" destination="lrE-fN-4mi" id="2Tj-uh-vd6"/>
                         <outlet property="englishSwitch" destination="qQO-RP-cQF" id="wgu-wv-ycu"/>
                         <outlet property="greekSwitch" destination="Sz6-fJ-hY5" id="RjP-M0-yag"/>
                         <outlet property="macedonianSwitch" destination="rUH-na-Z1e" id="eM9-Va-IJh"/>

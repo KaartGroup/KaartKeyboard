@@ -43,12 +43,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var _showSerbianCyrillic: Bool = false
     fileprivate var _showRomanian: Bool = false
     fileprivate var _showMacedonian: Bool = false
+    fileprivate var _showBulgarian: Bool = false
 
     fileprivate var english: Language!
     fileprivate var greek: Language!
     fileprivate var serbian_cyrillic: Language!
     fileprivate var romanian: Language!
     fileprivate var macedonian: Language!
+    fileprivate var bulgarian: Language!
 
     fileprivate var languages: [Language] = []
     
@@ -60,7 +62,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             "greek": _showGreek,
             "serbian-cyrillic": _showSerbianCyrillic,
             "romanian": _showRomanian,
-            "macedonian": _showMacedonian
+            "macedonian": _showMacedonian,
+            "bulgarian": _showBulgarian
         ]
     }
     
@@ -728,6 +731,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         _showSerbianCyrillic = (defaults?.bool(forKey: "serbian-cyrillic"))!
         _showRomanian = (defaults?.bool(forKey: "romanian"))!
         _showMacedonian = (defaults?.bool(forKey: "macedonian"))!
+        _showBulgarian = (defaults?.bool(forKey: "bulgarian"))!
 
         languages = []
     
@@ -753,7 +757,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     case "macedonian":
                         macedonian = try? JSONDecoder().decode(Language.self, from: data)
                         languages.append(macedonian)
-
+                    case "bulgarian":
+                        bulgarian = try? JSONDecoder().decode(Language.self, from: data)
+                        languages.append(bulgarian)
                     default:
                         print("not a recognized language")
                     }
