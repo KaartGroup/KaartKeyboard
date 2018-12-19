@@ -41,11 +41,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var _showEnglish : Bool = false
     fileprivate var _showGreek: Bool = false
     fileprivate var _showSerbianCyrillic: Bool = false
-    
+    fileprivate var _showRomanian: Bool = false
+
     fileprivate var english: Language!
     fileprivate var greek: Language!
     fileprivate var serbian_cyrillic: Language!
-    
+    fileprivate var romanian: Language!
+
     fileprivate var languages: [Language] = []
     
     fileprivate var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
@@ -54,7 +56,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return [
             "english": _showEnglish,
             "greek": _showGreek,
-            "serbian-cyrillic": _showSerbianCyrillic
+            "serbian-cyrillic": _showSerbianCyrillic,
+            "romanian": _showRomanian
         ]
     }
     
@@ -133,6 +136,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var deleteButtonTimer: Timer?
     fileprivate var spaceButtonTimer: Timer?
+    
+    fileprivate var spaceTitle: String {
+        return (UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased())!
+    }
     
     // MARK: Properties
     
@@ -716,6 +723,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         _showEnglish = (defaults?.bool(forKey: "english"))!
         _showGreek = (defaults?.bool(forKey: "greek"))!
         _showSerbianCyrillic = (defaults?.bool(forKey: "serbian-cyrillic"))!
+        _showRomanian = (defaults?.bool(forKey: "romanian"))!
 
         languages = []
     
@@ -734,8 +742,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         languages.append(greek)
                     case "serbian-cyrillic":
                         serbian_cyrillic = try? JSONDecoder().decode(Language.self, from: data)
-                        print(data)
                         languages.append(serbian_cyrillic)
+                    case "romanian":
+                        romanian = try? JSONDecoder().decode(Language.self, from: data)
+                        languages.append(romanian)
                     default:
                         print("not a recognized language")
                     }
@@ -1275,22 +1285,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 break
             }
         }
-//        addDeleteButton()
-//        self.updateViewConstraints()
-//        initializeKeyboard()
-//        self.loadView()
-//        print(view.frame.width)
         addCharacterButtons()
+        addSpaceButton()
         shiftMode = .on
-//        updateConstraintForCharacter()
-//        self.viewDidLoad()
-//        self.viewDidAppear(false)
         self.updateViewConstraints()
-//        let width = keyWidth
-//        addCharacterButtons()
-//        let w = keyWidth
-//        updateConstraintForCharacter()
-//        addCharacterButtons()
     }
     
     @objc func handleClosePress(_ sender: KeyButton) {
@@ -1420,7 +1418,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addSpaceButton() {
         spaceButton = KeyButton(frame: CGRect(x: keyWidth * 5 + spacing * 8.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 5 + spacing * 1.5, height: keyHeight))
-        spaceButton.setTitle("Space", for: UIControlState())
+        spaceButton.setTitle(spaceTitle, for: UIControlState())
         spaceButton.addTarget(self, action: #selector(KeyboardViewController.spaceButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(spaceButton)
         
