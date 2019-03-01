@@ -161,7 +161,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableFooterView" contentMode="scaleToFill" id="iZo-pB-vfb">
-                            <rect key="frame" x="0.0" y="340" width="1024" height="44"/>
+                            <rect key="frame" x="0.0" y="392" width="1024" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </view>
@@ -358,6 +358,41 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" id="nq5-74-v04">
+                                        <rect key="frame" x="0.0" y="340" width="1024" height="52"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nq5-74-v04" id="ZMv-JP-no8">
+                                            <rect key="frame" x="0.0" y="0.0" width="1024" height="51.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ESa-cg-nEt" userLabel="Vietnamese Switch">
+                                                    <rect key="frame" x="955" y="10.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="bulgarianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="UmS-XM-gLE"/>
+                                                        <action selector="greekSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="DhX-NF-mYz"/>
+                                                        <action selector="macedonianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="JWa-xP-Fz7"/>
+                                                        <action selector="romanianSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="Uve-K5-lGb"/>
+                                                        <action selector="serbiancyrillicSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="yjY-pj-PiI"/>
+                                                        <action selector="vietnameseSwitchChanged:" destination="kkM-Gr-Wd8" eventType="valueChanged" id="E6x-Cf-fHf"/>
+                                                    </connections>
+                                                </switch>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Vietnamese" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w5x-HF-ND3" userLabel="Vietnamese">
+                                                    <rect key="frame" x="20" y="11" width="94.5" height="29.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="w5x-HF-ND3" firstAttribute="top" secondItem="ZMv-JP-no8" secondAttribute="top" constant="11" id="1q6-jE-Ztr"/>
+                                                <constraint firstAttribute="bottom" secondItem="w5x-HF-ND3" secondAttribute="bottom" constant="11" id="1vd-2e-ADb"/>
+                                                <constraint firstAttribute="trailing" secondItem="ESa-cg-nEt" secondAttribute="trailing" constant="20" symbolic="YES" id="6sZ-RQ-d3r"/>
+                                                <constraint firstItem="ESa-cg-nEt" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="w5x-HF-ND3" secondAttribute="trailing" constant="8" symbolic="YES" id="VMP-eT-psX"/>
+                                                <constraint firstItem="ESa-cg-nEt" firstAttribute="centerY" secondItem="ZMv-JP-no8" secondAttribute="centerY" id="ZZc-Qq-wzw"/>
+                                                <constraint firstItem="w5x-HF-ND3" firstAttribute="leading" secondItem="ZMv-JP-no8" secondAttribute="leading" constant="20" symbolic="YES" id="ovg-eG-x6Z"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -373,6 +408,7 @@
                         <outlet property="macedonianSwitch" destination="rUH-na-Z1e" id="eM9-Va-IJh"/>
                         <outlet property="romanianSwitch" destination="d0m-g8-HQn" id="o9E-sV-VJE"/>
                         <outlet property="serbainCyrillicSwitch" destination="2ra-HJ-xQW" id="oSz-Le-V3c"/>
+                        <outlet property="vietnameseSwitch" destination="ESa-cg-nEt" id="FvI-rw-2fI"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jKF-ob-HqR" userLabel="First Responder" sceneMemberID="firstResponder"/>

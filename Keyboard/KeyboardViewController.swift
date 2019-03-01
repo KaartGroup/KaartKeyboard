@@ -44,6 +44,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var _showRomanian: Bool = false
     fileprivate var _showMacedonian: Bool = false
     fileprivate var _showBulgarian: Bool = false
+    fileprivate var _showVietnamese: Bool = false
 
     fileprivate var english: Language!
     fileprivate var greek: Language!
@@ -51,6 +52,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var romanian: Language!
     fileprivate var macedonian: Language!
     fileprivate var bulgarian: Language!
+    fileprivate var vietnamese: Language!
 
     fileprivate var languages: [Language] = []
     
@@ -63,7 +65,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             "serbian-cyrillic": _showSerbianCyrillic,
             "romanian": _showRomanian,
             "macedonian": _showMacedonian,
-            "bulgarian": _showBulgarian
+            "bulgarian": _showBulgarian,
+            "vietnamese": _showVietnamese
         ]
     }
     
@@ -732,6 +735,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         _showRomanian = (defaults?.bool(forKey: "romanian"))!
         _showMacedonian = (defaults?.bool(forKey: "macedonian"))!
         _showBulgarian = (defaults?.bool(forKey: "bulgarian"))!
+        _showVietnamese = (defaults?.bool(forKey: "vietnamese"))!
 
         languages = []
     
@@ -760,6 +764,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     case "bulgarian":
                         bulgarian = try? JSONDecoder().decode(Language.self, from: data)
                         languages.append(bulgarian)
+                    case "vietnamese":
+                        vietnamese = try? JSONDecoder().decode(Language.self, from: data)
+                        languages.append(vietnamese)
                     default:
                         print("not a recognized language")
                     }
@@ -1244,12 +1251,22 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func handleLongPressForButton(_ button: CharacterButton) {
         if button.tertiaryCharacters.isEmpty { return }
         
-        let y = button.frame.minY - (keyHeight + spacing)
+        var y = button.frame.minY - (keyHeight + spacing)
         var x: CGFloat = button.frame.minX
-        if CGFloat(button.tertiaryCharacters.count + 1 ) * keyWidth + x > self.view.bounds.size.width {
-            x = button.frame.minX - (CGFloat(button.tertiaryCharacters.count) * keyWidth )
+        if CGFloat(button.tertiaryCharacters.count/3 + 1 ) * keyWidth + x > self.view.bounds.size.width {
+            x = button.frame.minX - (CGFloat(button.tertiaryCharacters.count/3) * keyWidth )
         }
-        for tert in button.tertiaryCharacters {
+        let xO = x
+        var i = 0
+        for tert in button.tertiaryCharacters.reversed() {
+            if i > 4 {
+                y+=keyHeight
+                x = xO
+                i = 0
+            }
+            else {
+                i += 1
+            }
             let key = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
             key.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: UIControlState())
             switch shiftMode {

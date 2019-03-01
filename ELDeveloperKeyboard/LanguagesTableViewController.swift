@@ -30,6 +30,7 @@ class LanguagesTableViewController: UITableViewController {
     @IBOutlet weak var romanianSwitch: UISwitch!
     @IBOutlet weak var macedonianSwitch: UISwitch!
     @IBOutlet weak var bulgarianSwitch: UISwitch!
+    @IBOutlet weak var vietnameseSwitch: UISwitch!
     
     override func viewDidAppear(_ animated: Bool) {
         englishSwitch.isOn = (defaults?.bool(forKey: "english"))!
@@ -38,6 +39,7 @@ class LanguagesTableViewController: UITableViewController {
         romanianSwitch.isOn = (defaults?.bool(forKey: "romanian"))!
         macedonianSwitch.isOn = (defaults?.bool(forKey: "macedonian"))!
         bulgarianSwitch.isOn = (defaults?.bool(forKey: "bulgarian"))!
+        vietnameseSwitch.isOn = (defaults?.bool(forKey: "vietnamese"))!
     }
     
     @IBAction func englishSwitchChanged(_ sender: UISwitch) {
@@ -58,6 +60,9 @@ class LanguagesTableViewController: UITableViewController {
     }
     @IBAction func bulgarianSwitchChanged(_ sender: UISwitch) {
         defaults?.set(sender.isOn, forKey: "bulgarian")
+    }
+    @IBAction func vietnameseSwitchChanged(_ sender: UISwitch) {
+        defaults?.set(sender.isOn, forKey: "vietnamese")
     }
     
     // MARK: - Table view data source

@@ -1,0 +1,157 @@
+{
+    "title": "vietnamese",
+    "rows": [
+        {
+            "row": [
+                {
+                    "primary": "q",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "w",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "e",
+                    "secondary": "",
+                    "tertiary": ["ệ", "ế", "ể", "ê", "ề", "ễ", "ẹ", "ẽ", "è", "ẻ", "é"]
+                },
+                {
+                    "primary": "r",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "t",
+                    "secondary": "",
+                    "tertiary": []
+                },
+                {
+                    "primary": "y",
+                    "secondary": "",
+                    "tertiary": ["ỵ", "ỹ", "ỳ", "ỷ", "ý"]
+                },
+                {
+                    "primary": "u",
+                    "secondary": "",
+                    "tertiary": ["ự", "ứ", "ử", "ư", "ừ", "ữ", "ụ", "ũ", "ù", "ủ", "ú"]
+                },
+                {
+                    "primary": "i",
+                    "secondary": "",
+                    "tertiary": ["ị", "ĩ", "ì", "ỉ", "í"]
+                },
+                {
+                    "primary": "o",
+                    "secondary": "",
+                    "tertiary": ["ớ", "ợ", "ỡ", "ờ", "ộ", "ơ", "ở", "ố", "ổ", "ô", "ồ", "ỗ", "ọ", "õ", "ò", "ỏ", "ó"]
+                },
+                {
+                    "primary": "p",
+                    "secondary": "",
+                    "tertiary": []
+                }
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "a",
+                    "secondary": "@",
+                    "tertiary": ["ấ", "ậ", "ặ", "â", "ầ", "ẩ", "ẫ", "ă", "ằ", "ẳ", "ẵ", "ắ", "à", "ả", "ã", "á", "ạ"]
+                },
+                {
+                    "primary": "s",
+                    "secondary": "#",
+                    "tertiary": []
+                },
+                {
+                    "primary": "d",
+                    "secondary": "$",
+                    "tertiary": ["đ"]
+                },
+                {
+                    "primary": "f",
+                    "secondary": "&",
+                    "tertiary": []
+                },
+                {
+                    "primary": "g",
+                    "secondary": "*",
+                    "tertiary": []
+                },
+                {
+                    "primary": "h",
+                    "secondary": "(",
+                    "tertiary": []
+                },
+                {
+                    "primary": "j",
+                    "secondary": ")",
+                    "tertiary": []
+                },
+                {
+                    "primary": "k",
+                    "secondary": "'",
+                    "tertiary": []
+                },
+                {
+                    "primary": "l",
+                    "secondary": "\"",
+                    "tertiary": []
+                }
+            ]
+        },
+        {
+            "row": [
+                {
+                    "primary": "z",
+                    "secondary": "_",
+                    "tertiary": []
+                },
+                {
+                    "primary": "x",
+                    "secondary": "-",
+                    "tertiary": []
+                },
+                {
+                    "primary": "c",
+                    "secondary": "@",
+                    "tertiary": []
+                },
+                {
+                    "primary": "v",
+                    "secondary": "=",
+                    "tertiary": []
+                },
+                {
+                    "primary": "b",
+                    "secondary": "/",
+                    "tertiary": []
+                },
+                {
+                    "primary": "n",
+                    "secondary": ";",
+                    "tertiary": []
+                },
+                {
+                    "primary": "m",
+                    "secondary": ":",
+                    "tertiary": []
+                },
+                {
+                    "primary": ",",
+                    "secondary": "!",
+                    "tertiary": []
+                },
+                {
+                    "primary": ".",
+                    "secondary": "?",
+                    "tertiary": []
+                }
+            ]
+        }
+    ]
+}
