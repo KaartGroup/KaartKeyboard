@@ -858,21 +858,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
-    func setUpHeightConstraint()
-    {
-        let iOrientation:UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
-        
-        var customHeight = UIScreen.main.bounds.height / 2 + 40 ;
-        if( iOrientation == .portrait || iOrientation == .portraitUpsideDown  )
-        {
-            customHeight = UIScreen.main.bounds.height / 2;
-        }
-        else if( iOrientation == .landscapeLeft || iOrientation == .landscapeRight  )
-        {
-            customHeight = UIScreen.main.bounds.height / 2 + 90;
-        }
-        else{
-            return;
+    func setUpHeightConstraint() {
+        let customHeight: CGFloat
+
+        switch UIDevice.current.orientation {
+        case .portrait, .portraitUpsideDown:
+            customHeight = UIScreen.main.bounds.height / 2
+        case .landscapeLeft, .landscapeRight:
+            customHeight = UIScreen.main.bounds.height / 2 + 90
+        default:
+            return
         }
         
         

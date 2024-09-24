@@ -8,6 +8,11 @@
 
 import UIKit
 
+class AppDelegateSingleton {
+    static let shared = AppDelegateSingleton()
+    var appDelegate: AppDelegate?
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
                             

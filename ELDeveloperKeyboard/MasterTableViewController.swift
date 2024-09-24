@@ -9,7 +9,6 @@
 import UIKit
 
 class MasterTableViewController: UITableViewController {
-    
     var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
 
     override func viewDidLoad() {
@@ -32,17 +31,17 @@ class MasterTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let count = super.tableView(tableView, numberOfRowsInSection: section)
-        let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-        if (appDelegate?.isKeyboardExtensionEnabled())! {
+
+        if AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false {
             return count - 1
         }
         return count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
         
-        if (appDelegate?.isKeyboardExtensionEnabled())!{
+        
+        if (AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false){
             return super.tableView(tableView, cellForRowAt: IndexPath(row: indexPath.row + 1, section:0))
         }
         return super.tableView(tableView, cellForRowAt: indexPath)

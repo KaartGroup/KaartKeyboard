@@ -24,9 +24,8 @@ class SplitViewController: UISplitViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
+        if AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false {
         
-        if !((appDelegate?.isKeyboardExtensionEnabled())!){
             let storyboard = UIStoryboard(name: "MainStoryboard", bundle: nil)
             let controller = storyboard.instantiateViewController(withIdentifier: "SetUpController")
             self.present(controller, animated: true, completion: nil)

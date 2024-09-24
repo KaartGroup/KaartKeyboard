@@ -12,7 +12,6 @@
 		074DC95A197ACA22000B913B /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074DC959197ACA22000B913B /* CGPointExtensions.swift */; };
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
-		076EF5AA1965046D009A561C /* SetUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* SetUpController.swift */; };
 		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
 		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
 		076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E719650727009A561C /* SwiftLanguageProvider.swift */; };
@@ -40,7 +39,6 @@
 		262A49232175339C00E794E1 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
 		262FE1D91F210089007023BF /* KaartKeyboard.KaartKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		265D78CE211A2F3B0046FA5B /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
-		2661F61A1ECA09BA006A0EEB /* SetUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5A91965046D009A561C /* SetUpController.swift */; };
 		2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
 		26A490B021CAA880002BBD7D /* serbian-cyrillic.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */; };
 		26A490B221CAD514002BBD7D /* romanian.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490B121CAD514002BBD7D /* romanian.json */; };
@@ -89,7 +87,6 @@
 		076EF58C19650431009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF58D19650431009A561C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		076EF58F19650431009A561C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		076EF5A91965046D009A561C /* SetUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetUpController.swift; sourceTree = "<group>"; };
 		076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KaartKeyboard.KaartKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF5D71965061C009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF5D81965061C009A561C /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
@@ -201,7 +198,6 @@
 			children = (
 				262A490C216D4DF100E794E1 /* KaartKeyboard.entitlements */,
 				076EF58D19650431009A561C /* AppDelegate.swift */,
-				076EF5A91965046D009A561C /* SetUpController.swift */,
 				26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */,
 				261D75832165309800182E80 /* DetailViewController.swift */,
 				261D758121652F2500182E80 /* MasterTableViewController.swift */,
@@ -391,6 +387,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 076EF57F19650431009A561C;
@@ -449,7 +446,6 @@
 				262A4913216E565C00E794E1 /* LanguagesTableViewController.swift in Sources */,
 				076EF58E19650431009A561C /* AppDelegate.swift in Sources */,
 				261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */,
-				076EF5AA1965046D009A561C /* SetUpController.swift in Sources */,
 				261D75842165309800182E80 /* DetailViewController.swift in Sources */,
 				262A491F216FCC6000E794E1 /* KeyPop.swift in Sources */,
 			);
@@ -463,7 +459,6 @@
 				076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */,
 				076EF5F819650F00009A561C /* README.md in Sources */,
 				262A491B216EB25F00E794E1 /* Language.swift in Sources */,
-				2661F61A1ECA09BA006A0EEB /* SetUpController.swift in Sources */,
 				072711351967691600A896D1 /* SuggestionButton.swift in Sources */,
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
 				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
@@ -542,7 +537,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				METAL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
@@ -593,7 +588,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				METAL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.KaartKeyboard;
 				SDKROOT = iphoneos;
@@ -608,7 +603,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
@@ -635,7 +630,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				ASSETCATALOG_COMPILER_STICKER_PACK_IDENTIFIER_PREFIX = "$(PRODUCT_BUNDLE_IDENTIFIER).sticker-pack";
@@ -661,7 +656,7 @@
 		076EF5E01965061C009A561C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KaartKeyboard.KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -689,7 +684,7 @@
 		076EF5E11965061C009A561C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KaartKeyboard.KaartKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
