@@ -1263,12 +1263,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 i += 1
             }
             let key = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
-            key.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: UIControlState())
+            key.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: .normal)
             switch shiftMode {
             case .off:
-                key.setTitle(tert.lowercased(), for: UIControlState())
+                key.setTitle(tert.lowercased(), for: .normal)
             case .on, .caps:
-                key.setTitle(tert.uppercased(), for: UIControlState())
+                key.setTitle(tert.uppercased(), for: .normal)
             }
             key.addTarget(self, action: #selector(handleTertiaryPress(_:)), for: .touchUpInside)
             self.view.addSubview(key)
@@ -1276,8 +1276,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             x += keyWidth
         }
         let close = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
-        close.setTitle("X", for: UIControlState())
-        close.setBackgroundImage(UIImage.fromColor(UIColor.red), for:UIControlState())
+        close.setTitle("X", for: .normal)
+        close.setBackgroundImage(UIImage.fromColor(UIColor.red), for: .normal)
         close.layer.borderWidth = 2
         close.layer.borderColor = UIColor.black.cgColor
         close.addTarget(self, action: #selector(handleClosePress(_:)), for: .touchUpInside)
@@ -1402,16 +1402,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
-        shiftButton.setTitle("\u{000021E7}", for: UIControlState())
-        shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
+        shiftButton.setTitle("\u{000021E7}", for: .normal)
+        shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
     }
     
     fileprivate func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 2.0 + spacing * 5.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
-        deleteButton.setTitle("\u{232B}", for: UIControlState())
-        deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
+        deleteButton.setTitle("\u{232B}", for: .normal)
+        deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
         
@@ -1422,9 +1422,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
-        nextKeyboardButton.setTitle("\u{1F310}", for: UIControlState())
-        nextKeyboardButton.setTitleColor(UIColor.black, for: UIControlState())
-        nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
+        nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
+        nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
+        nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         if #available(iOS 10.0, *) {
             nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
         } else {
@@ -1435,7 +1435,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addKaartKeyboardButton() {
         kaartKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 3 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
-        kaartKeyboardButton.setImage(UIImage(named: "Kaart_Keyboard.png"), for: UIControlState())
+        kaartKeyboardButton.setImage(UIImage(named: "Kaart_Keyboard.png"), for: .normal)
 //        kaartKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
         kaartKeyboardButton.imageView?.contentMode = .scaleAspectFit
         kaartKeyboardButton.addTarget(self, action: #selector(handleKaartKeyboardPress(_:)), for: .touchUpInside)
@@ -1444,7 +1444,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addSpaceButton() {
         spaceButton = KeyButton(frame: CGRect(x: keyWidth * 5 + spacing * 8.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 5 + spacing * 1.5, height: keyHeight))
-        spaceButton.setTitle(spaceTitle, for: UIControlState())
+        spaceButton.setTitle(spaceTitle, for: .normal)
         spaceButton.addTarget(self, action: #selector(KeyboardViewController.spaceButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(spaceButton)
         
@@ -1452,8 +1452,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addReturnButton() {
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
-        returnButton.setTitle("\u{000023CE}", for: UIControlState())
-        returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
+        returnButton.setTitle("\u{000023CE}", for: .normal)
+        returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
     }
@@ -1538,14 +1538,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             var y: CGFloat = 0.0
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
-                shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: UIControlState())
-                shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), for: UIControlState())
+                shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
+                shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), for: .normal)
                 let gradient = CAGradientLayer()
                 gradient.frame = self.shortWordButton.bounds
                 let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
                 gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
                 
-                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), for: UIControlState())
+                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
                 
@@ -1614,8 +1614,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         doneBtn.removeFromSuperview()
         doneBtn = KeyButton.init(frame: tempRct)
         
-        doneBtn.setTitle("Done", for: UIControlState())
-        doneBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: UIControlState())
+        doneBtn.setTitle("Done", for: .normal)
+        doneBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: .normal)
         
         doneBtn.addTarget(self, action: #selector(self.doneSelect(_:)), for: .touchUpInside)
         
@@ -1654,7 +1654,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 defaults.synchronize()
             }
             }
-            selectedShortWordBtn.setTitle(newStr, for: UIControlState())
+            selectedShortWordBtn.setTitle(newStr, for: .normal)
         }
         shortWordTxtFld.isHidden = true
         doneBtn.isHidden = true
@@ -1725,18 +1725,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             if index == 10 {
-                numpadButton.setTitle("\(index - 10)", for: UIControlState())
+                numpadButton.setTitle("\(index - 10)", for: .normal)
             }
             else{
-                numpadButton.setTitle("\(index)", for: UIControlState())
+                numpadButton.setTitle("\(index)", for: .normal)
             }
-            numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: UIControlState())
+            numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 168.0/255, green: 168.0/255, blue: 168.0/255, alpha: 1.0)), for: UIControlState())
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 168.0/255, green: 168.0/255, blue: 168.0/255, alpha: 1.0)), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)

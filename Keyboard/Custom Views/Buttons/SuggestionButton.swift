@@ -29,7 +29,7 @@ class SuggestionButton: UIButton {
     
     var title: String {
         didSet {
-            setTitle(title, for: UIControlState())
+            setTitle(title, for: .normal)
         }
     }
     
@@ -41,10 +41,10 @@ class SuggestionButton: UIButton {
         
         super.init(frame: frame)
         
-        setTitle(title, for: UIControlState())
+        setTitle(title, for: .normal)
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
         titleLabel?.textAlignment = .center
-        setTitleColor(UIColor.black, for: UIControlState())
+        setTitleColor(UIColor.black, for: .normal)
         setTitleColor(UIColor.darkGray, for: .highlighted)
         titleLabel?.sizeToFit()
         addTarget(self, action: #selector(SuggestionButton.buttonPressed(_:)), for: .touchUpInside)
