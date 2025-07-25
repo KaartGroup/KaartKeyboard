@@ -22,7 +22,7 @@ class KeyButton: UIButton {
         
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: 20.0)
         titleLabel?.textAlignment = .center
-        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: UIControlState())
+        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: .normal)
         titleLabel?.sizeToFit()
         
         let gradient = CAGradientLayer()
@@ -31,7 +31,7 @@ class KeyButton: UIButton {
         gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
         //setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
         
-        setBackgroundImage(UIImage.fromColor(UIColor.white), for:UIControlState()  )
+        setBackgroundImage(UIImage.fromColor(UIColor.white), for: .normal)
         let selectedGradient = CAGradientLayer()
         selectedGradient.frame = bounds
         let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).cgColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).cgColor]
