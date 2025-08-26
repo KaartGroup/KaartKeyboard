@@ -11,6 +11,8 @@ An iOS custom keyboard extension written in Swift designed to make text input in
    
    b. Double click the base character
 
+
+
 ## Accented Character Notes
 If you are editing one of the shortcut words and summon accented characters, the accented characters will cover the text box only until you dispose of the accented characters using either method described above.
 
