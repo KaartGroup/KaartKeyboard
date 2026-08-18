@@ -1897,7 +1897,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     /// Titled with the group it will switch to, like the numeral toggle itself.
     fileprivate var presetGroupTitle: String {
-        return "G\((activeBank + 2 > shortWordBanks.count) ? 1 : activeBank + 2)"
+        return "P\((activeBank + 2 > shortWordBanks.count) ? 1 : activeBank + 2)"
     }
     
     /// Repaints the 14 visible presets from the active group. No views or constraints change.
