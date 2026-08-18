@@ -17,10 +17,30 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: Constants
     
-    fileprivate var shortWord = [
-        ["Press &","Hold","To","Edit","These","Presets","!"],
-        ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
+    // Two groups of 14 presets. The layout still shows 14 at a time; long-pressing the numeral
+    // toggle opens a popup that swaps which group is on screen.
+    fileprivate var shortWordBanks: [[[String]]] = [
+        [
+            ["Press &","Hold","To","Edit","These","Presets","!"],
+            ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
+        ],
+        [
+            ["This Is","Group","2","Long","Press","IV","To Swap"],
+            ["Edit", "These", "The", "Same", "Way", "As", "Group 1"]
+        ]
     ]
+    
+    /// Group 1 keeps the original key so presets saved by earlier versions survive the upgrade.
+    fileprivate let shortWordKeys = ["SHORT_WORD_ARR", "SHORT_WORD_ARR_GROUP_2"]
+    
+    fileprivate var activeBank = 0
+    
+    /// The group currently on screen. Reads and writes pass through to shortWordBanks, so every
+    /// existing use of shortWord keeps working and edits land in the group being displayed.
+    fileprivate var shortWord: [[String]] {
+        get { return shortWordBanks[activeBank] }
+        set { shortWordBanks[activeBank] = newValue }
+    }
     
     // Capitalise the first letter of every word. Set to false to capitalise only after the
     // contexts listed in the active LanguageProvider's autocapitalizeAfter (sentence enders).
@@ -137,6 +157,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var numpadButton: KeyButton!
     fileprivate var arrayOfNumberButton: [KeyButton] = []
     fileprivate var numeralToggleButton: KeyButton!
+    fileprivate var numeralPopupButtons: [KeyButton] = []
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -1176,6 +1197,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // Toggles the number row between Arabic and Roman numerals.
     @objc func numeralToggleButtonPressed(_ sender: KeyButton){
+        if !numeralPopupButtons.isEmpty {   // the popup has no close key, so a tap here dismisses it
+            dismissNumeralPopup()
+            return
+        }
         isRomanNumerals = !isRomanNumerals
         updateNumeralTitles()
     }
@@ -1589,8 +1614,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let userDefaults : UserDefaults = UserDefaults.standard
         
-        if ((userDefaults.object(forKey: "SHORT_WORD_ARR")) != nil){
-            shortWord = userDefaults.object(forKey: "SHORT_WORD_ARR")! as! [[String]]
+        for (bank, key) in shortWordKeys.enumerated() {
+            guard let saved = userDefaults.object(forKey: key) as? [[String]],
+                  saved.count == shortWordBanks[bank].count else { continue }
+            shortWordBanks[bank] = saved
         }
         
         for (rowIndex, row) in shortWord.enumerated(){
@@ -1709,7 +1736,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 shortWord[rowIndex][index] = newStr
                 
                 let defaults : UserDefaults = UserDefaults.standard
-                defaults.set(shortWord, forKey: "SHORT_WORD_ARR")
+                defaults.set(shortWord, forKey: shortWordKeys[activeBank])
                 defaults.synchronize()
             }
             }
@@ -1809,8 +1836,71 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         numeralToggleButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing + keyHeight, width: keyWidth, height: keyHeight))
         numeralToggleButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         numeralToggleButton.addTarget(self, action: #selector(KeyboardViewController.numeralToggleButtonPressed(_:)), for: .touchUpInside)
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(KeyboardViewController.handleLongPressForNumeralToggle(_:)))
+        longPress.minimumPressDuration = 0.3
+        numeralToggleButton.addGestureRecognizer(longPress)
+        
         self.view.addSubview(numeralToggleButton)
         updateNumeralTitles()
+    }
+    
+    // MARK: Preset group popup
+    
+    /// Opens above the numeral toggle, one key wide. Its only job for now is swapping preset groups.
+    @objc func handleLongPressForNumeralToggle(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        guard gestureRecognizer.state == .began, let toggle = numeralToggleButton else { return }
+        
+        if !numeralPopupButtons.isEmpty {
+            dismissNumeralPopup()
+            return
+        }
+        
+        // Not while a preset is being edited: doneSelect finds the word by title, so swapping the
+        // group out from under it would write the edit into the group that just arrived.
+        guard shortWordTxtFld.isHidden else { return }
+        
+        let frame = CGRect(x: toggle.frame.minX,
+                           y: toggle.frame.minY - (keyHeight + spacing),
+                           width: toggle.frame.width,
+                           height: keyHeight)
+        let groupButton = KeyButton(frame: frame)
+        groupButton.touchOutset = 0
+        groupButton.setTitle(presetGroupTitle, for: .normal)
+        groupButton.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: .normal)
+        groupButton.layer.borderWidth = 1
+        groupButton.layer.borderColor = UIColor.darkGray.cgColor
+        groupButton.addTarget(self, action: #selector(KeyboardViewController.presetGroupButtonPressed(_:)), for: .touchUpInside)
+        self.view.addSubview(groupButton)
+        numeralPopupButtons.append(groupButton)
+    }
+    
+    @objc func presetGroupButtonPressed(_ sender: KeyButton) {
+        activeBank = (activeBank + 1) % shortWordBanks.count
+        updateShortWordTitles()
+        dismissNumeralPopup()
+    }
+    
+    fileprivate func dismissNumeralPopup() {
+        for button in numeralPopupButtons {
+            button.removeFromSuperview()
+        }
+        numeralPopupButtons = []
+    }
+    
+    /// Titled with the group it will switch to, like the numeral toggle itself.
+    fileprivate var presetGroupTitle: String {
+        return "G\((activeBank + 2 > shortWordBanks.count) ? 1 : activeBank + 2)"
+    }
+    
+    /// Repaints the 14 visible presets from the active group. No views or constraints change.
+    fileprivate func updateShortWordTitles() {
+        let bank = shortWord
+        for (rowIndex, row) in arrayOfShortWordButton.enumerated() where rowIndex < bank.count {
+            for (index, button) in row.enumerated() where index < bank[rowIndex].count {
+                button.setTitle(bank[rowIndex][index], for: .normal)
+            }
+        }
     }
     
     // Swaps the number row between 1-9,0 and I-X. The toggle is titled with the plane it switches to.
