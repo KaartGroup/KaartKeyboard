@@ -23,6 +23,6 @@ class DefaultLanguageProvider: LanguageProvider {
         ["", "", "", "`", "[", "]", "\\", "_", "="],
         ["", "", ",", ".", "/", ";", "'"]
     ]
-    lazy var autocapitalizeAfter = [String]()
+    lazy var autocapitalizeAfter = [".", "!", "?"]
     lazy var suggestionDictionary = [WeightedString]()
 }

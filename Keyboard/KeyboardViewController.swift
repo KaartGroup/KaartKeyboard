@@ -22,6 +22,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
     ]
     
+    // Capitalise the first letter of every word. Set to false to capitalise only after the
+    // contexts listed in the active LanguageProvider's autocapitalizeAfter (sentence enders).
+    fileprivate let capitalizeAfterEverySpace = true
+    
     fileprivate var isSecondary:Bool = false
     
     fileprivate var secondaryTap : UIGestureRecognizer!
@@ -132,6 +136,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // Number Buttons
     fileprivate var numpadButton: KeyButton!
     fileprivate var arrayOfNumberButton: [KeyButton] = []
+    fileprivate var numeralToggleButton: KeyButton!
+    fileprivate var isRomanNumerals: Bool = false
+    fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
     
     // Short Word Buttons
     fileprivate var shortWordButton: KeyButton!
@@ -487,26 +495,48 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        rowCount = 11.0
     }
     
+    // Delete now sits at the end of the first character row, immediately right of "P".
     func updateConstraintForDelete() {
+        guard let deleteButton = deleteButton, let lastTopRowKey = characterButtons[0].last else { return }
         removeAllConstrains(deleteButton)
         
-        let topConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .top, relatedBy: .equal, toItem: arrayOfShortWordButton[1].last, attribute: .bottom, multiplier: 1.0, constant: spacing)
+        let topCons = NSLayoutConstraint(item: deleteButton, attribute: .top, relatedBy: .equal, toItem: lastTopRowKey, attribute: .top, multiplier: 1.0, constant: 0)
         
-        let leftConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .leading, relatedBy: .equal, toItem: arrayOfNumberButton.last, attribute: .trailing, multiplier: 1.0, constant: spacing)
+        let leftCons = NSLayoutConstraint(item: deleteButton, attribute: .leading, relatedBy: .equal, toItem: lastTopRowKey, attribute: .trailing, multiplier: 1.0, constant: spacing)
         
-        let rightConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
+        let rightCons = NSLayoutConstraint(item: deleteButton, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
         
-        let heightConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+        let heightCons = NSLayoutConstraint(item: deleteButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
         
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false;
+        topCons.isActive = true
+        leftCons.isActive = true
+        rightCons.isActive = true
+        heightCons.isActive = true
+    }
+    
+    // The numeral toggle takes the number-row slot that delete used to occupy.
+    func updateConstraintForNumeralToggle() {
+        guard let toggle = numeralToggleButton,
+              let lastNumberButton = arrayOfNumberButton.last,
+              let shortWordAbove = arrayOfShortWordButton[1].last else { return }
+        removeAllConstrains(toggle)
         
-        topConsDeleteButton.isActive = true
-        leftConsDeleteButton.isActive = true
-        rightConsDeleteButton.isActive = true
-//        widthConsDeleteButton.isActive = true
-        heightConsDeleteButton.isActive = true
+        let topCons = NSLayoutConstraint(item: toggle, attribute: .top, relatedBy: .equal, toItem: shortWordAbove, attribute: .bottom, multiplier: 1.0, constant: spacing)
+        
+        let leftCons = NSLayoutConstraint(item: toggle, attribute: .leading, relatedBy: .equal, toItem: lastNumberButton, attribute: .trailing, multiplier: 1.0, constant: spacing)
+        
+        let rightCons = NSLayoutConstraint(item: toggle, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
+        
+        let heightCons = NSLayoutConstraint(item: toggle, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+        
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        
+        topCons.isActive = true
+        leftCons.isActive = true
+        rightCons.isActive = true
+        heightCons.isActive = true
     }
     
     func updateConstraintForSpeceRow()
@@ -555,7 +585,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsSpeceButton.isActive = true
 //        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        bottomConsSpeceButton.isActive = true
+        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
+        // activating it guarantees Auto Layout breaks one of them at runtime.
+//        bottomConsSpeceButton.isActive = true
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -695,6 +727,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         updateConstraintForShortWorld();
         updateConstraintForNumberButton()
+        updateConstraintForNumeralToggle()
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
@@ -712,6 +745,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addKaartKeyboardButton()
         addShortWordButton()
         addNumpadButton()
+        addNumeralToggleButton()
         addCharacterButtons()
         addShiftButton();
         addDeleteButton()
@@ -1074,12 +1108,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             return
         }
         
-        for suffix in languageProvider.autocapitalizeAfter {
-            if proxy.documentContextBeforeInput!.hasSuffix(suffix) {
-                shiftMode = .on
+        // Capitalise the next letter. capitalizeAfterEverySpace does it for every word;
+        // autocapitalizeAfter adds the contexts that should capitalise regardless of that flag.
+        var capitalizeNext = capitalizeAfterEverySpace
+        if let contextBeforeSpace = proxy.documentContextBeforeInput {
+            for suffix in languageProvider.autocapitalizeAfter where contextBeforeSpace.hasSuffix(suffix) {
+                capitalizeNext = true
             }
         }
-        shiftMode = .on
+        if capitalizeNext {
+            shiftMode = .on
+        }
+        
         proxy.insertText(charStr)
 //        updateSuggestions()
     }
@@ -1132,6 +1172,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         
         proxy.insertText(sender.currentTitle!)
+    }
+    
+    // Toggles the number row between Arabic and Roman numerals.
+    @objc func numeralToggleButtonPressed(_ sender: KeyButton){
+        isRomanNumerals = !isRomanNumerals
+        updateNumeralTitles()
     }
     
     // When the shortWordButton is pressed
@@ -1248,8 +1294,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         var y = button.frame.minY - (keyHeight + spacing)
         var x: CGFloat = button.frame.minX
-        if CGFloat(button.tertiaryCharacters.count/3 + 1 ) * keyWidth + x > self.view.bounds.size.width {
-            x = button.frame.minX - (CGFloat(button.tertiaryCharacters.count/3) * keyWidth )
+        // The first popup row holds 5 accents and every row after it holds 6, with the close key
+        // able to follow a full row. Worst case is therefore 7 key widths.
+        let slotsNeeded = button.tertiaryCharacters.count <= 5 ? button.tertiaryCharacters.count + 1 : 7
+        let popupWidth = CGFloat(slotsNeeded) * keyWidth
+        if x + popupWidth > self.view.bounds.size.width {
+            x = max(spacing, self.view.bounds.size.width - popupWidth)
         }
         let xO = x
         var i = 0
@@ -1382,6 +1432,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDeleteButton()
         addSpaceButton()
         addNumpadButton()
+        addNumeralToggleButton()
         addReturnButton()
         addPredictiveTextScrollView()
         
@@ -1409,7 +1460,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     fileprivate func addDeleteButton() {
-        deleteButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 2.0 + spacing * 5.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
+        deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
@@ -1443,6 +1494,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     fileprivate func addSpaceButton() {
+        spaceButton?.removeFromSuperview()
         spaceButton = KeyButton(frame: CGRect(x: keyWidth * 5 + spacing * 8.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 5 + spacing * 1.5, height: keyHeight))
         spaceButton.setTitle(spaceTitle, for: .normal)
         spaceButton.addTarget(self, action: #selector(KeyboardViewController.spaceButtonPressed(_:)), for: .touchUpInside)
@@ -1527,6 +1579,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     
     fileprivate func addShortWordButton(){
+        
+        for row in arrayOfShortWordButton {
+            for button in row { button.removeFromSuperview() }
+        }
+        arrayOfShortWordButton = [[],[]]
         
         let userDefaults : UserDefaults = UserDefaults.standard
         
@@ -1720,16 +1777,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addNumpadButton()
     {
+        for button in arrayOfNumberButton { button.removeFromSuperview() }
+        arrayOfNumberButton = []
+        
         for index in 1...10{
-            //            print("\(index) times 5 is \(index * 5)")
             rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
-            if index == 10 {
-                numpadButton.setTitle("\(index - 10)", for: .normal)
-            }
-            else{
-                numpadButton.setTitle("\(index)", for: .normal)
-            }
+            numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
@@ -1745,6 +1799,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             self.view.addSubview(numpadButton)
             arrayOfNumberButton.append(numpadButton);
         }
+        updateNumeralTitles()
+    }
+    
+    fileprivate func addNumeralToggleButton() {
+        numeralToggleButton?.removeFromSuperview()
+        numeralToggleButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing + keyHeight, width: keyWidth, height: keyHeight))
+        numeralToggleButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        numeralToggleButton.addTarget(self, action: #selector(KeyboardViewController.numeralToggleButtonPressed(_:)), for: .touchUpInside)
+        self.view.addSubview(numeralToggleButton)
+        updateNumeralTitles()
+    }
+    
+    // Swaps the number row between 1-9,0 and I-X. The toggle is titled with the plane it switches to.
+    fileprivate func updateNumeralTitles() {
+        let titles = isRomanNumerals ? romanNumerals : arabicNumerals
+        for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
+            button.setTitle(titles[index], for: .normal)
+        }
+        numeralToggleButton?.setTitle(isRomanNumerals ? "123" : "IV", for: .normal)
     }
     
     fileprivate func addSwipeView() {
