@@ -1656,10 +1656,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         selectedShortWordBtn = gesture.view as! UIButton
         selectedShortWordBtn.layer.borderWidth = 3.0
         selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
+        
+        // Remember where the pressed key sits, not what it says. Titles are user-editable and can
+        // repeat, so they cannot identify a preset.
+        selectedShortWordIndex = nil
+        for (rowIndex, row) in arrayOfShortWordButton.enumerated() {
+            if let column = row.firstIndex(where: { $0 === selectedShortWordBtn }) {
+                selectedShortWordIndex = (rowIndex, column)
+                break
+            }
+        }
+        
         addShortWordTxtFld()
     }
     
     var selectedShortWordBtn :UIButton = UIButton.init()
+    
+    /// Row and column of the preset being edited, within the active group.
+    fileprivate var selectedShortWordIndex: (row: Int, column: Int)?
     
     var shortWordTxtFld : UITextField = UITextField.init()
     
@@ -1721,26 +1735,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     @objc func doneSelect(_ btn:UIButton){
         
-        let newStr : String = (shortWordTxtFld.text?.trimmingCharacters(
-            in: CharacterSet.whitespacesAndNewlines
-            ))!
+        let newStr = shortWordTxtFld.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
         
-        if newStr.isEmpty == false {
+        if let target = selectedShortWordIndex, newStr.isEmpty == false,
+           target.row < shortWord.count, target.column < shortWord[target.row].count {
             
-            let oldTitle : String = (selectedShortWordBtn.titleLabel?.text)!
+            shortWord[target.row][target.column] = newStr
             
-            for (rowIndex, row) in shortWord.enumerated() {
+            let defaults : UserDefaults = UserDefaults.standard
+            defaults.set(shortWord, forKey: shortWordKeys[activeBank])
+            defaults.synchronize()
             
-            if row.contains(oldTitle){
-                let index : NSInteger = row.firstIndex(of: oldTitle)!
-                shortWord[rowIndex][index] = newStr
-                
-                let defaults : UserDefaults = UserDefaults.standard
-                defaults.set(shortWord, forKey: shortWordKeys[activeBank])
-                defaults.synchronize()
-            }
-            }
-            selectedShortWordBtn.setTitle(newStr, for: .normal)
+            arrayOfShortWordButton[target.row][target.column].setTitle(newStr, for: .normal)
         }
         shortWordTxtFld.isHidden = true
         doneBtn.isHidden = true
@@ -1756,6 +1762,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
+        selectedShortWordIndex = nil
         
     }
     
@@ -1856,8 +1863,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             return
         }
         
-        // Not while a preset is being edited: doneSelect finds the word by title, so swapping the
-        // group out from under it would write the edit into the group that just arrived.
+        // Not while a preset is being edited: the pending edit is addressed by position within the
+        // active group, so swapping groups would land it on the group that just arrived.
         guard shortWordTxtFld.isHidden else { return }
         
         let frame = CGRect(x: toggle.frame.minX,
