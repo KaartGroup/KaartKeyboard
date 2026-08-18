@@ -15,6 +15,27 @@ import QuartzCore
 */
 class KeyButton: UIButton {
     
+    // MARK: Properties
+    
+    /// The gutter the keyboard lays out between keys. Single source of truth for
+    /// KeyboardViewController.spacing and for the touch outset below.
+    static let gutter: CGFloat = 5.0
+    
+    /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
+    /// Half a gutter means neighbouring keys meet at the midline without overlapping.
+    /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
+    /// gutter to reclaim and an outset would only make neighbours fight over the same strip.
+    var touchOutset: CGFloat = KeyButton.gutter / 2
+    
+    // MARK: Overridden methods
+    
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        if touchOutset <= 0 {
+            return super.point(inside: point, with: event)
+        }
+        return bounds.insetBy(dx: -touchOutset, dy: -touchOutset).contains(point)
+    }
+    
     // MARK: Constructors
     
     override init(frame: CGRect) {

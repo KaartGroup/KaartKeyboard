@@ -78,7 +78,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
     
-    fileprivate let spacing: CGFloat = 5.0
+    fileprivate let spacing: CGFloat = KeyButton.gutter
     fileprivate let predictiveTextBoxHeight: CGFloat = 24.0
     fileprivate var predictiveTextButtonWidth: CGFloat {
         return (view.frame.width - 4 * spacing) / 3.0
@@ -1313,6 +1313,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 i += 1
             }
             let key = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
+            key.touchOutset = 0
             key.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: .normal)
             switch shiftMode {
             case .off:
@@ -1326,6 +1327,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             x += keyWidth
         }
         let close = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
+        close.touchOutset = 0
         close.setTitle("X", for: .normal)
         close.setBackgroundImage(UIImage.fromColor(UIColor.red), for: .normal)
         close.layer.borderWidth = 2
