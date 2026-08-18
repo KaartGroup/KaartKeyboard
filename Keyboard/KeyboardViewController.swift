@@ -1840,7 +1840,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addNumeralToggleButton() {
         numeralToggleButton?.removeFromSuperview()
-        numeralToggleButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing + keyHeight, width: keyWidth, height: keyHeight))
+        numeralToggleButton = NumeralToggleButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing + keyHeight, width: keyWidth, height: keyHeight))
         numeralToggleButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         numeralToggleButton.addTarget(self, action: #selector(KeyboardViewController.numeralToggleButtonPressed(_:)), for: .touchUpInside)
         
@@ -1910,13 +1910,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // Swaps the number row between 1-9,0 and I-X. The toggle is titled with the plane it switches to.
+    // Swaps the number row between 1-9,0 and I-X. The toggle itself carries a fixed two-line
+    // legend, so the active plane is read off the number row rather than off the key.
     fileprivate func updateNumeralTitles() {
         let titles = isRomanNumerals ? romanNumerals : arabicNumerals
         for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
             button.setTitle(titles[index], for: .normal)
         }
-        numeralToggleButton?.setTitle(isRomanNumerals ? "123" : "IV", for: .normal)
     }
     
     fileprivate func addSwipeView() {
