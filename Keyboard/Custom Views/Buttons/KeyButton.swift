@@ -85,6 +85,7 @@ class NumeralToggleButton: KeyButton {
     /// Keeps the legend off the key's edges.
     static let legendInset: CGFloat = 4.0
     static let dividerThickness: CGFloat = 1.0
+    static let legendFontSize: CGFloat = 14.4
     
     // MARK: Properties
     
@@ -98,7 +99,7 @@ class NumeralToggleButton: KeyButton {
         super.init(frame: frame)
         
         for label in [topLabel, bottomLabel] {
-            label.font = UIFont(name: "HelveticaNeue", size: 12.0)
+            label.font = UIFont(name: "HelveticaNeue", size: NumeralToggleButton.legendFontSize)
             label.textAlignment = .center
             label.textColor = UIColor(white: 1.0/255, alpha: 1.0)
             label.adjustsFontSizeToFitWidth = true
@@ -124,10 +125,12 @@ class NumeralToggleButton: KeyButton {
         let inset = NumeralToggleButton.legendInset
         let rule = NumeralToggleButton.dividerThickness
         let width = bounds.width - inset * 2
-        let lineHeight = (bounds.height - inset * 2 - rule) / 2
+        let half = bounds.height / 2
         
-        topLabel.frame = CGRect(x: inset, y: inset, width: width, height: lineHeight)
-        divider.frame = CGRect(x: inset, y: inset + lineHeight, width: width, height: rule)
-        bottomLabel.frame = CGRect(x: inset, y: divider.frame.maxY, width: width, height: lineHeight)
+        // Each line owns a full half of the key and is centred in it, which leaves roughly 6pt
+        // between the text and the divider without a clearance constant to keep in step.
+        topLabel.frame = CGRect(x: inset, y: 0, width: width, height: half)
+        bottomLabel.frame = CGRect(x: inset, y: half, width: width, height: half)
+        divider.frame = CGRect(x: inset, y: half - rule / 2, width: width, height: rule)
     }
 }
