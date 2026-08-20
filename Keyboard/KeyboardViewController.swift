@@ -1255,36 +1255,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         proxy.insertText(" ")
     }
     
-    func handleSwipeLeftForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animate(withDuration: 0.1, animations: {
-            self.moveButtonLabels(-self.keyWidth)
-        }, completion: {
-            (success: Bool) -> Void in
-            self.languageProviders.increment()
-            self.languageProvider = self.languageProviders.currentItem!
-            self.moveButtonLabels(self.keyWidth * 2.0)
-            UIView.animate(withDuration: 0.1, animations: {
-                self.moveButtonLabels(-self.keyWidth)
-            })
-        }
-        )
-    }
-    
-    func handleSwipeRightForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animate(withDuration: 0.1, animations: {
-            self.moveButtonLabels(self.keyWidth)
-        }, completion: {
-            (success: Bool) -> Void in
-            self.languageProviders.decrement()
-            self.languageProvider = self.languageProviders.currentItem!
-            self.moveButtonLabels(-self.keyWidth * 2.0)
-            UIView.animate(withDuration: 0.1, animations: {
-                self.moveButtonLabels(self.keyWidth)
-            })
-        }
-        )
-    }
-    
     @objc func returnButtonPressed(_ sender: KeyButton) {
         
         let senderStr : String = "\n"
@@ -1931,16 +1901,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addSwipeView() {
         swipeView = SwipeView(containerView: view, topOffset: 0)
         view.addSubview(swipeView)
-    }
-    
-    fileprivate func moveButtonLabels(_ dx: CGFloat) {
-        for (_, row) in characterButtons.enumerated() {
-            for (_, characterButton) in row.enumerated() {
-                characterButton.secondaryLabel.frame.offsetBy(dx: dx, dy: 0.0)
-                characterButton.tertiaryLabel.frame.offsetBy(dx: dx, dy: 0.0)
-            }
-        }
-        currentLanguageLabel.frame.offsetBy(dx: dx, dy: 0.0)
     }
     
     fileprivate func updateSuggestions() {
