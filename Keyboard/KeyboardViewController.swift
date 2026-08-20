@@ -1457,6 +1457,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
+        // U+232B renders small next to the letter keys at KeyButton's default 20pt, since it
+        // is a symbol drawn well inside its em box rather than a capital. Bump just this key;
+        // 28pt still clears the key's bounds, which matter because KeyButton sets
+        // masksToBounds and would clip an oversized glyph rather than let it overflow.
+        deleteButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 28.0)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
