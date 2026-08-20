@@ -1455,6 +1455,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // 15% smaller than the other glyph keys, and proportionally so -- a smaller font
         // rather than a vertical scale, which squashed the arrow out of its proportions.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        shiftButton.setTitleColor(UIColor.white, for: .normal)
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
@@ -1464,6 +1465,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.useGlyphTitleFont()
+        deleteButton.setTitleColor(UIColor.white, for: .normal)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
@@ -1509,6 +1511,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
         returnButton.useGlyphTitleFont()
+        returnButton.setTitleColor(UIColor.white, for: .normal)
         returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
