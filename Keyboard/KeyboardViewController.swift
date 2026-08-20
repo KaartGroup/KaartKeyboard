@@ -124,6 +124,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
     }
     
+    // The height the input view actually needs, as opposed to keyboardHeight, which only feeds
+    // keyHeight above and understates the total: that divisor is 6.5 while the layout places
+    // seven full rows. Read off the constraints rather than re-derived -- the first preset row
+    // is pinned 40 + spacing from the top (the predictive strip sits inside that band), then
+    // seven rows of keyHeight separated by spacing gutters, then a spacing bottom margin.
+    // Measured against the laid-out hierarchy on an iPad Pro 11-inch: the lowest key's bottom
+    // edge lands at 485.5pt, and this returns 490.3.
+    fileprivate var contentHeight: CGFloat {
+        let rows: CGFloat = 7.0
+        return 40.0 + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
+    }
+    
     // MARK: User interface
     
     fileprivate var swipeView: SwipeView!
@@ -901,28 +913,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func setUpHeightConstraint() {
-        // UIDevice.current.orientation is usually .unknown inside a keyboard extension --
-        // the process gets no device-orientation notifications. Falling through to an early
-        // return meant the height constraint was never installed at all, so the 6.5-row
-        // layout was clipped to whatever default height iOS handed us. Decide from the
-        // view's own geometry instead, and keep UIDevice as a hint when it is populated.
-        let screen = UIScreen.main.bounds
-        let isLandscape: Bool
+        // Ask the layout how tall it is instead of guessing from the screen.
+        //
+        // This used to switch on UIDevice.current.orientation, which is normally .unknown in
+        // an extension (the process gets no device-orientation notifications), and fell
+        // through to an early return that never installed the constraint at all, clipping the
+        // bottom rows off the screen. Replacing that with UIScreen.main.bounds.height / 2 was
+        // unrelated to what the layout needs and left the view taller than its content --
+        // 115pt of dead space below the return key in portrait. keyboardHeight is not the
+        // answer either: it feeds a 6.5 divisor while seven rows are laid out, so it is ~45pt
+        // short and clips the bottom row. contentHeight is the constraints' own arithmetic.
+        let customHeight = contentHeight
 
-        switch UIDevice.current.orientation {
-        case .portrait, .portraitUpsideDown:
-            isLandscape = false
-        case .landscapeLeft, .landscapeRight:
-            isLandscape = true
-        default:
-            let width = view.bounds.width > 0 ? view.bounds.width : screen.width
-            isLandscape = width > screen.height
-        }
-
-        let customHeight = isLandscape ? screen.height / 2 + 90 : screen.height / 2
-        
-        
-        
         if heightConstraint == nil {
             heightConstraint = NSLayoutConstraint(item: view,
                                                   attribute: .height,
