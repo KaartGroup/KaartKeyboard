@@ -27,14 +27,12 @@ class KeyButton: UIButton {
     /// Title size for the keys whose label is a symbol rather than text -- backspace, shift,
     /// return, and the globe. Symbols like U+232B and U+21E7 are drawn well inside their em
     /// box, so at titleFontSize they read visibly smaller than the capitals beside them.
+    ///
     /// Kept under the key height: KeyButton sets masksToBounds, so a glyph too large for the
-    /// key is clipped rather than allowed to overflow.
-    static let glyphTitleFontSize: CGFloat = 28.0
-
-    /// Backspace is deliberately 50% larger again than the other glyph keys -- it is the one
-    /// modifier reached for mid-word and by feel, so it is worth making unmistakable. Still
-    /// inside keyHeight (58.6pt in portrait on iPad), which masksToBounds requires.
-    static let backspaceTitleFontSize: CGFloat = glyphTitleFontSize * 1.5
+    /// key is clipped rather than allowed to overflow. 42pt yields a 49pt label against a
+    /// 58.5pt key in portrait and a 54pt key in landscape, so this is close to the ceiling --
+    /// raising it further wants a landscape check.
+    static let glyphTitleFontSize: CGFloat = 42.0
 
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
@@ -90,7 +88,7 @@ class KeyButton: UIButton {
     
     /// Switches this key to a larger symbol title size. For keys labelled with a glyph
     /// rather than text, so the font name stays in one place.
-    func useGlyphTitleFont(size: CGFloat = KeyButton.glyphTitleFontSize) {
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
+    func useGlyphTitleFont() {
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.glyphTitleFontSize)
     }
 }
