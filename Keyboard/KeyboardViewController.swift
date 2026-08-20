@@ -1448,8 +1448,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
-        shiftButton.setTitle("\u{000021E7}", for: .normal)
+        // U+2B06 is the filled counterpart of the hollow U+21E7 this used to use. U+FE0E is
+        // VARIATION SELECTOR-15, which asks for text presentation -- without it iOS renders
+        // U+2B06 as a colour emoji rather than a monochrome glyph.
+        shiftButton.setTitle("\u{2B06}\u{FE0E}", for: .normal)
         shiftButton.useGlyphTitleFont()
+        // Vertical-only scale: a 10% shorter arrow at the same width. Applied to the label
+        // rather than the font size, which would have taken the width down with it.
+        shiftButton.titleLabel?.transform = CGAffineTransform(scaleX: 1.0, y: 0.9)
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
