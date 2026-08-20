@@ -34,6 +34,10 @@ class KeyButton: UIButton {
     /// raising it further wants a landscape check.
     static let glyphTitleFontSize: CGFloat = 42.0
 
+    /// Shift sits 15% under the other glyph keys. Written as a literal rather than derived
+    /// from glyphTitleFontSize so the number you read is the number that applies.
+    static let shiftTitleFontSize: CGFloat = 35.7
+
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
     /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
@@ -88,7 +92,7 @@ class KeyButton: UIButton {
     
     /// Switches this key to a larger symbol title size. For keys labelled with a glyph
     /// rather than text, so the font name stays in one place.
-    func useGlyphTitleFont() {
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.glyphTitleFontSize)
+    func useGlyphTitleFont(size: CGFloat = KeyButton.glyphTitleFontSize) {
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
     }
 }
