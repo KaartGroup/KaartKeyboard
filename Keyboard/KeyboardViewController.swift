@@ -1449,6 +1449,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
         shiftButton.setTitle("\u{000021E7}", for: .normal)
+        shiftButton.useGlyphTitleFont()
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
@@ -1457,11 +1458,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
-        // U+232B renders small next to the letter keys at KeyButton's default 20pt, since it
-        // is a symbol drawn well inside its em box rather than a capital. Bump just this key;
-        // 28pt still clears the key's bounds, which matter because KeyButton sets
-        // masksToBounds and would clip an oversized glyph rather than let it overflow.
-        deleteButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 28.0)
+        deleteButton.useGlyphTitleFont()
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
@@ -1474,6 +1471,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
+        nextKeyboardButton.useGlyphTitleFont()
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
         nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         if #available(iOS 10.0, *) {
@@ -1505,6 +1503,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addReturnButton() {
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
+        returnButton.useGlyphTitleFont()
         returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)

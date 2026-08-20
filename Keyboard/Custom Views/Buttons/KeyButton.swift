@@ -21,6 +21,16 @@ class KeyButton: UIButton {
     /// KeyboardViewController.spacing and for the touch outset below.
     static let gutter: CGFloat = 5.0
     
+    /// Title size for the letter and word keys.
+    static let titleFontSize: CGFloat = 20.0
+
+    /// Title size for the keys whose label is a symbol rather than text -- backspace, shift,
+    /// return, and the globe. Symbols like U+232B and U+21E7 are drawn well inside their em
+    /// box, so at titleFontSize they read visibly smaller than the capitals beside them.
+    /// Kept under the key height: KeyButton sets masksToBounds, so a glyph too large for the
+    /// key is clipped rather than allowed to overflow.
+    static let glyphTitleFontSize: CGFloat = 28.0
+
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
     /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
@@ -41,7 +51,7 @@ class KeyButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.titleFontSize)
         titleLabel?.textAlignment = .center
         setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: .normal)
         titleLabel?.sizeToFit()
@@ -69,5 +79,13 @@ class KeyButton: UIButton {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Methods
+    
+    /// Switches this key to the larger symbol title size. For keys labelled with a glyph
+    /// rather than text, so the font name stays in one place.
+    func useGlyphTitleFont() {
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.glyphTitleFontSize)
     }
 }
