@@ -54,12 +54,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var secondaryToShow : [KeyButton] = []
     
-    fileprivate var currentLanguage: Language {
+    // Optional rather than trapping on languages[0]: loadView guarantees a non-empty list
+    // in every reachable case, but a nil here degrades to "draw no keys" instead of killing
+    // the extension if that ever stops being true.
+    fileprivate var currentLanguage: Language? {
         let currLang = UserDefaults.standard.string(forKey: "CURRENT_LANG")
         for lang in languages {
             if lang.title == currLang { return lang }
         }
-        return languages[0]
+        return languages.first
     }
     
     fileprivate var _showEnglish : Bool = false
@@ -69,14 +72,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var _showMacedonian: Bool = false
     fileprivate var _showBulgarian: Bool = false
     fileprivate var _showVietnamese: Bool = false
-
-    fileprivate var english: Language!
-    fileprivate var greek: Language!
-    fileprivate var serbian_cyrillic: Language!
-    fileprivate var romanian: Language!
-    fileprivate var macedonian: Language!
-    fileprivate var bulgarian: Language!
-    fileprivate var vietnamese: Language!
 
     fileprivate var languages: [Language] = []
     
@@ -176,7 +171,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var spaceButtonTimer: Timer?
     
     fileprivate var spaceTitle: String {
-        return (UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased())!
+        return UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased()
+            ?? currentLanguage?.title.uppercased() ?? ""
     }
     
     // MARK: Properties
@@ -784,55 +780,46 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func loadView() {
         super.loadView()
-        _showEnglish = (defaults?.bool(forKey: "english"))!
-        _showGreek = (defaults?.bool(forKey: "greek"))!
-        _showSerbianCyrillic = (defaults?.bool(forKey: "serbian-cyrillic"))!
-        _showRomanian = (defaults?.bool(forKey: "romanian"))!
-        _showMacedonian = (defaults?.bool(forKey: "macedonian"))!
-        _showBulgarian = (defaults?.bool(forKey: "bulgarian"))!
-        _showVietnamese = (defaults?.bool(forKey: "vietnamese"))!
+        // `defaults` is nil if the app group is unavailable, so read through it rather
+        // than force-unwrapping: a missing suite should mean "no languages selected",
+        // not a crash before the view exists.
+        _showEnglish = defaults?.bool(forKey: "english") ?? false
+        _showGreek = defaults?.bool(forKey: "greek") ?? false
+        _showSerbianCyrillic = defaults?.bool(forKey: "serbian-cyrillic") ?? false
+        _showRomanian = defaults?.bool(forKey: "romanian") ?? false
+        _showMacedonian = defaults?.bool(forKey: "macedonian") ?? false
+        _showBulgarian = defaults?.bool(forKey: "bulgarian") ?? false
+        _showVietnamese = defaults?.bool(forKey: "vietnamese") ?? false
 
-        languages = []
-    
-        for (key, value) in showLanguages {
-            if !value { continue }
-            print(key, value)
-            if let path = Bundle.main.path(forResource: key, ofType: "json") {
-                do {
-                    let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                    switch key {
-                    case "english":
-                        english = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(english)
-                    case "greek":
-                        greek = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(greek)
-                    case "serbian-cyrillic":
-                        serbian_cyrillic = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(serbian_cyrillic)
-                    case "romanian":
-                        romanian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(romanian)
-                    case "macedonian":
-                        macedonian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(macedonian)
-                    case "bulgarian":
-                        bulgarian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(bulgarian)
-                    case "vietnamese":
-                        vietnamese = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(vietnamese)
-                    default:
-                        print("not a recognized language")
-                    }
-                } catch {
+        languages = showLanguages.filter { $0.value }.keys.sorted().compactMap(loadLanguage)
 
-                }
-            } else {
-                print("FILE NOT FOUND")
-            }
+        // A fresh install has every language switched off, and the keyboard has no UI of
+        // its own for turning one on -- that lives in the container app. Rather than come
+        // up with an empty language list (which used to trap on languages[0] below), fall
+        // back to English so the keyboard is usable out of the box.
+        if languages.isEmpty, let fallback = loadLanguage(named: "english") {
+            languages = [fallback]
         }
-        UserDefaults.standard.set(languages[0].title, forKey: "CURRENT_LANG")
+
+        if let first = languages.first {
+            UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+        }
+    }
+
+    /// Decodes one bundled language definition, returning nil if it is missing or malformed
+    /// rather than substituting a nil into `languages`.
+    fileprivate func loadLanguage(named key: String) -> Language? {
+        guard let path = Bundle.main.path(forResource: key, ofType: "json") else {
+            print("language file not found: \(key).json")
+            return nil
+        }
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+            return try JSONDecoder().decode(Language.self, from: data)
+        } catch {
+            print("could not decode \(key).json: \(error)")
+            return nil
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -1362,7 +1349,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     @objc func handleKaartKeyboardPress(_ sender: KeyButton) {
         if languages.count < 2 { print("NO"); return}
         for (i, lang) in languages.enumerated() {
-            if lang.title == currentLanguage.title {
+            if lang.title == currentLanguage?.title {
                 UserDefaults.standard.set(languages[ (i + 1) <= languages.count - 1 ? i + 1 : 0 ].title, forKey: "CURRENT_LANG")
                 break
             }
@@ -1532,7 +1519,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         var y = spacing * 3 + keyHeight * 2
         
-        for (rowIndex, row) in currentLanguage.rows.enumerated() {
+        guard let language = currentLanguage else { return }
+        for (rowIndex, row) in language.rows.enumerated() {
             
             
             var x: CGFloat = 0
