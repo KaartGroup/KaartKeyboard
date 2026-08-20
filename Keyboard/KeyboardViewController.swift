@@ -1458,7 +1458,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
-        deleteButton.useGlyphTitleFont()
+        deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)

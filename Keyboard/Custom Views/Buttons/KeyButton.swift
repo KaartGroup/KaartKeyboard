@@ -31,6 +31,11 @@ class KeyButton: UIButton {
     /// key is clipped rather than allowed to overflow.
     static let glyphTitleFontSize: CGFloat = 28.0
 
+    /// Backspace is deliberately 50% larger again than the other glyph keys -- it is the one
+    /// modifier reached for mid-word and by feel, so it is worth making unmistakable. Still
+    /// inside keyHeight (58.6pt in portrait on iPad), which masksToBounds requires.
+    static let backspaceTitleFontSize: CGFloat = glyphTitleFontSize * 1.5
+
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
     /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
@@ -83,9 +88,9 @@ class KeyButton: UIButton {
     
     // MARK: Methods
     
-    /// Switches this key to the larger symbol title size. For keys labelled with a glyph
+    /// Switches this key to a larger symbol title size. For keys labelled with a glyph
     /// rather than text, so the font name stays in one place.
-    func useGlyphTitleFont() {
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.glyphTitleFontSize)
+    func useGlyphTitleFont(size: CGFloat = KeyButton.glyphTitleFontSize) {
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
     }
 }
