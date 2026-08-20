@@ -914,16 +914,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func setUpHeightConstraint() {
-        let customHeight: CGFloat
+        // UIDevice.current.orientation is usually .unknown inside a keyboard extension --
+        // the process gets no device-orientation notifications. Falling through to an early
+        // return meant the height constraint was never installed at all, so the 6.5-row
+        // layout was clipped to whatever default height iOS handed us. Decide from the
+        // view's own geometry instead, and keep UIDevice as a hint when it is populated.
+        let screen = UIScreen.main.bounds
+        let isLandscape: Bool
 
         switch UIDevice.current.orientation {
         case .portrait, .portraitUpsideDown:
-            customHeight = UIScreen.main.bounds.height / 2
+            isLandscape = false
         case .landscapeLeft, .landscapeRight:
-            customHeight = UIScreen.main.bounds.height / 2 + 90
+            isLandscape = true
         default:
-            return
+            let width = view.bounds.width > 0 ? view.bounds.width : screen.width
+            isLandscape = width > screen.height
         }
+
+        let customHeight = isLandscape ? screen.height / 2 + 90 : screen.height / 2
         
         
         
