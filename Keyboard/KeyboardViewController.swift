@@ -44,10 +44,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         set { shortWordBanks[activeBank] = newValue }
     }
     
-    // Capitalise the first letter of every word. Set to false to capitalise only after the
-    // contexts listed in the active LanguageProvider's autocapitalizeAfter (sentence enders).
-    fileprivate let capitalizeAfterEverySpace = true
-    
     fileprivate var isSecondary:Bool = false
     
     fileprivate var secondaryTap : UIGestureRecognizer!
@@ -1137,17 +1133,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             return
         }
         
-        // Capitalise the next letter. capitalizeAfterEverySpace does it for every word;
-        // autocapitalizeAfter adds the contexts that should capitalise regardless of that flag.
-        var capitalizeNext = capitalizeAfterEverySpace
-        if let contextBeforeSpace = proxy.documentContextBeforeInput {
-            for suffix in languageProvider.autocapitalizeAfter where contextBeforeSpace.hasSuffix(suffix) {
-                capitalizeNext = true
-            }
-        }
-        if capitalizeNext {
-            shiftMode = .on
-        }
+        // Capitalise the first letter of every word. Deliberate since 877a1c7 (2017): what
+        // gets typed here are OSM name values -- "Main Street", "Piata Unirii" -- where every
+        // word is capitalised. This supersedes the active LanguageProvider's
+        // autocapitalizeAfter sentence-ender list rather than consulting it, so there is no
+        // condition to evaluate and no documentContextBeforeInput to unwrap.
+        shiftMode = .on
         
         proxy.insertText(charStr)
 //        updateSuggestions()
