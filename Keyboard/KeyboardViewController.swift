@@ -1830,7 +1830,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 168.0/255, green: 168.0/255, blue: 168.0/255, alpha: 1.0)), for: .normal)
+            // 148 sits between the 122 of the preset keys and the 168 this used to be, so the
+            // number row still reads as the lighter of the two rows.
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 148.0/255, green: 148.0/255, blue: 148.0/255, alpha: 1.0)), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
@@ -1854,7 +1856,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             title: "P1/P2",
             action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
         numeralSwapButton = makePresetControlButton(
-            title: "4/IV",
+            title: "Numerals",
             action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
     }
 
@@ -1864,7 +1866,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                                             width: wordKeyWidth,
                                             height: keyHeight))
         button.setTitle(title, for: .normal)
-        button.setTitleColor(UIColor.white, for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
         button.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         button.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
         button.addTarget(self, action: action, for: .touchUpInside)
@@ -1882,8 +1884,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // Swaps the number row between 1-9,0 and I-X. The control key carries a fixed "4/IV" label,
-    // so the active plane is read off the number row rather than off the key.
+    // Swaps the number row between 1-9,0 and I-X. The control key is labelled "Numerals" rather
+    // than with either plane, so the active plane is read off the number row itself.
     fileprivate func updateNumeralTitles() {
         let titles = isRomanNumerals ? romanNumerals : arabicNumerals
         for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
