@@ -47,6 +47,12 @@ protocol CharacterButtonDelegate: class {
 */
 class CharacterButton: KeyButton {
     
+    // MARK: Constants
+    
+    /// Left inset for the secondary glyph, which is left-aligned and would otherwise sit hard
+    /// against the key's edge.
+    static let secondaryInset: CGFloat = 4.0
+    
     // MARK: Properties
     
     weak var delegate: CharacterButtonDelegate?
@@ -98,7 +104,7 @@ class CharacterButton: KeyButton {
         primaryLabel.text = primaryCharacter
         addSubview(primaryLabel)
         
-        secondaryLabel = UILabel(frame: CGRect(x: 0.0, y: 0.0, width: 60, height: frame.height * 0.5)) // width = 60
+        secondaryLabel = UILabel(frame: CGRect(x: CharacterButton.secondaryInset, y: 0.0, width: 60, height: frame.height * 0.5)) // width = 60
         secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         secondaryLabel.adjustsFontSizeToFitWidth = true
         secondaryLabel.textColor = UIColor(white: 187.0/255, alpha: 1.0)

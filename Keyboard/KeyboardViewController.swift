@@ -17,10 +17,32 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: Constants
     
-    fileprivate var shortWord = [
-        ["Press &","Hold","To","Edit","These","Presets","!"],
-        ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
+    // Two groups of 12 presets, laid out 6 to a row. Both preset rows are still seven columns
+    // wide; the seventh column of each is a control key rather than a preset -- preset-group
+    // swap on the top row, numeral swap on the bottom -- which is why 6 and not 7.
+    fileprivate let presetColumns = 6
+    fileprivate var shortWordBanks: [[[String]]] = [
+        [
+            ["Press &","Hold","To","Edit","A","Preset"],
+            ["Tap","Top","Right","To","Swap","Groups"]
+        ],
+        [
+            ["This Is","Group","2","Same","Editing","Rules"],
+            ["Bottom","Right","Swaps","1-9,0","And","I-X"]
+        ]
     ]
+    
+    /// Group 1 keeps the original key so presets saved by earlier versions survive the upgrade.
+    fileprivate let shortWordKeys = ["SHORT_WORD_ARR", "SHORT_WORD_ARR_GROUP_2"]
+    
+    fileprivate var activeBank = 0
+    
+    /// The group currently on screen. Reads and writes pass through to shortWordBanks, so every
+    /// existing use of shortWord keeps working and edits land in the group being displayed.
+    fileprivate var shortWord: [[String]] {
+        get { return shortWordBanks[activeBank] }
+        set { shortWordBanks[activeBank] = newValue }
+    }
     
     fileprivate var isSecondary:Bool = false
     
@@ -30,12 +52,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate var secondaryToShow : [KeyButton] = []
     
-    fileprivate var currentLanguage: Language {
+    // Optional rather than trapping on languages[0]: loadView guarantees a non-empty list
+    // in every reachable case, but a nil here degrades to "draw no keys" instead of killing
+    // the extension if that ever stops being true.
+    fileprivate var currentLanguage: Language? {
         let currLang = UserDefaults.standard.string(forKey: "CURRENT_LANG")
         for lang in languages {
             if lang.title == currLang { return lang }
         }
-        return languages[0]
+        return languages.first
     }
     
     fileprivate var _showEnglish : Bool = false
@@ -45,14 +70,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var _showMacedonian: Bool = false
     fileprivate var _showBulgarian: Bool = false
     fileprivate var _showVietnamese: Bool = false
-
-    fileprivate var english: Language!
-    fileprivate var greek: Language!
-    fileprivate var serbian_cyrillic: Language!
-    fileprivate var romanian: Language!
-    fileprivate var macedonian: Language!
-    fileprivate var bulgarian: Language!
-    fileprivate var vietnamese: Language!
 
     fileprivate var languages: [Language] = []
     
@@ -74,7 +91,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
     
-    fileprivate let spacing: CGFloat = 5.0
+    fileprivate let spacing: CGFloat = KeyButton.gutter
     fileprivate let predictiveTextBoxHeight: CGFloat = 24.0
     fileprivate var predictiveTextButtonWidth: CGFloat {
         return (view.frame.width - 4 * spacing) / 3.0
@@ -100,9 +117,29 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     
+    // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
+    // Not derived from keyWidth, which is tied to rowCount and would drift as the character rows
+    // reassign it, and which the number row used to be shrunk to 0.9 of so it could line up with
+    // the eleven-slot QWERTY row above the numeral toggle that used to sit at its right end.
+    fileprivate var numberKeyWidth: CGFloat {
+        return (view.frame.width - 11 * spacing) / 10.0
+    }
+    
     //Height of individual keys
     fileprivate var keyHeight: CGFloat {
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
+    }
+    
+    // The height the input view actually needs, as opposed to keyboardHeight, which only feeds
+    // keyHeight above and understates the total: that divisor is 6.5 while the layout places
+    // seven full rows. Read off the constraints rather than re-derived -- the first preset row
+    // is pinned 40 + spacing from the top (the predictive strip sits inside that band), then
+    // seven rows of keyHeight separated by spacing gutters, then a spacing bottom margin.
+    // Measured against the laid-out hierarchy on an iPad Pro 11-inch: the lowest key's bottom
+    // edge lands at 485.5pt, and this returns 490.3.
+    fileprivate var contentHeight: CGFloat {
+        let rows: CGFloat = 7.0
+        return 40.0 + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
     }
     
     // MARK: User interface
@@ -132,6 +169,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // Number Buttons
     fileprivate var numpadButton: KeyButton!
     fileprivate var arrayOfNumberButton: [KeyButton] = []
+    /// Seventh column of the top preset row: swaps which preset group is on screen.
+    fileprivate var presetGroupSwapButton: KeyButton!
+    /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
+    fileprivate var numeralSwapButton: KeyButton!
+    fileprivate var isRomanNumerals: Bool = false
+    fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
     
     // Short Word Buttons
     fileprivate var shortWordButton: KeyButton!
@@ -147,7 +191,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var spaceButtonTimer: Timer?
     
     fileprivate var spaceTitle: String {
-        return (UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased())!
+        return UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased()
+            ?? currentLanguage?.title.uppercased() ?? ""
     }
     
     // MARK: Properties
@@ -487,26 +532,46 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        rowCount = 11.0
     }
     
+    // Delete now sits at the end of the first character row, immediately right of "P".
     func updateConstraintForDelete() {
+        guard let deleteButton = deleteButton, let lastTopRowKey = characterButtons[0].last else { return }
         removeAllConstrains(deleteButton)
         
-        let topConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .top, relatedBy: .equal, toItem: arrayOfShortWordButton[1].last, attribute: .bottom, multiplier: 1.0, constant: spacing)
+        let topCons = NSLayoutConstraint(item: deleteButton, attribute: .top, relatedBy: .equal, toItem: lastTopRowKey, attribute: .top, multiplier: 1.0, constant: 0)
         
-        let leftConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .leading, relatedBy: .equal, toItem: arrayOfNumberButton.last, attribute: .trailing, multiplier: 1.0, constant: spacing)
+        let leftCons = NSLayoutConstraint(item: deleteButton, attribute: .leading, relatedBy: .equal, toItem: lastTopRowKey, attribute: .trailing, multiplier: 1.0, constant: spacing)
         
-        let rightConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
+        let rightCons = NSLayoutConstraint(item: deleteButton, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
         
-        let heightConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+        let heightCons = NSLayoutConstraint(item: deleteButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsDeleteButton = NSLayoutConstraint(item: deleteButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
         
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false;
-        
-        topConsDeleteButton.isActive = true
-        leftConsDeleteButton.isActive = true
-        rightConsDeleteButton.isActive = true
-//        widthConsDeleteButton.isActive = true
-        heightConsDeleteButton.isActive = true
+        topCons.isActive = true
+        leftCons.isActive = true
+        rightCons.isActive = true
+        heightCons.isActive = true
+    }
+    
+    // Column seven of each preset row. Pinned to the row's last preset on the left and to the
+    // view's trailing margin on the right, so the pair absorbs any rounding left over by the six
+    // fixed-width presets rather than leaving a ragged right edge.
+    func updateConstraintForPresetControls() {
+        guard arrayOfShortWordButton.count == 2,
+              let lastTopPreset = arrayOfShortWordButton[0].last,
+              let lastBottomPreset = arrayOfShortWordButton[1].last,
+              let groupSwap = presetGroupSwapButton,
+              let numeralSwap = numeralSwapButton else { return }
+
+        for (button, rowLeader) in [(groupSwap, lastTopPreset), (numeralSwap, lastBottomPreset)] {
+            removeAllConstrains(button)
+            button.translatesAutoresizingMaskIntoConstraints = false
+
+            NSLayoutConstraint(item: button, attribute: .top, relatedBy: .equal, toItem: rowLeader, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+            NSLayoutConstraint(item: button, attribute: .leading, relatedBy: .equal, toItem: rowLeader, attribute: .trailing, multiplier: 1.0, constant: spacing).isActive = true
+            NSLayoutConstraint(item: button, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing).isActive = true
+            NSLayoutConstraint(item: button, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight).isActive = true
+        }
     }
     
     func updateConstraintForSpeceRow()
@@ -555,7 +620,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsSpeceButton.isActive = true
 //        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        bottomConsSpeceButton.isActive = true
+        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
+        // activating it guarantees Auto Layout breaks one of them at runtime.
+//        bottomConsSpeceButton.isActive = true
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -599,7 +666,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
         let heightCons = NSLayoutConstraint(item: firstButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
 
-        let widthCons = NSLayoutConstraint(item: firstButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 0.9)
+        let widthCons = NSLayoutConstraint(item: firstButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: numberKeyWidth)
 
         firstButton.translatesAutoresizingMaskIntoConstraints = false
         topCons.isActive = true;
@@ -622,7 +689,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
             let heightCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
 
-            let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 0.9)
+            let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: numberKeyWidth)
 
             shortWordButtonObj.translatesAutoresizingMaskIntoConstraints = false;
             topCons.isActive = true;
@@ -695,6 +762,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         updateConstraintForShortWorld();
         updateConstraintForNumberButton()
+        updateConstraintForPresetControls()
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
@@ -712,6 +780,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addKaartKeyboardButton()
         addShortWordButton()
         addNumpadButton()
+        addPresetControlButtons()
         addCharacterButtons()
         addShiftButton();
         addDeleteButton()
@@ -729,55 +798,46 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func loadView() {
         super.loadView()
-        _showEnglish = (defaults?.bool(forKey: "english"))!
-        _showGreek = (defaults?.bool(forKey: "greek"))!
-        _showSerbianCyrillic = (defaults?.bool(forKey: "serbian-cyrillic"))!
-        _showRomanian = (defaults?.bool(forKey: "romanian"))!
-        _showMacedonian = (defaults?.bool(forKey: "macedonian"))!
-        _showBulgarian = (defaults?.bool(forKey: "bulgarian"))!
-        _showVietnamese = (defaults?.bool(forKey: "vietnamese"))!
+        // `defaults` is nil if the app group is unavailable, so read through it rather
+        // than force-unwrapping: a missing suite should mean "no languages selected",
+        // not a crash before the view exists.
+        _showEnglish = defaults?.bool(forKey: "english") ?? false
+        _showGreek = defaults?.bool(forKey: "greek") ?? false
+        _showSerbianCyrillic = defaults?.bool(forKey: "serbian-cyrillic") ?? false
+        _showRomanian = defaults?.bool(forKey: "romanian") ?? false
+        _showMacedonian = defaults?.bool(forKey: "macedonian") ?? false
+        _showBulgarian = defaults?.bool(forKey: "bulgarian") ?? false
+        _showVietnamese = defaults?.bool(forKey: "vietnamese") ?? false
 
-        languages = []
-    
-        for (key, value) in showLanguages {
-            if !value { continue }
-            print(key, value)
-            if let path = Bundle.main.path(forResource: key, ofType: "json") {
-                do {
-                    let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                    switch key {
-                    case "english":
-                        english = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(english)
-                    case "greek":
-                        greek = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(greek)
-                    case "serbian-cyrillic":
-                        serbian_cyrillic = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(serbian_cyrillic)
-                    case "romanian":
-                        romanian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(romanian)
-                    case "macedonian":
-                        macedonian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(macedonian)
-                    case "bulgarian":
-                        bulgarian = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(bulgarian)
-                    case "vietnamese":
-                        vietnamese = try? JSONDecoder().decode(Language.self, from: data)
-                        languages.append(vietnamese)
-                    default:
-                        print("not a recognized language")
-                    }
-                } catch {
+        languages = showLanguages.filter { $0.value }.keys.sorted().compactMap(loadLanguage)
 
-                }
-            } else {
-                print("FILE NOT FOUND")
-            }
+        // A fresh install has every language switched off, and the keyboard has no UI of
+        // its own for turning one on -- that lives in the container app. Rather than come
+        // up with an empty language list (which used to trap on languages[0] below), fall
+        // back to English so the keyboard is usable out of the box.
+        if languages.isEmpty, let fallback = loadLanguage(named: "english") {
+            languages = [fallback]
         }
-        UserDefaults.standard.set(languages[0].title, forKey: "CURRENT_LANG")
+
+        if let first = languages.first {
+            UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+        }
+    }
+
+    /// Decodes one bundled language definition, returning nil if it is missing or malformed
+    /// rather than substituting a nil into `languages`.
+    fileprivate func loadLanguage(named key: String) -> Language? {
+        guard let path = Bundle.main.path(forResource: key, ofType: "json") else {
+            print("language file not found: \(key).json")
+            return nil
+        }
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+            return try JSONDecoder().decode(Language.self, from: data)
+        } catch {
+            print("could not decode \(key).json: \(error)")
+            return nil
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -859,19 +919,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func setUpHeightConstraint() {
-        let customHeight: CGFloat
+        // Ask the layout how tall it is instead of guessing from the screen.
+        //
+        // This used to switch on UIDevice.current.orientation, which is normally .unknown in
+        // an extension (the process gets no device-orientation notifications), and fell
+        // through to an early return that never installed the constraint at all, clipping the
+        // bottom rows off the screen. Replacing that with UIScreen.main.bounds.height / 2 was
+        // unrelated to what the layout needs and left the view taller than its content --
+        // 115pt of dead space below the return key in portrait. keyboardHeight is not the
+        // answer either: it feeds a 6.5 divisor while seven rows are laid out, so it is ~45pt
+        // short and clips the bottom row. contentHeight is the constraints' own arithmetic.
+        let customHeight = contentHeight
 
-        switch UIDevice.current.orientation {
-        case .portrait, .portraitUpsideDown:
-            customHeight = UIScreen.main.bounds.height / 2
-        case .landscapeLeft, .landscapeRight:
-            customHeight = UIScreen.main.bounds.height / 2 + 90
-        default:
-            return
-        }
-        
-        
-        
         if heightConstraint == nil {
             heightConstraint = NSLayoutConstraint(item: view,
                                                   attribute: .height,
@@ -1074,12 +1133,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             return
         }
         
-        for suffix in languageProvider.autocapitalizeAfter {
-            if proxy.documentContextBeforeInput!.hasSuffix(suffix) {
-                shiftMode = .on
-            }
-        }
+        // Capitalise the first letter of every word. Deliberate since 877a1c7 (2017): what
+        // gets typed here are OSM name values -- "Main Street", "Piata Unirii" -- where every
+        // word is capitalised. This supersedes the active LanguageProvider's
+        // autocapitalizeAfter sentence-ender list rather than consulting it, so there is no
+        // condition to evaluate and no documentContextBeforeInput to unwrap.
         shiftMode = .on
+        
         proxy.insertText(charStr)
 //        updateSuggestions()
     }
@@ -1134,6 +1194,21 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         proxy.insertText(sender.currentTitle!)
     }
     
+    // Swaps the number row between Arabic and Roman numerals.
+    @objc func numeralSwapPressed(_ sender: KeyButton){
+        isRomanNumerals = !isRomanNumerals
+        updateNumeralTitles()
+    }
+    
+    // Swaps which preset group fills the twelve preset keys.
+    @objc func presetGroupSwapPressed(_ sender: KeyButton){
+        // Not while a preset is being edited: the pending edit is addressed by position within the
+        // active group, so swapping groups would land it on the group that just arrived.
+        guard shortWordTxtFld.isHidden else { return }
+        activeBank = (activeBank + 1) % shortWordBanks.count
+        updateShortWordTitles()
+    }
+    
     // When the shortWordButton is pressed
     @objc func shortWordButtonPressed(_ sender: KeyButton){
             if updateShortField((sender.titleLabel?.text)!) == true{
@@ -1173,36 +1248,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     @objc func handleSpaceButtonTimerTick(_ timer: Timer) {
         proxy.insertText(" ")
-    }
-    
-    func handleSwipeLeftForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animate(withDuration: 0.1, animations: {
-            self.moveButtonLabels(-self.keyWidth)
-        }, completion: {
-            (success: Bool) -> Void in
-            self.languageProviders.increment()
-            self.languageProvider = self.languageProviders.currentItem!
-            self.moveButtonLabels(self.keyWidth * 2.0)
-            UIView.animate(withDuration: 0.1, animations: {
-                self.moveButtonLabels(-self.keyWidth)
-            })
-        }
-        )
-    }
-    
-    func handleSwipeRightForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        UIView.animate(withDuration: 0.1, animations: {
-            self.moveButtonLabels(self.keyWidth)
-        }, completion: {
-            (success: Bool) -> Void in
-            self.languageProviders.decrement()
-            self.languageProvider = self.languageProviders.currentItem!
-            self.moveButtonLabels(-self.keyWidth * 2.0)
-            UIView.animate(withDuration: 0.1, animations: {
-                self.moveButtonLabels(self.keyWidth)
-            })
-        }
-        )
     }
     
     @objc func returnButtonPressed(_ sender: KeyButton) {
@@ -1248,8 +1293,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         var y = button.frame.minY - (keyHeight + spacing)
         var x: CGFloat = button.frame.minX
-        if CGFloat(button.tertiaryCharacters.count/3 + 1 ) * keyWidth + x > self.view.bounds.size.width {
-            x = button.frame.minX - (CGFloat(button.tertiaryCharacters.count/3) * keyWidth )
+        // The first popup row holds 5 accents and every row after it holds 6, with the close key
+        // able to follow a full row. Worst case is therefore 7 key widths.
+        let slotsNeeded = button.tertiaryCharacters.count <= 5 ? button.tertiaryCharacters.count + 1 : 7
+        let popupWidth = CGFloat(slotsNeeded) * keyWidth
+        if x + popupWidth > self.view.bounds.size.width {
+            x = max(spacing, self.view.bounds.size.width - popupWidth)
         }
         let xO = x
         var i = 0
@@ -1263,6 +1312,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 i += 1
             }
             let key = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
+            key.touchOutset = 0
             key.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: .normal)
             switch shiftMode {
             case .off:
@@ -1276,6 +1326,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             x += keyWidth
         }
         let close = KeyButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight))
+        close.touchOutset = 0
         close.setTitle("X", for: .normal)
         close.setBackgroundImage(UIImage.fromColor(UIColor.red), for: .normal)
         close.layer.borderWidth = 2
@@ -1306,7 +1357,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     @objc func handleKaartKeyboardPress(_ sender: KeyButton) {
         if languages.count < 2 { print("NO"); return}
         for (i, lang) in languages.enumerated() {
-            if lang.title == currentLanguage.title {
+            if lang.title == currentLanguage?.title {
                 UserDefaults.standard.set(languages[ (i + 1) <= languages.count - 1 ? i + 1 : 0 ].title, forKey: "CURRENT_LANG")
                 break
             }
@@ -1382,6 +1433,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDeleteButton()
         addSpaceButton()
         addNumpadButton()
+        addPresetControlButtons()
         addReturnButton()
         addPredictiveTextScrollView()
         
@@ -1402,15 +1454,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
-        shiftButton.setTitle("\u{000021E7}", for: .normal)
+        // U+2B06 is the filled counterpart of the hollow U+21E7 this used to use. U+FE0E is
+        // VARIATION SELECTOR-15, which asks for text presentation -- without it iOS renders
+        // U+2B06 as a colour emoji rather than a monochrome glyph.
+        shiftButton.setTitle("\u{2B06}\u{FE0E}", for: .normal)
+        // 15% smaller than the other glyph keys, and proportionally so -- a smaller font
+        // rather than a vertical scale, which squashed the arrow out of its proportions.
+        shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        shiftButton.setTitleColor(UIColor.white, for: .normal)
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
     }
     
     fileprivate func addDeleteButton() {
-        deleteButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 2.0 + spacing * 5.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
+        deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
+        deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
+        deleteButton.setTitleColor(UIColor.white, for: .normal)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
@@ -1423,6 +1484,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
+        nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
         nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         if #available(iOS 10.0, *) {
@@ -1443,6 +1505,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     fileprivate func addSpaceButton() {
+        spaceButton?.removeFromSuperview()
         spaceButton = KeyButton(frame: CGRect(x: keyWidth * 5 + spacing * 8.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 5 + spacing * 1.5, height: keyHeight))
         spaceButton.setTitle(spaceTitle, for: .normal)
         spaceButton.addTarget(self, action: #selector(KeyboardViewController.spaceButtonPressed(_:)), for: .touchUpInside)
@@ -1453,6 +1516,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addReturnButton() {
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
+        returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
+        returnButton.setTitleColor(UIColor.white, for: .normal)
         returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
@@ -1474,7 +1539,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         var y = spacing * 3 + keyHeight * 2
         
-        for (rowIndex, row) in currentLanguage.rows.enumerated() {
+        guard let language = currentLanguage else { return }
+        for (rowIndex, row) in language.rows.enumerated() {
             
             
             var x: CGFloat = 0
@@ -1528,10 +1594,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShortWordButton(){
         
+        for row in arrayOfShortWordButton {
+            for button in row { button.removeFromSuperview() }
+        }
+        arrayOfShortWordButton = [[],[]]
+        
         let userDefaults : UserDefaults = UserDefaults.standard
         
-        if ((userDefaults.object(forKey: "SHORT_WORD_ARR")) != nil){
-            shortWord = userDefaults.object(forKey: "SHORT_WORD_ARR")! as! [[String]]
+        // Presets saved by an earlier version have seven to a row, because the seventh column was
+        // a preset before it became a control key. Keep the first six of each row rather than
+        // throwing the lot away; a row too short to fill the grid falls back to that row's
+        // defaults, as a malformed value always has.
+        for (bank, key) in shortWordKeys.enumerated() {
+            guard let saved = userDefaults.object(forKey: key) as? [[String]],
+                  saved.count == shortWordBanks[bank].count else { continue }
+            var migrated = shortWordBanks[bank]
+            for (rowIndex, row) in saved.enumerated() where row.count >= presetColumns {
+                migrated[rowIndex] = Array(row.prefix(presetColumns))
+            }
+            shortWordBanks[bank] = migrated
         }
         
         for (rowIndex, row) in shortWord.enumerated(){
@@ -1570,10 +1651,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         selectedShortWordBtn = gesture.view as! UIButton
         selectedShortWordBtn.layer.borderWidth = 3.0
         selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
+        
+        // Remember where the pressed key sits, not what it says. Titles are user-editable and can
+        // repeat, so they cannot identify a preset.
+        selectedShortWordIndex = nil
+        for (rowIndex, row) in arrayOfShortWordButton.enumerated() {
+            if let column = row.firstIndex(where: { $0 === selectedShortWordBtn }) {
+                selectedShortWordIndex = (rowIndex, column)
+                break
+            }
+        }
+        
         addShortWordTxtFld()
     }
     
     var selectedShortWordBtn :UIButton = UIButton.init()
+    
+    /// Row and column of the preset being edited, within the active group.
+    fileprivate var selectedShortWordIndex: (row: Int, column: Int)?
     
     var shortWordTxtFld : UITextField = UITextField.init()
     
@@ -1635,26 +1730,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     @objc func doneSelect(_ btn:UIButton){
         
-        let newStr : String = (shortWordTxtFld.text?.trimmingCharacters(
-            in: CharacterSet.whitespacesAndNewlines
-            ))!
+        let newStr = shortWordTxtFld.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
         
-        if newStr.isEmpty == false {
+        if let target = selectedShortWordIndex, newStr.isEmpty == false,
+           target.row < shortWord.count, target.column < shortWord[target.row].count {
             
-            let oldTitle : String = (selectedShortWordBtn.titleLabel?.text)!
+            shortWord[target.row][target.column] = newStr
             
-            for (rowIndex, row) in shortWord.enumerated() {
+            let defaults : UserDefaults = UserDefaults.standard
+            defaults.set(shortWord, forKey: shortWordKeys[activeBank])
+            defaults.synchronize()
             
-            if row.contains(oldTitle){
-                let index : NSInteger = row.firstIndex(of: oldTitle)!
-                shortWord[rowIndex][index] = newStr
-                
-                let defaults : UserDefaults = UserDefaults.standard
-                defaults.set(shortWord, forKey: "SHORT_WORD_ARR")
-                defaults.synchronize()
-            }
-            }
-            selectedShortWordBtn.setTitle(newStr, for: .normal)
+            arrayOfShortWordButton[target.row][target.column].setTitle(newStr, for: .normal)
         }
         shortWordTxtFld.isHidden = true
         doneBtn.isHidden = true
@@ -1670,6 +1757,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
+        selectedShortWordIndex = nil
         
     }
     
@@ -1720,23 +1808,22 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addNumpadButton()
     {
+        for button in arrayOfNumberButton { button.removeFromSuperview() }
+        arrayOfNumberButton = []
+        
         for index in 1...10{
-            //            print("\(index) times 5 is \(index * 5)")
             rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
-            if index == 10 {
-                numpadButton.setTitle("\(index - 10)", for: .normal)
-            }
-            else{
-                numpadButton.setTitle("\(index)", for: .normal)
-            }
+            numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 168.0/255, green: 168.0/255, blue: 168.0/255, alpha: 1.0)), for: .normal)
+            // 148 sits between the 122 of the preset keys and the 168 this used to be, so the
+            // number row still reads as the lighter of the two rows.
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 148.0/255, green: 148.0/255, blue: 148.0/255, alpha: 1.0)), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
@@ -1745,21 +1832,61 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             self.view.addSubview(numpadButton)
             arrayOfNumberButton.append(numpadButton);
         }
+        updateNumeralTitles()
+    }
+    
+    // The two control keys that occupy the seventh column of the preset rows. They replace the
+    // single two-line toggle that used to sit at the right end of the number row and carry both
+    // jobs -- tap for numerals, long press for preset groups. One key per job means the
+    // long-press popup that disambiguated them is gone too, along with NumeralToggleButton.
+    fileprivate func addPresetControlButtons() {
+        presetGroupSwapButton?.removeFromSuperview()
+        numeralSwapButton?.removeFromSuperview()
+
+        presetGroupSwapButton = makePresetControlButton(
+            title: "P1/2",
+            action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
+        numeralSwapButton = makePresetControlButton(
+            title: "Numerals",
+            action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+    }
+
+    fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
+        let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
+                                            y: 40 + spacing,
+                                            width: wordKeyWidth,
+                                            height: keyHeight))
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        button.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        self.view.addSubview(button)
+        return button
+    }
+    
+    /// Repaints the 12 visible presets from the active group. No views or constraints change.
+    fileprivate func updateShortWordTitles() {
+        let bank = shortWord
+        for (rowIndex, row) in arrayOfShortWordButton.enumerated() where rowIndex < bank.count {
+            for (index, button) in row.enumerated() where index < bank[rowIndex].count {
+                button.setTitle(bank[rowIndex][index], for: .normal)
+            }
+        }
+    }
+    
+    // Swaps the number row between 1-9,0 and I-X. The control key is labelled "Numerals" rather
+    // than with either plane, so the active plane is read off the number row itself.
+    fileprivate func updateNumeralTitles() {
+        let titles = isRomanNumerals ? romanNumerals : arabicNumerals
+        for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
+            button.setTitle(titles[index], for: .normal)
+        }
     }
     
     fileprivate func addSwipeView() {
         swipeView = SwipeView(containerView: view, topOffset: 0)
         view.addSubview(swipeView)
-    }
-    
-    fileprivate func moveButtonLabels(_ dx: CGFloat) {
-        for (_, row) in characterButtons.enumerated() {
-            for (_, characterButton) in row.enumerated() {
-                characterButton.secondaryLabel.frame.offsetBy(dx: dx, dy: 0.0)
-                characterButton.tertiaryLabel.frame.offsetBy(dx: dx, dy: 0.0)
-            }
-        }
-        currentLanguageLabel.frame.offsetBy(dx: dx, dy: 0.0)
     }
     
     fileprivate func updateSuggestions() {

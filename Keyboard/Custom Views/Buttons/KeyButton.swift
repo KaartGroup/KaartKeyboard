@@ -15,12 +15,53 @@ import QuartzCore
 */
 class KeyButton: UIButton {
     
+    // MARK: Properties
+    
+    /// The gutter the keyboard lays out between keys. Single source of truth for
+    /// KeyboardViewController.spacing and for the touch outset below.
+    static let gutter: CGFloat = 5.0
+    
+    /// Title size for the letter and word keys.
+    static let titleFontSize: CGFloat = 20.0
+
+    /// Title sizes for the keys labelled with a symbol rather than text. Symbols like U+232B
+    /// and U+21E7 are drawn well inside their em box, so at titleFontSize they read visibly
+    /// smaller than the capitals beside them and need their own, larger sizes.
+    ///
+    /// One literal per key, and no size derived from another: these four have been tuned
+    /// separately and in different directions more than once, so a shared base with overrides
+    /// only obscured which number actually applied where.
+    ///
+    /// All are bounded by the key height, because KeyButton sets masksToBounds and clips a
+    /// glyph too large for its key rather than letting it overflow. Backspace at 42pt is the
+    /// largest and yields a 49pt label against a 58.5pt key in portrait and a 54pt key in
+    /// landscape, so it is near the ceiling; going above it wants a landscape check.
+    static let backspaceTitleFontSize: CGFloat = 42.0
+    static let returnTitleFontSize: CGFloat = 38.0
+    static let globeTitleFontSize: CGFloat = 38.0
+    static let shiftTitleFontSize: CGFloat = 32.0
+
+    /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
+    /// Half a gutter means neighbouring keys meet at the midline without overlapping.
+    /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
+    /// gutter to reclaim and an outset would only make neighbours fight over the same strip.
+    var touchOutset: CGFloat = KeyButton.gutter / 2
+    
+    // MARK: Overridden methods
+    
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        if touchOutset <= 0 {
+            return super.point(inside: point, with: event)
+        }
+        return bounds.insetBy(dx: -touchOutset, dy: -touchOutset).contains(point)
+    }
+    
     // MARK: Constructors
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.titleFontSize)
         titleLabel?.textAlignment = .center
         setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: .normal)
         titleLabel?.sizeToFit()
@@ -48,5 +89,13 @@ class KeyButton: UIButton {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Methods
+    
+    /// Switches this key to a larger symbol title size. For keys labelled with a glyph
+    /// rather than text, so the font name stays in one place.
+    func useGlyphTitleFont(size: CGFloat) {
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
     }
 }
