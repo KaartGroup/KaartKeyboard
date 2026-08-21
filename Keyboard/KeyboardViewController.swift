@@ -17,16 +17,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: Constants
     
-    // Two groups of 14 presets. The layout still shows 14 at a time; long-pressing the numeral
-    // toggle opens a popup that swaps which group is on screen.
+    // Two groups of 12 presets, laid out 6 to a row. Both preset rows are still seven columns
+    // wide; the seventh column of each is a control key rather than a preset -- preset-group
+    // swap on the top row, numeral swap on the bottom -- which is why 6 and not 7.
+    fileprivate let presetColumns = 6
     fileprivate var shortWordBanks: [[[String]]] = [
         [
-            ["Press &","Hold","To","Edit","These","Presets","!"],
-            ["Press", "The", "Kaart", "Keyboard", "Logo", "To Switch", "Languages"]
+            ["Press &","Hold","To","Edit","A","Preset"],
+            ["Tap","Top","Right","To","Swap","Groups"]
         ],
         [
-            ["This Is","Group","2","Long","Press","IV","To Swap"],
-            ["Edit", "These", "The", "Same", "Way", "As", "Group 1"]
+            ["This Is","Group","2","Same","Editing","Rules"],
+            ["Bottom","Right","Swaps","1-9,0","And","I-X"]
         ]
     ]
     
@@ -119,6 +121,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 8 * spacing) / 7.0
     }
     
+    // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
+    // Not derived from keyWidth, which is tied to rowCount and would drift as the character rows
+    // reassign it, and which the number row used to be shrunk to 0.9 of so it could line up with
+    // the eleven-slot QWERTY row above the numeral toggle that used to sit at its right end.
+    fileprivate var numberKeyWidth: CGFloat {
+        return (view.frame.width - 11 * spacing) / 10.0
+    }
+    
     //Height of individual keys
     fileprivate var keyHeight: CGFloat {
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
@@ -163,8 +173,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // Number Buttons
     fileprivate var numpadButton: KeyButton!
     fileprivate var arrayOfNumberButton: [KeyButton] = []
-    fileprivate var numeralToggleButton: KeyButton!
-    fileprivate var numeralPopupButtons: [KeyButton] = []
+    /// Seventh column of the top preset row: swaps which preset group is on screen.
+    fileprivate var presetGroupSwapButton: KeyButton!
+    /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
+    fileprivate var numeralSwapButton: KeyButton!
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -545,27 +557,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightCons.isActive = true
     }
     
-    // The numeral toggle takes the number-row slot that delete used to occupy.
-    func updateConstraintForNumeralToggle() {
-        guard let toggle = numeralToggleButton,
-              let lastNumberButton = arrayOfNumberButton.last,
-              let shortWordAbove = arrayOfShortWordButton[1].last else { return }
-        removeAllConstrains(toggle)
-        
-        let topCons = NSLayoutConstraint(item: toggle, attribute: .top, relatedBy: .equal, toItem: shortWordAbove, attribute: .bottom, multiplier: 1.0, constant: spacing)
-        
-        let leftCons = NSLayoutConstraint(item: toggle, attribute: .leading, relatedBy: .equal, toItem: lastNumberButton, attribute: .trailing, multiplier: 1.0, constant: spacing)
-        
-        let rightCons = NSLayoutConstraint(item: toggle, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing)
-        
-        let heightCons = NSLayoutConstraint(item: toggle, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
-        
-        toggle.translatesAutoresizingMaskIntoConstraints = false
-        
-        topCons.isActive = true
-        leftCons.isActive = true
-        rightCons.isActive = true
-        heightCons.isActive = true
+    // Column seven of each preset row. Pinned to the row's last preset on the left and to the
+    // view's trailing margin on the right, so the pair absorbs any rounding left over by the six
+    // fixed-width presets rather than leaving a ragged right edge.
+    func updateConstraintForPresetControls() {
+        guard arrayOfShortWordButton.count == 2,
+              let lastTopPreset = arrayOfShortWordButton[0].last,
+              let lastBottomPreset = arrayOfShortWordButton[1].last,
+              let groupSwap = presetGroupSwapButton,
+              let numeralSwap = numeralSwapButton else { return }
+
+        for (button, rowLeader) in [(groupSwap, lastTopPreset), (numeralSwap, lastBottomPreset)] {
+            removeAllConstrains(button)
+            button.translatesAutoresizingMaskIntoConstraints = false
+
+            NSLayoutConstraint(item: button, attribute: .top, relatedBy: .equal, toItem: rowLeader, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+            NSLayoutConstraint(item: button, attribute: .leading, relatedBy: .equal, toItem: rowLeader, attribute: .trailing, multiplier: 1.0, constant: spacing).isActive = true
+            NSLayoutConstraint(item: button, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing).isActive = true
+            NSLayoutConstraint(item: button, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight).isActive = true
+        }
     }
     
     func updateConstraintForSpeceRow()
@@ -660,7 +670,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
         let heightCons = NSLayoutConstraint(item: firstButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
 
-        let widthCons = NSLayoutConstraint(item: firstButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 0.9)
+        let widthCons = NSLayoutConstraint(item: firstButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: numberKeyWidth)
 
         firstButton.translatesAutoresizingMaskIntoConstraints = false
         topCons.isActive = true;
@@ -683,7 +693,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
             let heightCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
 
-            let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 0.9)
+            let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: numberKeyWidth)
 
             shortWordButtonObj.translatesAutoresizingMaskIntoConstraints = false;
             topCons.isActive = true;
@@ -756,7 +766,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         updateConstraintForShortWorld();
         updateConstraintForNumberButton()
-        updateConstraintForNumeralToggle()
+        updateConstraintForPresetControls()
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
@@ -774,7 +784,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addKaartKeyboardButton()
         addShortWordButton()
         addNumpadButton()
-        addNumeralToggleButton()
+        addPresetControlButtons()
         addCharacterButtons()
         addShiftButton();
         addDeleteButton()
@@ -1193,14 +1203,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         proxy.insertText(sender.currentTitle!)
     }
     
-    // Toggles the number row between Arabic and Roman numerals.
-    @objc func numeralToggleButtonPressed(_ sender: KeyButton){
-        if !numeralPopupButtons.isEmpty {   // the popup has no close key, so a tap here dismisses it
-            dismissNumeralPopup()
-            return
-        }
+    // Swaps the number row between Arabic and Roman numerals.
+    @objc func numeralSwapPressed(_ sender: KeyButton){
         isRomanNumerals = !isRomanNumerals
         updateNumeralTitles()
+    }
+    
+    // Swaps which preset group fills the twelve preset keys.
+    @objc func presetGroupSwapPressed(_ sender: KeyButton){
+        // Not while a preset is being edited: the pending edit is addressed by position within the
+        // active group, so swapping groups would land it on the group that just arrived.
+        guard shortWordTxtFld.isHidden else { return }
+        activeBank = (activeBank + 1) % shortWordBanks.count
+        updateShortWordTitles()
     }
     
     // When the shortWordButton is pressed
@@ -1427,7 +1442,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDeleteButton()
         addSpaceButton()
         addNumpadButton()
-        addNumeralToggleButton()
+        addPresetControlButtons()
         addReturnButton()
         addPredictiveTextScrollView()
         
@@ -1595,10 +1610,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let userDefaults : UserDefaults = UserDefaults.standard
         
+        // Presets saved by an earlier version have seven to a row, because the seventh column was
+        // a preset before it became a control key. Keep the first six of each row rather than
+        // throwing the lot away; a row too short to fill the grid falls back to that row's
+        // defaults, as a malformed value always has.
         for (bank, key) in shortWordKeys.enumerated() {
             guard let saved = userDefaults.object(forKey: key) as? [[String]],
                   saved.count == shortWordBanks[bank].count else { continue }
-            shortWordBanks[bank] = saved
+            var migrated = shortWordBanks[bank]
+            for (rowIndex, row) in saved.enumerated() where row.count >= presetColumns {
+                migrated[rowIndex] = Array(row.prefix(presetColumns))
+            }
+            shortWordBanks[bank] = migrated
         }
         
         for (rowIndex, row) in shortWord.enumerated(){
@@ -1819,69 +1842,37 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         updateNumeralTitles()
     }
     
-    fileprivate func addNumeralToggleButton() {
-        numeralToggleButton?.removeFromSuperview()
-        numeralToggleButton = NumeralToggleButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing + keyHeight, width: keyWidth, height: keyHeight))
-        numeralToggleButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
-        numeralToggleButton.addTarget(self, action: #selector(KeyboardViewController.numeralToggleButtonPressed(_:)), for: .touchUpInside)
-        
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(KeyboardViewController.handleLongPressForNumeralToggle(_:)))
-        longPress.minimumPressDuration = 0.3
-        numeralToggleButton.addGestureRecognizer(longPress)
-        
-        self.view.addSubview(numeralToggleButton)
-        updateNumeralTitles()
+    // The two control keys that occupy the seventh column of the preset rows. They replace the
+    // single two-line toggle that used to sit at the right end of the number row and carry both
+    // jobs -- tap for numerals, long press for preset groups. One key per job means the
+    // long-press popup that disambiguated them is gone too, along with NumeralToggleButton.
+    fileprivate func addPresetControlButtons() {
+        presetGroupSwapButton?.removeFromSuperview()
+        numeralSwapButton?.removeFromSuperview()
+
+        presetGroupSwapButton = makePresetControlButton(
+            title: "P1/P2",
+            action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
+        numeralSwapButton = makePresetControlButton(
+            title: "4/IV",
+            action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+    }
+
+    fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
+        let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
+                                            y: 40 + spacing,
+                                            width: wordKeyWidth,
+                                            height: keyHeight))
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        button.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        self.view.addSubview(button)
+        return button
     }
     
-    // MARK: Preset group popup
-    
-    /// Opens above the numeral toggle, one key wide. Its only job for now is swapping preset groups.
-    @objc func handleLongPressForNumeralToggle(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        guard gestureRecognizer.state == .began, let toggle = numeralToggleButton else { return }
-        
-        if !numeralPopupButtons.isEmpty {
-            dismissNumeralPopup()
-            return
-        }
-        
-        // Not while a preset is being edited: the pending edit is addressed by position within the
-        // active group, so swapping groups would land it on the group that just arrived.
-        guard shortWordTxtFld.isHidden else { return }
-        
-        let frame = CGRect(x: toggle.frame.minX,
-                           y: toggle.frame.minY - (keyHeight + spacing),
-                           width: toggle.frame.width,
-                           height: keyHeight)
-        let groupButton = KeyButton(frame: frame)
-        groupButton.touchOutset = 0
-        groupButton.setTitle(presetGroupTitle, for: .normal)
-        groupButton.setBackgroundImage(UIImage.fromColor(UIColor.lightGray), for: .normal)
-        groupButton.layer.borderWidth = 1
-        groupButton.layer.borderColor = UIColor.darkGray.cgColor
-        groupButton.addTarget(self, action: #selector(KeyboardViewController.presetGroupButtonPressed(_:)), for: .touchUpInside)
-        self.view.addSubview(groupButton)
-        numeralPopupButtons.append(groupButton)
-    }
-    
-    @objc func presetGroupButtonPressed(_ sender: KeyButton) {
-        activeBank = (activeBank + 1) % shortWordBanks.count
-        updateShortWordTitles()
-        dismissNumeralPopup()
-    }
-    
-    fileprivate func dismissNumeralPopup() {
-        for button in numeralPopupButtons {
-            button.removeFromSuperview()
-        }
-        numeralPopupButtons = []
-    }
-    
-    /// Titled with the group it will switch to, like the numeral toggle itself.
-    fileprivate var presetGroupTitle: String {
-        return "P\((activeBank + 2 > shortWordBanks.count) ? 1 : activeBank + 2)"
-    }
-    
-    /// Repaints the 14 visible presets from the active group. No views or constraints change.
+    /// Repaints the 12 visible presets from the active group. No views or constraints change.
     fileprivate func updateShortWordTitles() {
         let bank = shortWord
         for (rowIndex, row) in arrayOfShortWordButton.enumerated() where rowIndex < bank.count {
@@ -1891,8 +1882,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // Swaps the number row between 1-9,0 and I-X. The toggle itself carries a fixed two-line
-    // legend, so the active plane is read off the number row rather than off the key.
+    // Swaps the number row between 1-9,0 and I-X. The control key carries a fixed "4/IV" label,
+    // so the active plane is read off the number row rather than off the key.
     fileprivate func updateNumeralTitles() {
         let titles = isRomanNumerals ? romanNumerals : arabicNumerals
         for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
