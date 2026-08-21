@@ -1479,7 +1479,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addDeleteButton() {
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
-        deleteButton.useGlyphTitleFont()
+        deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
         deleteButton.setTitleColor(UIColor.white, for: .normal)
         deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
@@ -1493,7 +1493,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
-        nextKeyboardButton.useGlyphTitleFont()
+        nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
         nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         if #available(iOS 10.0, *) {
@@ -1525,7 +1525,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addReturnButton() {
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
-        returnButton.useGlyphTitleFont()
+        returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
         returnButton.setTitleColor(UIColor.white, for: .normal)
         returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
@@ -1853,7 +1853,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         numeralSwapButton?.removeFromSuperview()
 
         presetGroupSwapButton = makePresetControlButton(
-            title: "P1/P2",
+            title: "P1/2",
             action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
         numeralSwapButton = makePresetControlButton(
             title: "Numerals",

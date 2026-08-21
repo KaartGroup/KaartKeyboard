@@ -24,19 +24,22 @@ class KeyButton: UIButton {
     /// Title size for the letter and word keys.
     static let titleFontSize: CGFloat = 20.0
 
-    /// Title size for the keys whose label is a symbol rather than text -- backspace, shift,
-    /// return, and the globe. Symbols like U+232B and U+21E7 are drawn well inside their em
-    /// box, so at titleFontSize they read visibly smaller than the capitals beside them.
+    /// Title sizes for the keys labelled with a symbol rather than text. Symbols like U+232B
+    /// and U+21E7 are drawn well inside their em box, so at titleFontSize they read visibly
+    /// smaller than the capitals beside them and need their own, larger sizes.
     ///
-    /// Kept under the key height: KeyButton sets masksToBounds, so a glyph too large for the
-    /// key is clipped rather than allowed to overflow. 42pt yields a 49pt label against a
-    /// 58.5pt key in portrait and a 54pt key in landscape, so this is close to the ceiling --
-    /// raising it further wants a landscape check.
-    static let glyphTitleFontSize: CGFloat = 42.0
-
-    /// Shift sits 15% under the other glyph keys. Written as a literal rather than derived
-    /// from glyphTitleFontSize so the number you read is the number that applies.
-    static let shiftTitleFontSize: CGFloat = 35.7
+    /// One literal per key, and no size derived from another: these four have been tuned
+    /// separately and in different directions more than once, so a shared base with overrides
+    /// only obscured which number actually applied where.
+    ///
+    /// All are bounded by the key height, because KeyButton sets masksToBounds and clips a
+    /// glyph too large for its key rather than letting it overflow. Backspace at 42pt is the
+    /// largest and yields a 49pt label against a 58.5pt key in portrait and a 54pt key in
+    /// landscape, so it is near the ceiling; going above it wants a landscape check.
+    static let backspaceTitleFontSize: CGFloat = 42.0
+    static let returnTitleFontSize: CGFloat = 38.0
+    static let globeTitleFontSize: CGFloat = 38.0
+    static let shiftTitleFontSize: CGFloat = 32.0
 
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
@@ -92,7 +95,7 @@ class KeyButton: UIButton {
     
     /// Switches this key to a larger symbol title size. For keys labelled with a glyph
     /// rather than text, so the font name stays in one place.
-    func useGlyphTitleFont(size: CGFloat = KeyButton.glyphTitleFontSize) {
+    func useGlyphTitleFont(size: CGFloat) {
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
     }
 }
