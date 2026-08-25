@@ -1620,7 +1620,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
-                shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), for: .normal)
+                shortWordButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
                 let gradient = CAGradientLayer()
                 gradient.frame = self.shortWordButton.bounds
                 let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
