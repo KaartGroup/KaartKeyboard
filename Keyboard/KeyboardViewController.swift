@@ -170,9 +170,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var numpadButton: KeyButton!
     fileprivate var arrayOfNumberButton: [KeyButton] = []
     /// Seventh column of the top preset row: swaps which preset group is on screen.
-    fileprivate var presetGroupSwapButton: SplitFillButton!
+    fileprivate var presetGroupSwapButton: KeyButton!
     /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
-    fileprivate var numeralSwapButton: SplitFillButton!
+    fileprivate var numeralSwapButton: KeyButton!
+    
+    /// The two fills the control keys alternate between, so the key's shade shows its state.
+    fileprivate let controlKeyFillPrimary = UIColor(white: 148.0/255, alpha: 1.0)
+    fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -1855,22 +1859,27 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         updatePresetControlFills()
     }
 
-    fileprivate func makePresetControlButton(title: String, action: Selector) -> SplitFillButton {
-        let button = SplitFillButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
-                                                   y: 40 + spacing,
-                                                   width: wordKeyWidth,
-                                                   height: keyHeight))
+    fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
+        let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
+                                             y: 40 + spacing,
+                                             width: wordKeyWidth,
+                                             height: keyHeight))
         button.setTitle(title, for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: KeyButton.titleFontSize)
+            ?? UIFont.boldSystemFont(ofSize: KeyButton.titleFontSize)
         button.addTarget(self, action: action, for: .touchUpInside)
         self.view.addSubview(button)
         return button
     }
     
-    /// Drives each split off the state it controls rather than blind-toggling it, so the fills
+    /// Drives each fill off the state it controls rather than blind-toggling it, so the shades
     /// stay right when the keys are rebuilt -- on rotation, say -- with a swap already applied.
     fileprivate func updatePresetControlFills() {
-        presetGroupSwapButton?.isFlipped = activeBank % 2 == 1
-        numeralSwapButton?.isFlipped = isRomanNumerals
+        let groupFill = activeBank % 2 == 1 ? controlKeyFillAlternate : controlKeyFillPrimary
+        let numeralFill = isRomanNumerals ? controlKeyFillAlternate : controlKeyFillPrimary
+        presetGroupSwapButton?.setBackgroundImage(UIImage.fromColor(groupFill), for: .normal)
+        numeralSwapButton?.setBackgroundImage(UIImage.fromColor(numeralFill), for: .normal)
     }
     
     /// Repaints the 12 visible presets from the active group. No views or constraints change.

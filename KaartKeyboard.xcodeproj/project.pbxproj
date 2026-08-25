@@ -19,7 +19,6 @@
 		076EF5ED19650BD3009A561C /* UIImageFromCALayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */; };
 		076EF5F019650BFA009A561C /* CircularArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EF19650BFA009A561C /* CircularArray.swift */; };
 		076EF5F219650C79009A561C /* KeyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F119650C79009A561C /* KeyButton.swift */; };
-		262A4A042170000400E794E1 /* SplitFillButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4A032170000300E794E1 /* SplitFillButton.swift */; };
 		076EF5F419650C90009A561C /* CharacterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F319650C90009A561C /* CharacterButton.swift */; };
 		076EF5F819650F00009A561C /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F719650F00009A561C /* README.md */; };
 		076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FA19650F24009A561C /* SuggestionProvider.swift */; };
@@ -98,7 +97,6 @@
 		076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageFromCALayer.swift; sourceTree = "<group>"; };
 		076EF5EF19650BFA009A561C /* CircularArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularArray.swift; sourceTree = "<group>"; };
 		076EF5F119650C79009A561C /* KeyButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyButton.swift; sourceTree = "<group>"; };
-		262A4A032170000300E794E1 /* SplitFillButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitFillButton.swift; sourceTree = "<group>"; };
 		076EF5F319650C90009A561C /* CharacterButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterButton.swift; sourceTree = "<group>"; };
 		076EF5F719650F00009A561C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		076EF5FA19650F24009A561C /* SuggestionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
@@ -165,7 +163,6 @@
 			isa = PBXGroup;
 			children = (
 				076EF5F119650C79009A561C /* KeyButton.swift */,
-				262A4A032170000300E794E1 /* SplitFillButton.swift */,
 				076EF5F319650C90009A561C /* CharacterButton.swift */,
 				072711341967691600A896D1 /* SuggestionButton.swift */,
 				262A491E216FCC6000E794E1 /* KeyPop.swift */,
@@ -475,7 +472,6 @@
 				076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */,
 				076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */,
 				076EF5F219650C79009A561C /* KeyButton.swift in Sources */,
-				262A4A042170000400E794E1 /* SplitFillButton.swift in Sources */,
 				07F6208A1979705D006C4C86 /* SwipeView.swift in Sources */,
 				076EF5F419650C90009A561C /* CharacterButton.swift in Sources */,
 				076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */,
