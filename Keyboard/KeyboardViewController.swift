@@ -175,7 +175,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var numeralSwapButton: KeyButton!
     
     /// The two fills the control keys alternate between, so the key's shade shows its state.
-    fileprivate let controlKeyFillPrimary = UIColor(white: 148.0/255, alpha: 1.0)
+    fileprivate let controlKeyFillPrimary = UIColor.gray
     fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
@@ -1626,13 +1626,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
-                shortWordButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
+                shortWordButton.setTitleColor(UIColor.white, for: .normal)
                 let gradient = CAGradientLayer()
                 gradient.frame = self.shortWordButton.bounds
                 let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
                 gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
                 
-                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), for: .normal)
+                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
                 
@@ -1821,15 +1821,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
+            numpadButton.setTitleColor(UIColor.white, for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            // 148 sits between the 122 of the preset keys and the 168 this used to be, so the
-            // number row still reads as the lighter of the two rows.
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 148.0/255, green: 148.0/255, blue: 148.0/255, alpha: 1.0)), for: .normal)
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)

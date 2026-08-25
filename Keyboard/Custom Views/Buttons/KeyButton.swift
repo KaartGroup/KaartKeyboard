@@ -63,7 +63,7 @@ class KeyButton: UIButton {
         
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.titleFontSize)
         titleLabel?.textAlignment = .center
-        setTitleColor(UIColor(white: 1.0/255, alpha: 1.0), for: .normal)
+        setTitleColor(UIColor.black, for: .normal)
         titleLabel?.sizeToFit()
         
         let gradient = CAGradientLayer()
