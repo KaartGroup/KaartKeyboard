@@ -987,6 +987,27 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
+    /// Re-lays out after isRenamingPreset changes. The two directions need different handling,
+    /// which was established by measuring the frame against the constraint rather than reasoned
+    /// out, so both are covered by tests below.
+    ///
+    /// Growing: change the constant and stand back. UIKit re-derives the input view's height and
+    /// the keyboard grows upward. Forcing a layout here instead resolves the rows against the
+    /// frame the view still has and marks the layout clean, so the system never asks for the new
+    /// height and the bottom row falls off the screen.
+    ///
+    /// Shrinking: the same does nothing, because UIKit pins the input view to the height it last
+    /// handed out with its own required UIView-Encapsulated-Layout-Height, and on the way down
+    /// that beats ours. Measured after closing the band: our constraint and the rows had moved to
+    /// 450 while the frame stayed 514 -- exactly the dead row left below the keyboard. A forced
+    /// layout settles it back onto the smaller height.
+    fileprivate func applyPresetBandChange() {
+        updateViewConstraints()
+        guard isRenamingPreset == false else { return }
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+
     func setUpHeightConstraint() {
         // Ask the layout how tall it is instead of guessing from the screen.
         //
@@ -1798,7 +1819,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // Open the band first, then lay out into it: the presets move down by a row and the
         // keyboard grows to match, so the editor lands on a line of its own.
         isRenamingPreset = true
-        updateViewConstraints()
+        applyPresetBandChange()
 
         var tempRct: CGRect = shortWordEditRect
 
@@ -1868,7 +1889,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
         // Close the band again, giving the row back to the screen.
         isRenamingPreset = false
-        updateViewConstraints()
+        applyPresetBandChange()
         
         self.removeFromParentViewController()
 //        self.viewDidLoad()
