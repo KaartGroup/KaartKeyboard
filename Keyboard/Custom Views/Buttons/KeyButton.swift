@@ -99,3 +99,56 @@ class KeyButton: UIButton {
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
     }
 }
+
+/**
+    A key carrying a muted symbol in its top-left corner, typed by a downward swipe -- the same
+    affordance the letter keys use for their accents. The number row uses it to host the
+    punctuation that used to sit on the letter keys.
+*/
+class SymbolKeyButton: KeyButton {
+
+    /// Matches CharacterButton.secondaryInset so the corner glyph sits at the same offset on
+    /// both rows.
+    static let symbolInset: CGFloat = 4.0
+
+    /// Smaller than the letter keys' corner glyph: a number key is narrower than a letter key and
+    /// its numeral is centred across the same width, so a full-size glyph crowds it.
+    static let symbolFontSize: CGFloat = 16.0
+
+    fileprivate(set) var symbolLabel: UILabel!
+
+    /// The symbol this key carries. Empty leaves the corner blank and makes the downward swipe
+    /// a no-op, so a language with fewer than ten symbols simply has quieter keys.
+    var symbol: String = "" {
+        didSet {
+            symbolLabel?.text = symbol
+        }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        symbolLabel = UILabel(frame: .zero)
+        symbolLabel.font = UIFont(name: "HelveticaNeue", size: SymbolKeyButton.symbolFontSize)
+        symbolLabel.adjustsFontSizeToFitWidth = true
+        symbolLabel.textAlignment = .left
+        // Muted against this key's white title, as the letter keys' glyph is muted against
+        // their black one.
+        symbolLabel.textColor = UIColor(white: 1.0, alpha: 0.65)
+        addSubview(symbolLabel)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // The number keys are built at a placeholder width and then sized by constraints, so the
+    // glyph is positioned from the laid-out bounds rather than the initial frame.
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        symbolLabel.frame = CGRect(x: SymbolKeyButton.symbolInset,
+                                   y: 0.0,
+                                   width: bounds.width - SymbolKeyButton.symbolInset,
+                                   height: bounds.height * 0.5)
+    }
+}
