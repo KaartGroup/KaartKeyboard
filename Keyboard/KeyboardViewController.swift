@@ -144,28 +144,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// characters, and the space row.
     fileprivate let rowCountVertical: CGFloat = 7.0
 
-    /// Row height with no rename band open. Fixes the keyboard's overall height, and is what the
-    /// band is measured against, so neither depends on the row height actually in use.
-    fileprivate var restingKeyHeight: CGFloat {
+    /// Height of individual keys. The same whether or not a preset is being renamed: the band
+    /// takes its room from the keyboard's height, not from the rows.
+    fileprivate var keyHeight: CGFloat {
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
     }
 
-    /// The height the input view asks for. Constant: the rename band is taken out of the rows
-    /// rather than added to the keyboard.
-    ///
-    /// It used to grow by a row when the band opened, which worked here but rests on UIKit
-    /// granting the taller input view, and it does not always -- it has to be argued into
-    /// releasing the height again on the way down, and where it refuses outright the band opened
-    /// on a keyboard that had not grown, putting the editor on top of the presets and pushing the
-    /// bottom row off the screen. Holding the height still removes the question.
+    /// The height the input view asks for: seven rows at their full height, plus the rename band
+    /// when it is open. The keyboard grows at the top to make room for the editor and gives the
+    /// height straight back on Done.
     fileprivate var contentHeight: CGFloat {
-        return 8 * spacing + rowCountVertical * restingKeyHeight
-    }
-
-    /// Height of individual keys: the seven rows share whatever the band leaves them, so opening
-    /// it costs each row a little height instead of costing the keyboard a whole row.
-    fileprivate var keyHeight: CGFloat {
-        return (contentHeight - predictiveTextBandHeight - 8 * spacing) / rowCountVertical
+        return predictiveTextBandHeight + 8 * spacing + rowCountVertical * keyHeight
     }
 
     // True only while a preset is being renamed. Drives the band below, so the keyboard gives the
@@ -701,12 +690,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsSpeceButton.isActive = true
 //        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        // Pins the last row to the bottom of the keyboard so it cannot be pushed off the screen --
-        // which is what happened when the rename band opened and the input view did not grow to
-        // match. Top + height + bottom over-determine this row on their own, which is why this
-        // used to stay inactive; the slack now sits at the other end of the stack, on the first
-        // preset row's top constraint, so the three can all hold and the stack hangs from here.
-        bottomConsSpeceButton.isActive = true
+        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
+        // activating it guarantees Auto Layout breaks one of them at runtime. It was briefly
+        // active, paired with a first-preset-row top constraint relaxed to 999 to make room for
+        // it -- but that relaxation is what let the system skip the rename band's height, so the
+        // pair has gone back out. The rows keep their full height and the keyboard grows instead.
+//        bottomConsSpeceButton.isActive = true
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -804,15 +793,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
                 let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? predictiveTextBandHeight + spacing : spacing);
 
-                // Every row hangs off this one constraint, and the bottom row is pinned to the
-                // view's bottom, so it is the single slack point in the stack. Below required so
-                // that it is the one that yields when the input view is not as tall as the layout
-                // asked for: the band closes up from the top and every row stays on screen, rather
-                // than the stack keeping its full height and pushing the bottom row off. When the
-                // height is honoured this is satisfied exactly and nothing moves.
-                if rowIndex == 0 {
-                    topCons.priority = UILayoutPriority(999)
-                }
+                // Left required. This is the constraint that makes the rename band real: every
+                // other row chains off it, so it is what tells the system the keyboard needs the
+                // extra height. Dropping it below required made the band optional, and the system
+                // duly sized the input view without it -- the keyboard stayed short and the editor
+                // came down on top of the presets.
                 
                 let leftCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .leading, relatedBy: .equal, toItem: i == 0 ? view : row[i-1], attribute: i == 0 ? .leading : .trailing, multiplier: 1.0, constant: spacing );
                 
@@ -1017,11 +1002,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
-    /// Re-lays out after isRenamingPreset changes. Only the rows move: contentHeight is the same
-    /// either way, so there is no input view height for UIKit to grant or refuse and none of the
-    /// handling that used to need.
+    /// Re-lays out after isRenamingPreset changes. The two directions need different handling,
+    /// which was established by measuring the frame against the constraint rather than reasoned
+    /// out.
+    ///
+    /// Growing: change the constant and stand back. UIKit re-derives the input view's height and
+    /// the keyboard grows upward. Forcing a layout here instead resolves the rows against the
+    /// frame the view still has and marks the layout clean, so the system never asks for the new
+    /// height and the bottom row falls off the screen.
+    ///
+    /// Shrinking: the same does nothing, because UIKit pins the input view to the height it last
+    /// handed out with its own required UIView-Encapsulated-Layout-Height, and on the way down
+    /// that beats ours. Measured after closing the band: our constraint and the rows had moved to
+    /// the resting height while the frame stayed tall -- exactly the dead row left below the
+    /// keyboard. A forced layout settles it back down.
     fileprivate func applyPresetBandChange() {
         updateViewConstraints()
+        guard isRenamingPreset == false else { return }
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
     }
 
     func setUpHeightConstraint() {
