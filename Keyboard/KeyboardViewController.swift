@@ -186,9 +186,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate let arabicNumeralFontSize: CGFloat = 24.0
     
     /// Shift shows a hollow arrow when it is off and a filled one when it is armed, so the key
-    /// reports whether the next letter will be capitalised.
-    fileprivate let shiftGlyphOutline = "\u{21E7}"
-    fileprivate let shiftGlyphFilled = "\u{2B06}\u{FE0E}"
+    /// reports whether the next letter will be capitalised. SF Symbols' arrowshape.up /
+    /// arrowshape.up.fill are an outline/fill pair sharing one silhouette, unlike the Unicode
+    /// glyphs U+21E7 and U+2B06 below -- which are drawn as different arrow shapes -- so on
+    /// iOS 13+ (the deployment target is 12.0) the outline state traces the same shape the
+    /// filled state fills in. iOS 12 keeps the old mismatched pair as a fallback.
+    fileprivate let shiftGlyphOutlineSymbolName = "arrowshape.up"
+    fileprivate let shiftGlyphFilledSymbolName = "arrowshape.up.fill"
+    fileprivate let shiftGlyphOutlineFallback = "\u{21E7}"
+    fileprivate let shiftGlyphFilledFallback = "\u{2B06}\u{FE0E}"
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -1475,9 +1481,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
         // 15% smaller than the other glyph keys, and proportionally so -- a smaller font
         // rather than a vertical scale, which squashed the arrow out of its proportions.
+        // Only exercised by the iOS 12 fallback in updateShiftGlyph(); iOS 13+ uses an image.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
-        updateShiftGlyph()
+        shiftButton.tintColor = UIColor.white
         shiftButton.setTitleColor(UIColor.white, for: .normal)
+        updateShiftGlyph()
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
@@ -1888,13 +1896,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         numeralSwapButton?.setBackgroundImage(UIImage.fromColor(numeralFill), for: .normal)
     }
     
-    /// Repaints the 12 visible presets from the active group. No views or constraints change.
-    /// U+21E7 is the hollow arrow, U+2B06 the filled one. U+FE0E is VARIATION SELECTOR-15,
-    /// which asks for text presentation -- without it iOS renders U+2B06 as a colour emoji
-    /// rather than a monochrome glyph that follows the key's title colour.
     fileprivate func updateShiftGlyph() {
-        let glyph = shiftMode == .off ? shiftGlyphOutline : shiftGlyphFilled
-        shiftButton?.setTitle(glyph, for: .normal)
+        if #available(iOS 13.0, *) {
+            let symbolName = shiftMode == .off ? shiftGlyphOutlineSymbolName : shiftGlyphFilledSymbolName
+            let configuration = UIImage.SymbolConfiguration(pointSize: KeyButton.shiftTitleFontSize, weight: .regular)
+            let image = UIImage(systemName: symbolName, withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate)
+            shiftButton?.setImage(image, for: .normal)
+        } else {
+            let glyph = shiftMode == .off ? shiftGlyphOutlineFallback : shiftGlyphFilledFallback
+            shiftButton?.setTitle(glyph, for: .normal)
+        }
     }
     
     fileprivate func updateShortWordTitles() {
