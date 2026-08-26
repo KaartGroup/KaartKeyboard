@@ -684,9 +684,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsSpeceButton.isActive = true
 //        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
-        // activating it guarantees Auto Layout breaks one of them at runtime.
-//        bottomConsSpeceButton.isActive = true
+        // Pins the last row to the bottom of the keyboard so it cannot be pushed off the screen --
+        // which is what happened when the rename band opened and the input view did not grow to
+        // match. Top + height + bottom over-determine this row on their own, which is why this
+        // used to stay inactive; the slack now sits at the other end of the stack, on the first
+        // preset row's top constraint, so the three can all hold and the stack hangs from here.
+        bottomConsSpeceButton.isActive = true
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -783,6 +786,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 removeAllConstrains(shortWordButtonObj)
 
                 let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? predictiveTextBandHeight + spacing : spacing);
+
+                // Every row hangs off this one constraint, and the bottom row is pinned to the
+                // view's bottom, so it is the single slack point in the stack. Below required so
+                // that it is the one that yields when the input view is not as tall as the layout
+                // asked for: the band closes up from the top and every row stays on screen, rather
+                // than the stack keeping its full height and pushing the bottom row off. When the
+                // height is honoured this is satisfied exactly and nothing moves.
+                if rowIndex == 0 {
+                    topCons.priority = UILayoutPriority(999)
+                }
                 
                 let leftCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .leading, relatedBy: .equal, toItem: i == 0 ? view : row[i-1], attribute: i == 0 ? .leading : .trailing, multiplier: 1.0, constant: spacing );
                 
