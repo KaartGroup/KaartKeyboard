@@ -263,6 +263,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     switch shiftMode {
                     case .off:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.lowercased()
+                        characterButton.refreshCornerGlyph(uppercase: false)
                         //                        tabButton.setTitle("'", for: UIControlState())
                         //                        eepButton.setTitle("-", for: UIControlState())
                         //                        iipButton.setTitle(":", for: UIControlState())
@@ -273,6 +274,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     //                        characterButton.tertiaryLabel.text = " "
                     case .on, .caps:
                         characterButton.primaryLabel.text = characterButton.primaryCharacter.uppercased()
+                        characterButton.refreshCornerGlyph(uppercase: true)
                         //                        tabButton.setTitle("'", for: UIControlState())
                         //                        eepButton.setTitle("-", for: UIControlState())
                         //                        iipButton.setTitle(":", for: UIControlState())
@@ -1216,7 +1218,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         proxy.insertText(sender.currentTitle!)
     }
-    
+
+    // Types the symbol in a number key's corner. The punctuation that used to be swiped off the
+    // letter keys lives here now, so the gesture moved with it.
+    @objc func numpadButtonSwipedDown(_ gesture: UISwipeGestureRecognizer){
+        guard let key = gesture.view as? SymbolKeyButton, key.symbol.isEmpty == false else { return }
+
+        if updateShortField(key.symbol) == true{
+            return
+        }
+
+        proxy.insertText(key.symbol)
+    }
+
     // Swaps the number row between Arabic and Roman numerals.
     @objc func numeralSwapPressed(_ sender: KeyButton){
         isRomanNumerals = !isRomanNumerals
@@ -1389,6 +1403,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         addCharacterButtons()
         addSpaceButton()
+        updateNumberRowSymbols()
         shiftMode = .on
         self.updateViewConstraints()
     }
@@ -1404,13 +1419,37 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        updateSuggestions()
     }
     
+    // Types whatever the key shows in its corner, so the glyph and the gesture always agree.
+    // On a letter key that is the first of its accents, cased with the shift mode like an
+    // ordinary keypress; a letter with no accents shows nothing and swipes to nothing. The
+    // punctuation keys keep typing their symbol.
     func handleSwipeDownForButton(_ button: CharacterButton) {
-        let charStr = button.secondaryCharacter
+        var charStr: String
+
+        if button.isLetterKey {
+            guard let accent = button.tertiaryCharacters.first else { return }
+            switch shiftMode {
+            case .off:
+                charStr = CharacterButton.cased(accent, uppercase: false)
+            case .on:
+                charStr = CharacterButton.cased(accent, uppercase: true)
+                shiftMode = .off
+            case .caps:
+                charStr = CharacterButton.cased(accent, uppercase: true)
+            }
+            if updateShortField(charStr) == true{
+                return
+            }
+            proxy.insertText(charStr)
+            return
+        }
+
+        charStr = button.secondaryCharacter
         if updateShortField(charStr) == true{
             return
         }
         proxy.insertText(charStr)
-        if button.secondaryCharacter.characters.count > 1 {
+        if charStr.count > 1 {
             proxy.insertText(" ")
         }
 //        updateSuggestions()
@@ -1837,7 +1876,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         for index in 1...10{
             rowCount = 9.0
-            numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
+            numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             numpadButton.setTitleColor(UIColor.white, for: .normal)
             let gradient = CAGradientLayer()
@@ -1851,10 +1890,27 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
             
             numpadButton.addTarget(self, action: #selector(KeyboardViewController.numpadButtonPressed(_:)), for: .touchUpInside)
+
+            let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(KeyboardViewController.numpadButtonSwipedDown(_:)))
+            swipeDown.direction = .down
+            numpadButton.addGestureRecognizer(swipeDown)
+
             self.view.addSubview(numpadButton)
             arrayOfNumberButton.append(numpadButton);
         }
         updateNumeralTitles()
+        updateNumberRowSymbols()
+    }
+
+    /// Repaints the number row's corner symbols from the active language. Separate from
+    /// addNumpadButton so a language switch, which rebuilds only the character rows, can bring
+    /// the symbols along with it.
+    fileprivate func updateNumberRowSymbols() {
+        let symbols = Language.numberRowSymbols(currentLanguage?.numberRowSymbols,
+                                                paddedTo: arrayOfNumberButton.count)
+        for (index, button) in arrayOfNumberButton.enumerated() {
+            (button as? SymbolKeyButton)?.symbol = symbols[index]
+        }
     }
     
     // The two control keys that occupy the seventh column of the preset rows. They replace the
