@@ -112,9 +112,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1)
     }
     
-    // Width of individual short word keys
+    // The width a preset row's seven columns would each get if they were all equal.
     fileprivate var wordKeyWidth: CGFloat {
         return (view.frame.width - 8 * spacing) / 7.0
+    }
+
+    // The two control keys carry a short label and do not need a preset's width. They match the
+    // number keys instead, which lines them up exactly with the 0 key: both end at the view's
+    // trailing margin, so equal widths put them in the same column.
+    fileprivate var controlKeyWidth: CGFloat {
+        return numberKeyWidth
+    }
+
+    // What the six presets in a row each get once the control key has taken its number-key column.
+    // The controls are constrained between the last preset and the view's trailing margin rather
+    // than given a width, so this is the number that actually sizes them: widening the presets is
+    // what squeezes the controls.
+    fileprivate var presetKeyWidth: CGFloat {
+        return (view.frame.width - 8 * spacing - controlKeyWidth) / 6.0
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -125,21 +140,62 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 11 * spacing) / 10.0
     }
     
-    //Height of individual keys
-    fileprivate var keyHeight: CGFloat {
+    /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
+    /// characters, and the space row.
+    fileprivate let rowCountVertical: CGFloat = 7.0
+
+    /// Row height with no rename band open. Fixes the keyboard's overall height, and is what the
+    /// band is measured against, so neither depends on the row height actually in use.
+    fileprivate var restingKeyHeight: CGFloat {
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
     }
-    
-    // The height the input view actually needs, as opposed to keyboardHeight, which only feeds
-    // keyHeight above and understates the total: that divisor is 6.5 while the layout places
-    // seven full rows. Read off the constraints rather than re-derived -- the first preset row
-    // is pinned 40 + spacing from the top (the predictive strip sits inside that band), then
-    // seven rows of keyHeight separated by spacing gutters, then a spacing bottom margin.
-    // Measured against the laid-out hierarchy on an iPad Pro 11-inch: the lowest key's bottom
-    // edge lands at 485.5pt, and this returns 490.3.
+
+    /// The height the input view asks for. Constant: the rename band is taken out of the rows
+    /// rather than added to the keyboard.
+    ///
+    /// It used to grow by a row when the band opened, which worked here but rests on UIKit
+    /// granting the taller input view, and it does not always -- it has to be argued into
+    /// releasing the height again on the way down, and where it refuses outright the band opened
+    /// on a keyboard that had not grown, putting the editor on top of the presets and pushing the
+    /// bottom row off the screen. Holding the height still removes the question.
     fileprivate var contentHeight: CGFloat {
-        let rows: CGFloat = 7.0
-        return 40.0 + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
+        return 8 * spacing + rowCountVertical * restingKeyHeight
+    }
+
+    /// Height of individual keys: the seven rows share whatever the band leaves them, so opening
+    /// it costs each row a little height instead of costing the keyboard a whole row.
+    fileprivate var keyHeight: CGFloat {
+        return (contentHeight - predictiveTextBandHeight - 8 * spacing) / rowCountVertical
+    }
+
+    // True only while a preset is being renamed. Drives the band below, so the keyboard gives the
+    // editor room for exactly as long as it is on screen.
+    fileprivate var isRenamingPreset: Bool = false
+
+    /// Height of the rename editor itself. A text field and a Done key do not need a full key row,
+    /// and every point here is one the seven rows give up, so it is kept to what the editor reads
+    /// comfortably at -- close to the 30pt the predictive strip used to be.
+    fileprivate let presetEditFieldHeight: CGFloat = 36.0
+
+    // The band between the system bar and the first preset row.
+    //
+    // Nothing lives there at rest: the predictive / recent text strip it used to hold never had
+    // anything to show, every updateSuggestions() call site being commented out, so the band is 0
+    // and the presets sit straight below the system bar. Renaming a preset opens it, and the seven
+    // rows below give up the height for it, so the editor gets a line of its own without the
+    // keyboard having to grow, without covering the presets and without pushing the bottom row off
+    // the screen.
+    fileprivate var predictiveTextBandHeight: CGFloat {
+        return isRenamingPreset ? presetEditFieldHeight + spacing : 0.0
+    }
+
+    // Where the preset editor's text field and Done button go: the band the rename just opened,
+    // with the gutter below it separating the editor from the first preset row.
+    fileprivate var shortWordEditRect: CGRect {
+        return CGRect(x: spacing,
+                      y: spacing,
+                      width: view.frame.width - 2 * spacing,
+                      height: presetEditFieldHeight)
     }
     
     // MARK: User interface
@@ -645,9 +701,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsSpeceButton.isActive = true
 //        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
-        // activating it guarantees Auto Layout breaks one of them at runtime.
-//        bottomConsSpeceButton.isActive = true
+        // Pins the last row to the bottom of the keyboard so it cannot be pushed off the screen --
+        // which is what happened when the rename band opened and the input view did not grow to
+        // match. Top + height + bottom over-determine this row on their own, which is why this
+        // used to stay inactive; the slack now sits at the other end of the stack, on the first
+        // preset row's top constraint, so the three can all hold and the stack hangs from here.
+        bottomConsSpeceButton.isActive = true
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -669,11 +728,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
     }
     
+    /// Clears the constraints that place `inputView`, so the caller can rebuild them at the
+    /// current size.
+    ///
+    /// A constraint between two views is owned by their nearest common ancestor, not by either
+    /// view, so `inputView.constraints` holds only the width and height it pins on itself --
+    /// never the leading and top that position it in the keyboard. Removing just those left every
+    /// relayout stacking a second leading constraint on the superview, and Auto Layout was free to
+    /// satisfy the stale one: after a rotation the shift key took its new, wider width while Z
+    /// kept its portrait leading, and the two overlapped.
     func removeAllConstrains(_ inputView:UIView)
     {
-        for cons in inputView.constraints{
-            inputView.removeConstraint(cons);
+        if let parent = inputView.superview {
+            // Only the constraints that position this view. Ones where it is the second item
+            // position some other view against it, and that view clears its own before it is
+            // rebuilt.
+            parent.removeConstraints(parent.constraints.filter { ($0.firstItem as? UIView) === inputView })
         }
+        inputView.removeConstraints(inputView.constraints)
     }
     func updateConstraintForNumberButton()
     {
@@ -681,9 +753,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         let firstButton = arrayOfNumberButton[0];
         let shortWordBtn:KeyButton = arrayOfShortWordButton[1][0];
 
-        for cons in firstButton.constraints{
-            firstButton.removeConstraint(cons);
-        }
+        removeAllConstrains(firstButton)
 
         let topCons = NSLayoutConstraint(item: firstButton, attribute: .top, relatedBy: .equal, toItem: shortWordBtn, attribute: .bottom, multiplier: 1.0, constant: spacing);
 
@@ -704,9 +774,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let previosBtn = arrayOfNumberButton[i-1]
             let shortWordButtonObj = arrayOfNumberButton[i];
 
-            for cons in shortWordButtonObj.constraints{
-                shortWordButtonObj.removeConstraint(cons);
-            }
+            removeAllConstrains(shortWordButtonObj)
 
             let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: shortWordBtn, attribute: .bottom, multiplier: 1.0, constant: spacing );
 
@@ -733,18 +801,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             {
                 let shortWordButtonObj = button;
                 removeAllConstrains(shortWordButtonObj)
-                
-                for cons in shortWordButtonObj.constraints{
-                    shortWordButtonObj.removeConstraint(cons);
+
+                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? predictiveTextBandHeight + spacing : spacing);
+
+                // Every row hangs off this one constraint, and the bottom row is pinned to the
+                // view's bottom, so it is the single slack point in the stack. Below required so
+                // that it is the one that yields when the input view is not as tall as the layout
+                // asked for: the band closes up from the top and every row stays on screen, rather
+                // than the stack keeping its full height and pushing the bottom row off. When the
+                // height is honoured this is satisfied exactly and nothing moves.
+                if rowIndex == 0 {
+                    topCons.priority = UILayoutPriority(999)
                 }
-                
-                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? 40 + spacing : spacing);
                 
                 let leftCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .leading, relatedBy: .equal, toItem: i == 0 ? view : row[i-1], attribute: i == 0 ? .leading : .trailing, multiplier: 1.0, constant: spacing );
                 
                 let heightCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                 
-                let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: wordKeyWidth)
+                let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: presetKeyWidth)
                 
                 shortWordButtonObj.translatesAutoresizingMaskIntoConstraints = false;
                 topCons.isActive = true;
@@ -943,6 +1017,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
+    /// Re-lays out after isRenamingPreset changes. Only the rows move: contentHeight is the same
+    /// either way, so there is no input view height for UIKit to grant or refuse and none of the
+    /// handling that used to need.
+    fileprivate func applyPresetBandChange() {
+        updateViewConstraints()
+    }
+
     func setUpHeightConstraint() {
         // Ask the layout how tall it is instead of guessing from the screen.
         //
@@ -1513,6 +1594,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addPredictiveTextScrollView() {
         predictiveTextScrollView = PredictiveTextScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: predictiveTextBoxHeight))
+        // Built and constrained as before, but kept hidden while the predictive feature is
+        // parked. At rest the band is 0 and the strip would sit on top of the first preset row,
+        // where a visible scroll view would swallow that row's taps. Drop this line to bring the
+        // strip back once it has something to show.
+        predictiveTextScrollView.isHidden = true
         self.view.addSubview(predictiveTextScrollView)
     }
     
@@ -1681,7 +1767,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         for (rowIndex, row) in shortWord.enumerated(){
             var y: CGFloat = 0.0
             for index in 1...row.count{
-                shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
+                shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
                 let gradient = CAGradientLayer()
@@ -1745,13 +1831,21 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // MARK: Short Word method
     
     func addShortWordTxtFld(){
-        
-        var tempRct: CGRect = predictiveTextScrollView.frame
-        
-        tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
-        
+
+        // Open the band first, then lay out into it: the presets move down by a row and the
+        // keyboard grows to match, so the editor lands on a line of its own.
+        isRenamingPreset = true
+        applyPresetBandChange()
+
+        var tempRct: CGRect = shortWordEditRect
+
+        // Done takes a control key's width at the band's trailing edge, which is the same margin
+        // the control keys use, so Done, P1/2 and Num line up in one column. The field takes the
+        // rest of the band.
+        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
+
         tempRct.origin.x =  spacing
-        
+
         self.shortWordTxtFld.removeFromSuperview()
         
         self.shortWordTxtFld = UITextField.init(frame: tempRct)
@@ -1765,10 +1859,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.view.addSubview(shortWordTxtFld)
         self.view.bringSubview(toFront: self.shortWordTxtFld)
         
-        tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
-        
-        tempRct.size.width = keyWidth
-        
+        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
+
+        tempRct.size.width = controlKeyWidth
+
         doneBtn.removeFromSuperview()
         doneBtn = KeyButton.init(frame: tempRct)
         
@@ -1808,10 +1902,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         shortWordTxtFld.isHidden = true
         doneBtn.isHidden = true
-        predictiveTextScrollView.isHidden = false
-        
-        
+
         shortWordTxtFld.removeFromSuperview()
+        doneBtn.removeFromSuperview()
+
+        // Close the band again, giving the row back to the screen.
+        isRenamingPreset = false
+        applyPresetBandChange()
         
         self.removeFromParentViewController()
 //        self.viewDidLoad()
@@ -1857,14 +1954,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     
     func updateshortWordTxtFldFrameOnRotareDevice() {
-        var tempRct: CGRect = predictiveTextScrollView.frame
-        
-        tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
+        var tempRct: CGRect = shortWordEditRect
+
+        // Same split as addShortWordTxtFld: Done gets a control key's width at the trailing edge.
+        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
         tempRct.origin.x =  spacing
         shortWordTxtFld.frame = tempRct
-        
-        tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
-        tempRct.size.width = keyWidth
+
+        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
+        tempRct.size.width = controlKeyWidth
         doneBtn.frame = tempRct
         
     }
@@ -1925,16 +2023,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             title: "P1/2",
             action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
         numeralSwapButton = makePresetControlButton(
-            title: "Numerals",
+            title: "Num",
             action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
 
         updatePresetControlFills()
     }
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
-        let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
-                                             y: 40 + spacing,
-                                             width: wordKeyWidth,
+        let button = KeyButton(frame: CGRect(x: view.frame.width - controlKeyWidth - spacing,
+                                             y: predictiveTextBandHeight + spacing,
+                                             width: controlKeyWidth,
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
