@@ -173,6 +173,28 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var presetGroupSwapButton: KeyButton!
     /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
     fileprivate var numeralSwapButton: KeyButton!
+    
+    /// The two fills the control keys alternate between, so the key's shade shows its state.
+    fileprivate let controlKeyFillPrimary = UIColor.gray
+    fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
+    
+    /// A shade lighter than the UIColor.gray the keyboard's other grey keys use.
+    fileprivate let presetKeyFill = UIColor(white: 140.0/255, alpha: 1.0)
+    
+    /// The Arabic digits are single glyphs and carry 4pt more than the 20 every other titled key
+    /// uses. The Roman numerals stay at 20: VIII is four glyphs wide and gains nothing from it.
+    fileprivate let arabicNumeralFontSize: CGFloat = 24.0
+    
+    /// Shift shows a hollow arrow when it is off and a filled one when it is armed, so the key
+    /// reports whether the next letter will be capitalised. SF Symbols' arrowshape.up /
+    /// arrowshape.up.fill are an outline/fill pair sharing one silhouette, unlike the Unicode
+    /// glyphs U+21E7 and U+2B06 below -- which are drawn as different arrow shapes -- so on
+    /// iOS 13+ (the deployment target is 12.0) the outline state traces the same shape the
+    /// filled state fills in. iOS 12 keeps the old mismatched pair as a fallback.
+    fileprivate let shiftGlyphOutlineSymbolName = "arrowshape.up"
+    fileprivate let shiftGlyphFilledSymbolName = "arrowshape.up.fill"
+    fileprivate let shiftGlyphOutlineFallback = "\u{21E7}"
+    fileprivate let shiftGlyphFilledFallback = "\u{2B06}\u{FE0E}"
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -235,6 +257,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var shiftMode: ShiftMode = .on {
         didSet {
             shiftButton.isSelected = (shiftMode == .caps)
+            updateShiftGlyph()
             for row in characterButtons {
                 for characterButton in row {
                     switch shiftMode {
@@ -1198,6 +1221,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     @objc func numeralSwapPressed(_ sender: KeyButton){
         isRomanNumerals = !isRomanNumerals
         updateNumeralTitles()
+        updatePresetControlFills()
     }
     
     // Swaps which preset group fills the twelve preset keys.
@@ -1207,6 +1231,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         guard shortWordTxtFld.isHidden else { return }
         activeBank = (activeBank + 1) % shortWordBanks.count
         updateShortWordTitles()
+        updatePresetControlFills()
     }
     
     // When the shortWordButton is pressed
@@ -1454,14 +1479,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
-        // U+2B06 is the filled counterpart of the hollow U+21E7 this used to use. U+FE0E is
-        // VARIATION SELECTOR-15, which asks for text presentation -- without it iOS renders
-        // U+2B06 as a colour emoji rather than a monochrome glyph.
-        shiftButton.setTitle("\u{2B06}\u{FE0E}", for: .normal)
         // 15% smaller than the other glyph keys, and proportionally so -- a smaller font
         // rather than a vertical scale, which squashed the arrow out of its proportions.
+        // Only exercised by the iOS 12 fallback in updateShiftGlyph(); iOS 13+ uses an image.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        shiftButton.tintColor = UIColor.white
         shiftButton.setTitleColor(UIColor.white, for: .normal)
+        updateShiftGlyph()
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
@@ -1620,13 +1644,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
-                shortWordButton.setTitleColor(UIColor(white: 245.0/245, alpha: 1.0), for: .normal)
+                shortWordButton.setTitleColor(UIColor.white, for: .normal)
                 let gradient = CAGradientLayer()
                 gradient.frame = self.shortWordButton.bounds
                 let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
                 gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
                 
-                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 122.0/255, green: 122.0/255, blue: 122.0/255, alpha: 1.0)), for: .normal)
+                shortWordButton.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
                 
@@ -1815,15 +1839,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             rowCount = 9.0
             numpadButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor(white: 245.0/255, alpha: 1.0), for: .normal)
+            numpadButton.setTitleColor(UIColor.white, for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            // 148 sits between the 122 of the preset keys and the 168 this used to be, so the
-            // number row still reads as the lighter of the two rows.
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor(red: 148.0/255, green: 148.0/255, blue: 148.0/255, alpha: 1.0)), for: .normal)
+            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
@@ -1849,23 +1871,43 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         numeralSwapButton = makePresetControlButton(
             title: "Numerals",
             action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+
+        updatePresetControlFills()
     }
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
         let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
-                                            y: 40 + spacing,
-                                            width: wordKeyWidth,
-                                            height: keyHeight))
+                                             y: 40 + spacing,
+                                             width: wordKeyWidth,
+                                             height: keyHeight))
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
-        button.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
-        button.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
         button.addTarget(self, action: action, for: .touchUpInside)
         self.view.addSubview(button)
         return button
     }
     
-    /// Repaints the 12 visible presets from the active group. No views or constraints change.
+    /// Drives each fill off the state it controls rather than blind-toggling it, so the shades
+    /// stay right when the keys are rebuilt -- on rotation, say -- with a swap already applied.
+    fileprivate func updatePresetControlFills() {
+        let groupFill = activeBank % 2 == 1 ? controlKeyFillAlternate : controlKeyFillPrimary
+        let numeralFill = isRomanNumerals ? controlKeyFillAlternate : controlKeyFillPrimary
+        presetGroupSwapButton?.setBackgroundImage(UIImage.fromColor(groupFill), for: .normal)
+        numeralSwapButton?.setBackgroundImage(UIImage.fromColor(numeralFill), for: .normal)
+    }
+    
+    fileprivate func updateShiftGlyph() {
+        if #available(iOS 13.0, *) {
+            let symbolName = shiftMode == .off ? shiftGlyphOutlineSymbolName : shiftGlyphFilledSymbolName
+            let configuration = UIImage.SymbolConfiguration(pointSize: KeyButton.shiftTitleFontSize, weight: .regular)
+            let image = UIImage(systemName: symbolName, withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate)
+            shiftButton?.setImage(image, for: .normal)
+        } else {
+            let glyph = shiftMode == .off ? shiftGlyphOutlineFallback : shiftGlyphFilledFallback
+            shiftButton?.setTitle(glyph, for: .normal)
+        }
+    }
+    
     fileprivate func updateShortWordTitles() {
         let bank = shortWord
         for (rowIndex, row) in arrayOfShortWordButton.enumerated() where rowIndex < bank.count {
@@ -1879,8 +1921,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // than with either plane, so the active plane is read off the number row itself.
     fileprivate func updateNumeralTitles() {
         let titles = isRomanNumerals ? romanNumerals : arabicNumerals
+        let size = isRomanNumerals ? KeyButton.titleFontSize : arabicNumeralFontSize
         for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
             button.setTitle(titles[index], for: .normal)
+            button.titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
         }
     }
     
