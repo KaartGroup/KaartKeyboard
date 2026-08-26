@@ -133,13 +133,37 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // The height the input view actually needs, as opposed to keyboardHeight, which only feeds
     // keyHeight above and understates the total: that divisor is 6.5 while the layout places
     // seven full rows. Read off the constraints rather than re-derived -- the first preset row
-    // is pinned 40 + spacing from the top (the predictive strip sits inside that band), then
-    // seven rows of keyHeight separated by spacing gutters, then a spacing bottom margin.
-    // Measured against the laid-out hierarchy on an iPad Pro 11-inch: the lowest key's bottom
-    // edge lands at 485.5pt, and this returns 490.3.
+    // is pinned predictiveTextBandHeight + spacing from the top, then seven rows of keyHeight
+    // separated by spacing gutters, then a spacing bottom margin.
     fileprivate var contentHeight: CGFloat {
         let rows: CGFloat = 7.0
-        return 40.0 + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
+        return predictiveTextBandHeight + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
+    }
+
+    // True only while a preset is being renamed. Drives the band below, so the keyboard carries
+    // the extra row for exactly as long as the editor needs it.
+    fileprivate var isRenamingPreset: Bool = false
+
+    // The band between the system bar and the first preset row.
+    //
+    // Nothing lives there at rest: the predictive / recent text strip it used to hold never had
+    // anything to show, every updateSuggestions() call site being commented out, so the band is
+    // 0 and the presets sit straight below the system bar. Renaming a preset opens it to a full
+    // row, which grows the keyboard rather than covering it, so the editor gets its own line and
+    // the top row of presets stays visible and in place.
+    fileprivate var predictiveTextBandHeight: CGFloat {
+        return isRenamingPreset ? keyHeight + spacing : 0.0
+    }
+
+    // Where the preset editor's text field and Done button go: the band the rename just opened,
+    // one row tall, with the gutter below it separating the editor from the first preset row.
+    // Sized as the predictive strip was so the arithmetic that splits it between the two is
+    // unchanged.
+    fileprivate var shortWordEditRect: CGRect {
+        return CGRect(x: spacing,
+                      y: spacing,
+                      width: view.frame.width - 2 * spacing,
+                      height: keyHeight)
     }
     
     // MARK: User interface
@@ -743,7 +767,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 let shortWordButtonObj = button;
                 removeAllConstrains(shortWordButtonObj)
 
-                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? 40 + spacing : spacing);
+                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? predictiveTextBandHeight + spacing : spacing);
                 
                 let leftCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .leading, relatedBy: .equal, toItem: i == 0 ? view : row[i-1], attribute: i == 0 ? .leading : .trailing, multiplier: 1.0, constant: spacing );
                 
@@ -1518,6 +1542,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addPredictiveTextScrollView() {
         predictiveTextScrollView = PredictiveTextScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: predictiveTextBoxHeight))
+        // Built and constrained as before, but kept hidden while the predictive feature is
+        // parked. At rest the band is 0 and the strip would sit on top of the first preset row,
+        // where a visible scroll view would swallow that row's taps. Drop this line to bring the
+        // strip back once it has something to show.
+        predictiveTextScrollView.isHidden = true
         self.view.addSubview(predictiveTextScrollView)
     }
     
@@ -1750,13 +1779,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // MARK: Short Word method
     
     func addShortWordTxtFld(){
-        
-        var tempRct: CGRect = predictiveTextScrollView.frame
-        
+
+        // Open the band first, then lay out into it: the presets move down by a row and the
+        // keyboard grows to match, so the editor lands on a line of its own.
+        isRenamingPreset = true
+        updateViewConstraints()
+
+        var tempRct: CGRect = shortWordEditRect
+
         tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
-        
+
         tempRct.origin.x =  spacing
-        
+
         self.shortWordTxtFld.removeFromSuperview()
         
         self.shortWordTxtFld = UITextField.init(frame: tempRct)
@@ -1813,10 +1847,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         shortWordTxtFld.isHidden = true
         doneBtn.isHidden = true
-        predictiveTextScrollView.isHidden = false
-        
-        
+
         shortWordTxtFld.removeFromSuperview()
+        doneBtn.removeFromSuperview()
+
+        // Close the band again, giving the row back to the screen.
+        isRenamingPreset = false
+        updateViewConstraints()
         
         self.removeFromParentViewController()
 //        self.viewDidLoad()
@@ -1862,8 +1899,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     
     func updateshortWordTxtFldFrameOnRotareDevice() {
-        var tempRct: CGRect = predictiveTextScrollView.frame
-        
+        var tempRct: CGRect = shortWordEditRect
+
         tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
         tempRct.origin.x =  spacing
         shortWordTxtFld.frame = tempRct
@@ -1938,7 +1975,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
         let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
-                                             y: 40 + spacing,
+                                             y: predictiveTextBandHeight + spacing,
                                              width: wordKeyWidth,
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
