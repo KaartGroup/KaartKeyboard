@@ -111,9 +111,9 @@ class SymbolKeyButton: KeyButton {
     /// both rows.
     static let symbolInset: CGFloat = 4.0
 
-    /// Smaller than the letter keys' 20pt glyph: a number key is narrower than a letter key and
+    /// Smaller than the letter keys' corner glyph: a number key is narrower than a letter key and
     /// its numeral is centred across the same width, so a full-size glyph crowds it.
-    static let symbolFontSize: CGFloat = 14.0
+    static let symbolFontSize: CGFloat = 16.0
 
     fileprivate(set) var symbolLabel: UILabel!
 

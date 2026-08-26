@@ -52,6 +52,10 @@ class CharacterButton: KeyButton {
     /// Left inset for the secondary glyph, which is left-aligned and would otherwise sit hard
     /// against the key's edge.
     static let secondaryInset: CGFloat = 4.0
+
+    /// Size of the letter itself. Two points above KeyButton.titleFontSize, which the word and
+    /// preset keys use: a single letter has the room for it where a whole word does not.
+    static let primaryFontSize: CGFloat = 22.0
     
     // MARK: Properties
     
@@ -116,7 +120,7 @@ class CharacterButton: KeyButton {
         
 //        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
         primaryLabel = UILabel(frame: CGRect(x: frame.width < 50 ? frame.width * 0.5 : 0.0, y: 0.0, width: frame.width < 50 ? 60 :frame.width, height: frame.height ))
-        primaryLabel.font = UIFont(name: "Helvetica", size: 20.0)
+        primaryLabel.font = UIFont(name: "Helvetica", size: CharacterButton.primaryFontSize)
         primaryLabel.textColor = UIColor(white: 0, alpha: 1.0)
         primaryLabel.textAlignment = .center
         primaryLabel.text = primaryCharacter
