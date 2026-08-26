@@ -112,9 +112,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1)
     }
     
-    // Width of individual short word keys
+    // The width a preset row's seven columns would each get if they were all equal.
     fileprivate var wordKeyWidth: CGFloat {
         return (view.frame.width - 8 * spacing) / 7.0
+    }
+
+    // The two control keys carry a short label and do not need a preset's width. They match the
+    // number keys instead, which lines them up exactly with the 0 key: both end at the view's
+    // trailing margin, so equal widths put them in the same column.
+    fileprivate var controlKeyWidth: CGFloat {
+        return numberKeyWidth
+    }
+
+    // What the six presets in a row each get once the control key has taken its number-key column.
+    // The controls are constrained between the last preset and the view's trailing margin rather
+    // than given a width, so this is the number that actually sizes them: widening the presets is
+    // what squeezes the controls.
+    fileprivate var presetKeyWidth: CGFloat {
+        return (view.frame.width - 8 * spacing - controlKeyWidth) / 6.0
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -773,7 +788,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 
                 let heightCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                 
-                let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: wordKeyWidth)
+                let widthCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: presetKeyWidth)
                 
                 shortWordButtonObj.translatesAutoresizingMaskIntoConstraints = false;
                 topCons.isActive = true;
@@ -1715,7 +1730,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         for (rowIndex, row) in shortWord.enumerated(){
             var y: CGFloat = 0.0
             for index in 1...row.count{
-                shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + wordKeyWidth * CGFloat(index-1), y: y, width: wordKeyWidth, height: keyHeight))
+                shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
                 let gradient = CAGradientLayer()
@@ -1967,16 +1982,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             title: "P1/2",
             action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
         numeralSwapButton = makePresetControlButton(
-            title: "Numerals",
+            title: "Num",
             action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
 
         updatePresetControlFills()
     }
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
-        let button = KeyButton(frame: CGRect(x: view.frame.width - wordKeyWidth - spacing,
+        let button = KeyButton(frame: CGRect(x: view.frame.width - controlKeyWidth - spacing,
                                              y: predictiveTextBandHeight + spacing,
-                                             width: wordKeyWidth,
+                                             width: controlKeyWidth,
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
