@@ -669,11 +669,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
     }
     
+    /// Clears the constraints that place `inputView`, so the caller can rebuild them at the
+    /// current size.
+    ///
+    /// A constraint between two views is owned by their nearest common ancestor, not by either
+    /// view, so `inputView.constraints` holds only the width and height it pins on itself --
+    /// never the leading and top that position it in the keyboard. Removing just those left every
+    /// relayout stacking a second leading constraint on the superview, and Auto Layout was free to
+    /// satisfy the stale one: after a rotation the shift key took its new, wider width while Z
+    /// kept its portrait leading, and the two overlapped.
     func removeAllConstrains(_ inputView:UIView)
     {
-        for cons in inputView.constraints{
-            inputView.removeConstraint(cons);
+        if let parent = inputView.superview {
+            // Only the constraints that position this view. Ones where it is the second item
+            // position some other view against it, and that view clears its own before it is
+            // rebuilt.
+            parent.removeConstraints(parent.constraints.filter { ($0.firstItem as? UIView) === inputView })
         }
+        inputView.removeConstraints(inputView.constraints)
     }
     func updateConstraintForNumberButton()
     {
@@ -681,9 +694,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         let firstButton = arrayOfNumberButton[0];
         let shortWordBtn:KeyButton = arrayOfShortWordButton[1][0];
 
-        for cons in firstButton.constraints{
-            firstButton.removeConstraint(cons);
-        }
+        removeAllConstrains(firstButton)
 
         let topCons = NSLayoutConstraint(item: firstButton, attribute: .top, relatedBy: .equal, toItem: shortWordBtn, attribute: .bottom, multiplier: 1.0, constant: spacing);
 
@@ -704,9 +715,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let previosBtn = arrayOfNumberButton[i-1]
             let shortWordButtonObj = arrayOfNumberButton[i];
 
-            for cons in shortWordButtonObj.constraints{
-                shortWordButtonObj.removeConstraint(cons);
-            }
+            removeAllConstrains(shortWordButtonObj)
 
             let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: shortWordBtn, attribute: .bottom, multiplier: 1.0, constant: spacing );
 
@@ -733,11 +742,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             {
                 let shortWordButtonObj = button;
                 removeAllConstrains(shortWordButtonObj)
-                
-                for cons in shortWordButtonObj.constraints{
-                    shortWordButtonObj.removeConstraint(cons);
-                }
-                
+
                 let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? 40 + spacing : spacing);
                 
                 let leftCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .leading, relatedBy: .equal, toItem: i == 0 ? view : row[i-1], attribute: i == 0 ? .leading : .trailing, multiplier: 1.0, constant: spacing );
