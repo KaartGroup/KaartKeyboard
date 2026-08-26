@@ -1823,7 +1823,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
         var tempRct: CGRect = shortWordEditRect
 
-        tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
+        // Done takes a control key's width at the band's trailing edge, which is the same margin
+        // the control keys use, so Done, P1/2 and Num line up in one column. The field takes the
+        // rest of the band.
+        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
 
         tempRct.origin.x =  spacing
 
@@ -1840,10 +1843,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.view.addSubview(shortWordTxtFld)
         self.view.bringSubview(toFront: self.shortWordTxtFld)
         
-        tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
-        
-        tempRct.size.width = keyWidth
-        
+        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
+
+        tempRct.size.width = controlKeyWidth
+
         doneBtn.removeFromSuperview()
         doneBtn = KeyButton.init(frame: tempRct)
         
@@ -1937,12 +1940,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func updateshortWordTxtFldFrameOnRotareDevice() {
         var tempRct: CGRect = shortWordEditRect
 
-        tempRct.size.width = tempRct.size.width - keyWidth - 3*spacing
+        // Same split as addShortWordTxtFld: Done gets a control key's width at the trailing edge.
+        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
         tempRct.origin.x =  spacing
         shortWordTxtFld.frame = tempRct
-        
-        tempRct.origin.x = tempRct.origin.x + tempRct.size.width + 2*spacing
-        tempRct.size.width = keyWidth
+
+        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
+        tempRct.size.width = controlKeyWidth
         doneBtn.frame = tempRct
         
     }
