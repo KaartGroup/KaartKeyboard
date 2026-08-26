@@ -177,6 +177,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// The two fills the control keys alternate between, so the key's shade shows its state.
     fileprivate let controlKeyFillPrimary = UIColor.gray
     fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
+    
+    /// A shade lighter than the UIColor.gray the keyboard's other grey keys use.
+    fileprivate let presetKeyFill = UIColor(white: 140.0/255, alpha: 1.0)
+    
+    /// The Arabic digits are single glyphs and carry 4pt more than the 20 every other titled key
+    /// uses. The Roman numerals stay at 20: VIII is four glyphs wide and gains nothing from it.
+    fileprivate let arabicNumeralFontSize: CGFloat = 24.0
+    
+    /// Shift shows a hollow arrow when it is off and a filled one when it is armed, so the key
+    /// reports whether the next letter will be capitalised.
+    fileprivate let shiftGlyphOutline = "\u{21E7}"
+    fileprivate let shiftGlyphFilled = "\u{2B06}\u{FE0E}"
     fileprivate var isRomanNumerals: Bool = false
     fileprivate let arabicNumerals = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     fileprivate let romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -239,6 +251,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var shiftMode: ShiftMode = .on {
         didSet {
             shiftButton.isSelected = (shiftMode == .caps)
+            updateShiftGlyph()
             for row in characterButtons {
                 for characterButton in row {
                     switch shiftMode {
@@ -1460,13 +1473,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
-        // U+2B06 is the filled counterpart of the hollow U+21E7 this used to use. U+FE0E is
-        // VARIATION SELECTOR-15, which asks for text presentation -- without it iOS renders
-        // U+2B06 as a colour emoji rather than a monochrome glyph.
-        shiftButton.setTitle("\u{2B06}\u{FE0E}", for: .normal)
         // 15% smaller than the other glyph keys, and proportionally so -- a smaller font
         // rather than a vertical scale, which squashed the arrow out of its proportions.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        updateShiftGlyph()
         shiftButton.setTitleColor(UIColor.white, for: .normal)
         shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
@@ -1632,7 +1642,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
                 gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
                 
-                shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+                shortWordButton.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
                 
@@ -1864,8 +1874,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
-        button.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: KeyButton.titleFontSize)
-            ?? UIFont.boldSystemFont(ofSize: KeyButton.titleFontSize)
         button.addTarget(self, action: action, for: .touchUpInside)
         self.view.addSubview(button)
         return button
@@ -1881,6 +1889,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     /// Repaints the 12 visible presets from the active group. No views or constraints change.
+    /// U+21E7 is the hollow arrow, U+2B06 the filled one. U+FE0E is VARIATION SELECTOR-15,
+    /// which asks for text presentation -- without it iOS renders U+2B06 as a colour emoji
+    /// rather than a monochrome glyph that follows the key's title colour.
+    fileprivate func updateShiftGlyph() {
+        let glyph = shiftMode == .off ? shiftGlyphOutline : shiftGlyphFilled
+        shiftButton?.setTitle(glyph, for: .normal)
+    }
+    
     fileprivate func updateShortWordTitles() {
         let bank = shortWord
         for (rowIndex, row) in arrayOfShortWordButton.enumerated() where rowIndex < bank.count {
@@ -1894,8 +1910,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // than with either plane, so the active plane is read off the number row itself.
     fileprivate func updateNumeralTitles() {
         let titles = isRomanNumerals ? romanNumerals : arabicNumerals
+        let size = isRomanNumerals ? KeyButton.titleFontSize : arabicNumeralFontSize
         for (index, button) in arrayOfNumberButton.enumerated() where index < titles.count {
             button.setTitle(titles[index], for: .normal)
+            button.titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
         }
     }
     
