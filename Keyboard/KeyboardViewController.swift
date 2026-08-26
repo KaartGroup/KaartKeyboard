@@ -140,45 +140,62 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return (view.frame.width - 11 * spacing) / 10.0
     }
     
-    //Height of individual keys
-    fileprivate var keyHeight: CGFloat {
+    /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
+    /// characters, and the space row.
+    fileprivate let rowCountVertical: CGFloat = 7.0
+
+    /// Row height with no rename band open. Fixes the keyboard's overall height, and is what the
+    /// band is measured against, so neither depends on the row height actually in use.
+    fileprivate var restingKeyHeight: CGFloat {
         return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
     }
-    
-    // The height the input view actually needs, as opposed to keyboardHeight, which only feeds
-    // keyHeight above and understates the total: that divisor is 6.5 while the layout places
-    // seven full rows. Read off the constraints rather than re-derived -- the first preset row
-    // is pinned predictiveTextBandHeight + spacing from the top, then seven rows of keyHeight
-    // separated by spacing gutters, then a spacing bottom margin.
+
+    /// The height the input view asks for. Constant: the rename band is taken out of the rows
+    /// rather than added to the keyboard.
+    ///
+    /// It used to grow by a row when the band opened, which worked here but rests on UIKit
+    /// granting the taller input view, and it does not always -- it has to be argued into
+    /// releasing the height again on the way down, and where it refuses outright the band opened
+    /// on a keyboard that had not grown, putting the editor on top of the presets and pushing the
+    /// bottom row off the screen. Holding the height still removes the question.
     fileprivate var contentHeight: CGFloat {
-        let rows: CGFloat = 7.0
-        return predictiveTextBandHeight + spacing + rows * keyHeight + (rows - 1) * spacing + spacing
+        return 8 * spacing + rowCountVertical * restingKeyHeight
     }
 
-    // True only while a preset is being renamed. Drives the band below, so the keyboard carries
-    // the extra row for exactly as long as the editor needs it.
+    /// Height of individual keys: the seven rows share whatever the band leaves them, so opening
+    /// it costs each row a little height instead of costing the keyboard a whole row.
+    fileprivate var keyHeight: CGFloat {
+        return (contentHeight - predictiveTextBandHeight - 8 * spacing) / rowCountVertical
+    }
+
+    // True only while a preset is being renamed. Drives the band below, so the keyboard gives the
+    // editor room for exactly as long as it is on screen.
     fileprivate var isRenamingPreset: Bool = false
+
+    /// Height of the rename editor itself. A text field and a Done key do not need a full key row,
+    /// and every point here is one the seven rows give up, so it is kept to what the editor reads
+    /// comfortably at -- close to the 30pt the predictive strip used to be.
+    fileprivate let presetEditFieldHeight: CGFloat = 36.0
 
     // The band between the system bar and the first preset row.
     //
     // Nothing lives there at rest: the predictive / recent text strip it used to hold never had
-    // anything to show, every updateSuggestions() call site being commented out, so the band is
-    // 0 and the presets sit straight below the system bar. Renaming a preset opens it to a full
-    // row, which grows the keyboard rather than covering it, so the editor gets its own line and
-    // the top row of presets stays visible and in place.
+    // anything to show, every updateSuggestions() call site being commented out, so the band is 0
+    // and the presets sit straight below the system bar. Renaming a preset opens it, and the seven
+    // rows below give up the height for it, so the editor gets a line of its own without the
+    // keyboard having to grow, without covering the presets and without pushing the bottom row off
+    // the screen.
     fileprivate var predictiveTextBandHeight: CGFloat {
-        return isRenamingPreset ? keyHeight + spacing : 0.0
+        return isRenamingPreset ? presetEditFieldHeight + spacing : 0.0
     }
 
     // Where the preset editor's text field and Done button go: the band the rename just opened,
-    // one row tall, with the gutter below it separating the editor from the first preset row.
-    // Sized as the predictive strip was so the arithmetic that splits it between the two is
-    // unchanged.
+    // with the gutter below it separating the editor from the first preset row.
     fileprivate var shortWordEditRect: CGRect {
         return CGRect(x: spacing,
                       y: spacing,
                       width: view.frame.width - 2 * spacing,
-                      height: keyHeight)
+                      height: presetEditFieldHeight)
     }
     
     // MARK: User interface
@@ -1000,25 +1017,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
-    /// Re-lays out after isRenamingPreset changes. The two directions need different handling,
-    /// which was established by measuring the frame against the constraint rather than reasoned
-    /// out, so both are covered by tests below.
-    ///
-    /// Growing: change the constant and stand back. UIKit re-derives the input view's height and
-    /// the keyboard grows upward. Forcing a layout here instead resolves the rows against the
-    /// frame the view still has and marks the layout clean, so the system never asks for the new
-    /// height and the bottom row falls off the screen.
-    ///
-    /// Shrinking: the same does nothing, because UIKit pins the input view to the height it last
-    /// handed out with its own required UIView-Encapsulated-Layout-Height, and on the way down
-    /// that beats ours. Measured after closing the band: our constraint and the rows had moved to
-    /// 450 while the frame stayed 514 -- exactly the dead row left below the keyboard. A forced
-    /// layout settles it back onto the smaller height.
+    /// Re-lays out after isRenamingPreset changes. Only the rows move: contentHeight is the same
+    /// either way, so there is no input view height for UIKit to grant or refuse and none of the
+    /// handling that used to need.
     fileprivate func applyPresetBandChange() {
         updateViewConstraints()
-        guard isRenamingPreset == false else { return }
-        view.setNeedsLayout()
-        view.layoutIfNeeded()
     }
 
     func setUpHeightConstraint() {
