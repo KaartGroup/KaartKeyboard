@@ -1745,8 +1745,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
-        if gesture.state == .began{
-            self.shortWordTxtFld.text?.append(UIPasteboard.general.string!)
+        if gesture.state == .began, let pasted = UIPasteboard.general.string {
+            self.shortWordTxtFld.text = pasted
         }
     }
     
