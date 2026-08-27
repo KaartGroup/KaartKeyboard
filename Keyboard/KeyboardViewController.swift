@@ -86,6 +86,23 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             "vietnamese": _showVietnamese
         ]
     }
+
+    /// The enabled languages in the order the keyboard offers them: English first, then the rest
+    /// alphabetically.
+    ///
+    /// The order is not cosmetic. The globe key cycles through `languages` in this order, and
+    /// `languages.first` is the language a keyboard opens in, so putting English at the head is
+    /// what makes English the default. A plain sort put Bulgarian there.
+    ///
+    /// Derived from showLanguages rather than written out as a second list of its own, so a
+    /// language added above lands in alphabetical position without anyone having to remember to
+    /// add it here too. Sorting the tail separately, instead of with a comparator that special
+    /// cases English, keeps this free of the strict-weak-ordering rules a custom comparator has
+    /// to obey.
+    fileprivate var orderedLanguageKeys: [String] {
+        let enabled = showLanguages.filter { $0.value }.keys
+        return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
+    }
     
     lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
     
@@ -219,12 +236,31 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
     fileprivate var numeralSwapButton: KeyButton!
     
+    /// The two ends of the keyboard's grey range: the white KeyButton fills every key with, and
+    /// the preset keys' grey. The fills below are derived from these rather than written out as
+    /// literals, so moving either end carries through to everything measured against it.
+    fileprivate static let keyFillWhiteComponent: CGFloat = 1.0
+    fileprivate static let presetKeyFillComponent: CGFloat = 140.0 / 255.0
+
+    /// The grey for the number row, shift, delete, return and the two control keys: exactly
+    /// halfway between the two ends above. Kept as the midpoint expression rather than the 197.5
+    /// it works out to, so it stays the midpoint by construction.
+    fileprivate static let midKeyFillComponent: CGFloat =
+        (keyFillWhiteComponent + presetKeyFillComponent) / 2.0
+    fileprivate let midKeyFill = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
+
     /// The two fills the control keys alternate between, so the key's shade shows its state.
-    fileprivate let controlKeyFillPrimary = UIColor.gray
-    fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
-    
-    /// A shade lighter than the UIColor.gray the keyboard's other grey keys use.
-    fileprivate let presetKeyFill = UIColor(white: 140.0/255, alpha: 1.0)
+    fileprivate let controlKeyFillPrimary = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
+    ///
+    /// The alternate is darker than the primary, not lighter as it used to be. When the primary
+    /// was 128 the alternate sat 59 shades above it at 187; from 197.5 that same gap lands at
+    /// 256, off the end of the scale, so the active state goes down instead of up. 150 rather
+    /// than the 138.5 an exact 59-shade drop would give: 138.5 is the preset keys' own grey, and
+    /// these two keys sit in the preset rows, so an active toggle would disappear into the
+    /// presets beside it.
+    fileprivate let controlKeyFillAlternate = UIColor(white: 150.0/255, alpha: 1.0)
+
+    fileprivate let presetKeyFill = UIColor(white: KeyboardViewController.presetKeyFillComponent, alpha: 1.0)
     
     /// The Arabic digits are single glyphs and carry 4pt more than the 20 every other titled key
     /// uses. The Roman numerals stay at 20: VIII is four glyphs wide and gains nothing from it.
@@ -893,7 +929,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         _showBulgarian = defaults?.bool(forKey: "bulgarian") ?? false
         _showVietnamese = defaults?.bool(forKey: "vietnamese") ?? false
 
-        languages = showLanguages.filter { $0.value }.keys.sorted().compactMap(loadLanguage)
+        languages = orderedLanguageKeys.compactMap(loadLanguage)
 
         // A fresh install has every language switched off, and the keyboard has no UI of
         // its own for turning one on -- that lives in the container app. Rather than come
@@ -1606,10 +1642,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // rather than a vertical scale, which squashed the arrow out of its proportions.
         // Only exercised by the iOS 12 fallback in updateShiftGlyph(); iOS 13+ uses an image.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
-        shiftButton.tintColor = UIColor.white
-        shiftButton.setTitleColor(UIColor.white, for: .normal)
+        shiftButton.tintColor = UIColor.black
+        shiftButton.setTitleColor(UIColor.black, for: .normal)
         updateShiftGlyph()
-        shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        shiftButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
     }
@@ -1618,8 +1654,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
-        deleteButton.setTitleColor(UIColor.white, for: .normal)
-        deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        deleteButton.setTitleColor(UIColor.black, for: .normal)
+        deleteButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
         
@@ -1633,7 +1669,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
         nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
-        nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        // No fill set here on purpose, so this key takes KeyButton's white -- the same white the
+        // space bar shows, from the same place, rather than a second copy of the colour that could
+        // drift away from it.
         if #available(iOS 10.0, *) {
             nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
         } else {
@@ -1664,8 +1702,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
         returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
-        returnButton.setTitleColor(UIColor.white, for: .normal)
-        returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        returnButton.setTitleColor(UIColor.black, for: .normal)
+        returnButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
     }
@@ -1979,13 +2017,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             rowCount = 9.0
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor.white, for: .normal)
+            numpadButton.setTitleColor(UIColor.black, for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+            numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)

@@ -132,9 +132,10 @@ class SymbolKeyButton: KeyButton {
         symbolLabel.font = UIFont(name: "HelveticaNeue", size: SymbolKeyButton.symbolFontSize)
         symbolLabel.adjustsFontSizeToFitWidth = true
         symbolLabel.textAlignment = .left
-        // Muted against this key's white title, as the letter keys' glyph is muted against
-        // their black one.
-        symbolLabel.textColor = UIColor(white: 1.0, alpha: 0.65)
+        // Muted against this key's black numeral, as the letter keys' glyph is muted against
+        // their black letter. Black at low alpha rather than a fixed grey, so it stays muted by
+        // the same proportion if the key's fill is ever lightened or darkened again.
+        symbolLabel.textColor = UIColor(white: 0.0, alpha: 0.38)
         addSubview(symbolLabel)
     }
 
