@@ -300,16 +300,48 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     fileprivate var lastWordTyped: String? {
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            let length = documentContextBeforeInput.length
-            if length > 0 && CharacterSet.letters.contains(UnicodeScalar(documentContextBeforeInput.character(at: length - 1))!) {
-                let components = documentContextBeforeInput.components(separatedBy: CharacterSet.letters.inverted) 
-                return components[components.endIndex - 1]
-            }
-        }
-        return nil
+        guard let context = proxy.documentContextBeforeInput,
+              let last = context.last, KeyboardViewController.isLetter(last) else { return nil }
+        return String(context.reversed().prefix(while: KeyboardViewController.isLetter).reversed())
     }
-    
+
+    /// Whether a character is a letter / whitespace, judged by its first Unicode scalar.
+    ///
+    /// The keyboard used to ask these questions of a UTF-16 code unit, via
+    /// `UnicodeScalar(_: UInt16)` on the last unit of the text before the cursor. That
+    /// initialiser is failable and returns nil for a surrogate, and the call sites force
+    /// unwrapped it -- so the trailing surrogate of any non-BMP character (every emoji) trapped.
+    /// Asking a Character instead means the question is always answerable.
+    ///
+    /// Swift 4 has no Character.isLetter, hence the scalar lookup rather than the one-liner.
+    fileprivate static func isLetter(_ character: Character) -> Bool {
+        guard let scalar = String(character).unicodeScalars.first else { return false }
+        return CharacterSet.letters.contains(scalar)
+    }
+
+    fileprivate static func isWhitespace(_ character: Character) -> Bool {
+        guard let scalar = String(character).unicodeScalars.first else { return false }
+        return CharacterSet.whitespaces.contains(scalar)
+    }
+
+    /// How many characters a backwards delete should remove to take out the run before the
+    /// cursor: a whole word when the cursor sits after a letter, the whole run of spaces when it
+    /// sits after whitespace, and a single character otherwise.
+    ///
+    /// Counted in Characters, not UTF-16 units, because that is what deleteBackward() removes per
+    /// call. The old count was in UTF-16 units, so a word containing an emoji or any other
+    /// non-BMP character deleted more than the word.
+    fileprivate func charactersToDeleteBackward(from context: String) -> Int {
+        guard let last = context.last else { return 0 }
+        if KeyboardViewController.isLetter(last) {
+            return context.reversed().prefix(while: KeyboardViewController.isLetter).count
+        }
+        if KeyboardViewController.isWhitespace(last) {
+            return context.reversed().prefix(while: KeyboardViewController.isWhitespace).count
+        }
+        return 1
+    }
+
     fileprivate var languageProvider: LanguageProvider = DefaultLanguageProvider() {
         didSet {
             for (rowIndex, row) in characterButtons.enumerated() {
@@ -1132,46 +1164,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 break;
             }
             
-            //proxy.deleteBackward();
-            if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-                if documentContextBeforeInput.length > 0 {
-                    var charactersToDelete = 0
-                    switch documentContextBeforeInput {
-                    case let s where CharacterSet.letters.contains(UnicodeScalar(s.character(at: s.length - 1))!): // Cursor in front of letter, so delete up to first non-letter character.
-                        let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.letters.inverted, options: .backwards)
-                        if range.location != NSNotFound {
-                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                        } else {
-                            charactersToDelete = documentContextBeforeInput.length
-                        }
-                    case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
-                        let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.whitespaces.inverted, options: .backwards)
-                        if range.location != NSNotFound {
-                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                        } else {
-                            charactersToDelete = documentContextBeforeInput.length
-                        }
-                    default: // Just delete last character.
-                        
-                        charactersToDelete = 1
-                    }
-                    
-                    if( charactersToDelete == 0)
-                    {
-                        break;
-                    }
-                    for _ in 0..<charactersToDelete {
-                        proxy.deleteBackward()
-                    }
-                    
-                    //sleep(1)
+            if let documentContextBeforeInput = proxy.documentContextBeforeInput {
+                let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
+                if charactersToDelete == 0 {
+                    break;
+                }
+                for _ in 0..<charactersToDelete {
+                    proxy.deleteBackward()
                 }
             }
             else
             {
                 break;
             }
-            
+
             timer.invalidate();
             let longPressTime = Timer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
             
@@ -1225,36 +1231,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func handleSwipeLeftForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        // TODO: Figure out an implementation that doesn't use bridgeToObjectiveC, in case of funny unicode characters.
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            if documentContextBeforeInput.length > 0 {
-                var charactersToDelete = 0
-                switch documentContextBeforeInput {
-                case let s where CharacterSet.letters.contains(UnicodeScalar(s.character(at: s.length - 1))!): // Cursor in front of letter, so delete up to first non-letter character.
-                    let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.letters.inverted, options: .backwards)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
-                    let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.whitespaces.inverted, options: .backwards)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                default: // Just delete last character.
-                    
-                    charactersToDelete = 1
-                }
-                
-                for _ in 0..<charactersToDelete {
-                    proxy.deleteBackward()
-                }
-            }
+        guard let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
+        for _ in 0..<charactersToDeleteBackward(from: documentContextBeforeInput) {
+            proxy.deleteBackward()
         }
-//        updateSuggestions()
     }
     
     @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
