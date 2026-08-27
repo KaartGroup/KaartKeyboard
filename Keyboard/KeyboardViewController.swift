@@ -251,7 +251,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
     /// The two fills the control keys alternate between, so the key's shade shows its state.
     fileprivate let controlKeyFillPrimary = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
-    fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
+    ///
+    /// The alternate is darker than the primary, not lighter as it used to be. When the primary
+    /// was 128 the alternate sat 59 shades above it at 187; from 197.5 that same gap lands at
+    /// 256, off the end of the scale, so the active state goes down instead of up. 150 rather
+    /// than the 138.5 an exact 59-shade drop would give: 138.5 is the preset keys' own grey, and
+    /// these two keys sit in the preset rows, so an active toggle would disappear into the
+    /// presets beside it.
+    fileprivate let controlKeyFillAlternate = UIColor(white: 150.0/255, alpha: 1.0)
 
     fileprivate let presetKeyFill = UIColor(white: KeyboardViewController.presetKeyFillComponent, alpha: 1.0)
     
@@ -1635,8 +1642,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // rather than a vertical scale, which squashed the arrow out of its proportions.
         // Only exercised by the iOS 12 fallback in updateShiftGlyph(); iOS 13+ uses an image.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
-        shiftButton.tintColor = UIColor.white
-        shiftButton.setTitleColor(UIColor.white, for: .normal)
+        shiftButton.tintColor = UIColor.black
+        shiftButton.setTitleColor(UIColor.black, for: .normal)
         updateShiftGlyph()
         shiftButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
@@ -1647,7 +1654,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
-        deleteButton.setTitleColor(UIColor.white, for: .normal)
+        deleteButton.setTitleColor(UIColor.black, for: .normal)
         deleteButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
@@ -1695,7 +1702,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
         returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
-        returnButton.setTitleColor(UIColor.white, for: .normal)
+        returnButton.setTitleColor(UIColor.black, for: .normal)
         returnButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
@@ -2010,7 +2017,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             rowCount = 9.0
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor.white, for: .normal)
+            numpadButton.setTitleColor(UIColor.black, for: .normal)
             let gradient = CAGradientLayer()
             gradient.frame = self.shortWordButton.bounds
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
