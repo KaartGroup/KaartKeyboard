@@ -86,6 +86,23 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             "vietnamese": _showVietnamese
         ]
     }
+
+    /// The enabled languages in the order the keyboard offers them: English first, then the rest
+    /// alphabetically.
+    ///
+    /// The order is not cosmetic. The globe key cycles through `languages` in this order, and
+    /// `languages.first` is the language a keyboard opens in, so putting English at the head is
+    /// what makes English the default. A plain sort put Bulgarian there.
+    ///
+    /// Derived from showLanguages rather than written out as a second list of its own, so a
+    /// language added above lands in alphabetical position without anyone having to remember to
+    /// add it here too. Sorting the tail separately, instead of with a comparator that special
+    /// cases English, keeps this free of the strict-weak-ordering rules a custom comparator has
+    /// to obey.
+    fileprivate var orderedLanguageKeys: [String] {
+        let enabled = showLanguages.filter { $0.value }.keys
+        return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
+    }
     
     lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
     
@@ -893,7 +910,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         _showBulgarian = defaults?.bool(forKey: "bulgarian") ?? false
         _showVietnamese = defaults?.bool(forKey: "vietnamese") ?? false
 
-        languages = showLanguages.filter { $0.value }.keys.sorted().compactMap(loadLanguage)
+        languages = orderedLanguageKeys.compactMap(loadLanguage)
 
         // A fresh install has every language switched off, and the keyboard has no UI of
         // its own for turning one on -- that lives in the container app. Rather than come
