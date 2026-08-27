@@ -1650,7 +1650,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
         nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
-        nextKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        // No fill set here on purpose, so this key takes KeyButton's white -- the same white the
+        // space bar shows, from the same place, rather than a second copy of the colour that could
+        // drift away from it.
         if #available(iOS 10.0, *) {
             nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
         } else {
