@@ -24,6 +24,11 @@ class KeyButton: UIButton {
     /// Title size for the letter and word keys.
     static let titleFontSize: CGFloat = 20.0
 
+    /// The cream fill and brown text every plain key -- letters, space, backspace -- starts
+    /// from, matched against a reference mockup's palette.
+    static let defaultKeyFill = UIColor(red: 234.0/255, green: 227.0/255, blue: 210.0/255, alpha: 1.0)
+    static let defaultTitleColor = UIColor(red: 72.0/255, green: 55.0/255, blue: 42.0/255, alpha: 1.0)
+
     /// Title sizes for the keys labelled with a symbol rather than text. Symbols like U+232B
     /// and U+21E7 are drawn well inside their em box, so at titleFontSize they read visibly
     /// smaller than the capitals beside them and need their own, larger sizes.
@@ -63,16 +68,16 @@ class KeyButton: UIButton {
         
         titleLabel?.font = UIFont(name: "HelveticaNeue", size: KeyButton.titleFontSize)
         titleLabel?.textAlignment = .center
-        setTitleColor(UIColor.black, for: .normal)
+        setTitleColor(KeyButton.defaultTitleColor, for: .normal)
         titleLabel?.sizeToFit()
-        
+
         let gradient = CAGradientLayer()
         gradient.frame = bounds
         let gradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).cgColor, UIColor(red: 254.0/255, green: 254.0/255, blue: 254.0/255, alpha: 1.0).cgColor]
         gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
         //setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
-        
-        setBackgroundImage(UIImage.fromColor(UIColor.white), for: .normal)
+
+        setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
         let selectedGradient = CAGradientLayer()
         selectedGradient.frame = bounds
         let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).cgColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).cgColor]
@@ -113,7 +118,7 @@ class SymbolKeyButton: KeyButton {
 
     /// Smaller than the letter keys' corner glyph: a number key is narrower than a letter key and
     /// its numeral is centred across the same width, so a full-size glyph crowds it.
-    static let symbolFontSize: CGFloat = 16.0
+    static let symbolFontSize: CGFloat = 18.0
 
     fileprivate(set) var symbolLabel: UILabel!
 
@@ -132,10 +137,8 @@ class SymbolKeyButton: KeyButton {
         symbolLabel.font = UIFont(name: "HelveticaNeue", size: SymbolKeyButton.symbolFontSize)
         symbolLabel.adjustsFontSizeToFitWidth = true
         symbolLabel.textAlignment = .left
-        // Muted against this key's black numeral, as the letter keys' glyph is muted against
-        // their black letter. Black at low alpha rather than a fixed grey, so it stays muted by
-        // the same proportion if the key's fill is ever lightened or darkened again.
-        symbolLabel.textColor = UIColor(white: 0.0, alpha: 0.38)
+        // Same solid black as this key's numeral.
+        symbolLabel.textColor = UIColor.black
         addSubview(symbolLabel)
     }
 
