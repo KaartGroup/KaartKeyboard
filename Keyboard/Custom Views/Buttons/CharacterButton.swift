@@ -199,7 +199,12 @@ class CharacterButton: KeyButton {
         delegate?.handleSwipeDownForButton(self)
     }
     
+    // Only on .began. A long press also reports .changed for every touch move that follows
+    // recognition, and .ended on release, and the delegate builds a fresh accent popup each time
+    // it is called -- so holding a key and sliding a finger stacked a new set of buttons per
+    // move. One press, one call.
     @objc func buttonLongPressed(_ longPressGestureRecognizer: UILongPressGestureRecognizer) {
+        guard longPressGestureRecognizer.state == .began else { return }
         delegate?.handleLongPressForButton(self)
     }
 }

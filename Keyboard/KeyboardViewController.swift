@@ -1450,7 +1450,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func handleLongPressForButton(_ button: CharacterButton) {
         if button.tertiaryCharacters.isEmpty { return }
-        
+
+        // Whatever popup was open belongs to another key. Take it down rather than leaving its
+        // buttons stacked underneath the new one.
+        dismissTertiaryButtons()
+
         var y = button.frame.minY - (keyHeight + spacing)
         var x: CGFloat = button.frame.minX
         // The first popup row holds 5 accents and every row after it holds 6, with the close key
@@ -1496,22 +1500,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         tertiaryButtons.append(close)
     }
     
-    @objc func handleTertiaryPress(_ sender: KeyButton) {
-        let charStr = sender.titleLabel?.text
-        if updateShortField(charStr!) == true{
-            shiftMode = .off
-            for btn in tertiaryButtons {
-                btn.removeFromSuperview()
-            }
-            tertiaryButtons = []
-            return
-        }
-        proxy.insertText(charStr!)
-        shiftMode = .off
+    /// Takes down the accent popup, if one is open.
+    fileprivate func dismissTertiaryButtons() {
         for btn in tertiaryButtons {
             btn.removeFromSuperview()
         }
         tertiaryButtons = []
+    }
+
+    @objc func handleTertiaryPress(_ sender: KeyButton) {
+        guard let charStr = sender.titleLabel?.text else {
+            dismissTertiaryButtons()
+            return
+        }
+        if updateShortField(charStr) == false {
+            proxy.insertText(charStr)
+        }
+        shiftMode = .off
+        dismissTertiaryButtons()
     }
     
     @objc func handleKaartKeyboardPress(_ sender: KeyButton) {
@@ -1530,10 +1536,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func handleClosePress(_ sender: KeyButton) {
-        for btn in tertiaryButtons {
-            btn.removeFromSuperview()
-        }
-        tertiaryButtons = []
+        dismissTertiaryButtons()
     }
     
     func handleSwipeUpForButton(_ button: CharacterButton) {
@@ -1831,13 +1834,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func longPressShortWord(_ gesture:UILongPressGestureRecognizer)  {
-        
+        // Only on .began, as pasteShortWord below already does. Without this the editor was torn
+        // down and rebuilt, and the band reopened and re-laid out, once more for the release and
+        // again for every touch move in between.
+        guard gesture.state == .began, let pressed = gesture.view as? UIButton else { return }
+
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
-        
+
         predictiveTextScrollView.isHidden = true
-        
-        selectedShortWordBtn = gesture.view as! UIButton
+
+        selectedShortWordBtn = pressed
         selectedShortWordBtn.layer.borderWidth = 3.0
         selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
         
