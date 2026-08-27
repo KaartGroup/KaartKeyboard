@@ -350,7 +350,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     //                    characterButton.tertiaryCharacters = languageProvider.tertiaryCharacters[rowIndex][characterButtonIndex]
                 }
             }
-            currentLanguageLabel.text = languageProvider.language
+            // Optional. currentLanguageLabel is declared but never built -- the space bar carries
+            // the language name instead -- so this was a nil unwrap waiting for the first
+            // assignment to languageProvider, which nothing makes today.
+            currentLanguageLabel?.text = languageProvider.language
             suggestionProvider.clear()
             suggestionProvider.loadWeightedStrings(languageProvider.suggestionDictionary)
         }

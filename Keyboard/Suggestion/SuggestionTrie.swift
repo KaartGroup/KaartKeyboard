@@ -27,8 +27,10 @@ class SuggestionTrie: SuggestionProvider {
         if let node = searchForNodeMatchingPrefix(prefix, rootNode: root) {
             var weightedSuggestions = [WeightedString]()
             findSuggestionsForNode(node.equalKid, suggestions: &weightedSuggestions)
+            // Strictly greater than. Swift's sort requires a strict weak ordering, and >= claims
+            // that equal weights precede each other, which it can trap on.
             return weightedSuggestions
-                .sorted { $0.weight >= $1.weight }
+                .sorted { $0.weight > $1.weight }
                 .map { $0.term }
         }
         return []
