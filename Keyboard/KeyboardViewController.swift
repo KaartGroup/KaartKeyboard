@@ -236,31 +236,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
     fileprivate var numeralSwapButton: KeyButton!
     
-    /// The two ends of the keyboard's grey range: the white KeyButton fills every key with, and
-    /// the preset keys' grey. The fills below are derived from these rather than written out as
-    /// literals, so moving either end carries through to everything measured against it.
-    fileprivate static let keyFillWhiteComponent: CGFloat = 1.0
-    fileprivate static let presetKeyFillComponent: CGFloat = 140.0 / 255.0
+    /// Slate-and-cream palette, matched against a reference mockup. Each constant names the
+    /// element it fills rather than a point on a grey scale, since the mockup uses distinct hues
+    /// rather than one shade lightened or darkened.
+    fileprivate static let keyboardBackground = UIColor(red: 44.0/255, green: 58.0/255, blue: 70.0/255, alpha: 1.0)
+    fileprivate static let shiftKeyFill = UIColor(red: 207.0/255, green: 162.0/255, blue: 76.0/255, alpha: 1.0)
+    /// A rust red-orange for delete, in the same warm register as the shift key's gold.
+    fileprivate static let deleteKeyFill = UIColor(red: 181.0/255, green: 79.0/255, blue: 56.0/255, alpha: 1.0)
 
-    /// The grey for the number row, shift, delete, return and the two control keys: exactly
-    /// halfway between the two ends above. Kept as the midpoint expression rather than the 197.5
-    /// it works out to, so it stays the midpoint by construction.
-    fileprivate static let midKeyFillComponent: CGFloat =
-        (keyFillWhiteComponent + presetKeyFillComponent) / 2.0
-    fileprivate let midKeyFill = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
+    /// The number row's slate blue, and the fill shift, delete and return used to share before
+    /// each took its own colour from the mockup.
+    fileprivate let midKeyFill = UIColor(red: 112.0/255, green: 132.0/255, blue: 154.0/255, alpha: 1.0)
 
     /// The two fills the control keys alternate between, so the key's shade shows its state.
-    fileprivate let controlKeyFillPrimary = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
-    ///
-    /// The alternate is darker than the primary, not lighter as it used to be. When the primary
-    /// was 128 the alternate sat 59 shades above it at 187; from 197.5 that same gap lands at
-    /// 256, off the end of the scale, so the active state goes down instead of up. 150 rather
-    /// than the 138.5 an exact 59-shade drop would give: 138.5 is the preset keys' own grey, and
-    /// these two keys sit in the preset rows, so an active toggle would disappear into the
-    /// presets beside it.
-    fileprivate let controlKeyFillAlternate = UIColor(white: 150.0/255, alpha: 1.0)
+    fileprivate let controlKeyFillPrimary = UIColor(red: 124.0/255, green: 140.0/255, blue: 140.0/255, alpha: 1.0)
+    /// Darker and cooler than the primary so the active state reads as a toggle, not a highlight.
+    fileprivate let controlKeyFillAlternate = UIColor(red: 53.0/255, green: 80.0/255, blue: 90.0/255, alpha: 1.0)
 
-    fileprivate let presetKeyFill = UIColor(white: KeyboardViewController.presetKeyFillComponent, alpha: 1.0)
+    fileprivate let presetKeyFill = UIColor(red: 76.0/255, green: 104.0/255, blue: 112.0/255, alpha: 1.0)
     
     /// The Arabic digits are single glyphs and carry 4pt more than the 20 every other titled key
     /// uses. The Roman numerals stay at 20: VIII is four glyphs wide and gains nothing from it.
@@ -895,6 +888,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = KeyboardViewController.keyboardBackground
 
         addNextKeyboardButton();
         addKaartKeyboardButton()
@@ -1642,10 +1637,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // rather than a vertical scale, which squashed the arrow out of its proportions.
         // Only exercised by the iOS 12 fallback in updateShiftGlyph(); iOS 13+ uses an image.
         shiftButton.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
-        shiftButton.tintColor = UIColor.black
-        shiftButton.setTitleColor(UIColor.black, for: .normal)
+        shiftButton.tintColor = KeyButton.defaultKeyFill
+        shiftButton.setTitleColor(KeyButton.defaultKeyFill, for: .normal)
         updateShiftGlyph()
-        shiftButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
+        shiftButton.setBackgroundImage(UIImage.fromColor(KeyboardViewController.shiftKeyFill), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
     }
@@ -1654,8 +1649,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButton = KeyButton(frame: CGRect(x: view.frame.width - keyWidth - spacing, y: spacing * 3 + keyHeight * 2, width: keyWidth, height: keyHeight))
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
-        deleteButton.setTitleColor(UIColor.black, for: .normal)
-        deleteButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
+        deleteButton.setTitleColor(KeyButton.defaultKeyFill, for: .normal)
+        deleteButton.setBackgroundImage(UIImage.fromColor(KeyboardViewController.deleteKeyFill), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
         
@@ -1669,9 +1664,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
         nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
-        // No fill set here on purpose, so this key takes KeyButton's white -- the same white the
-        // space bar shows, from the same place, rather than a second copy of the colour that could
-        // drift away from it.
+        nextKeyboardButton.setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
         if #available(iOS 10.0, *) {
             nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
         } else {
@@ -1683,7 +1676,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate func addKaartKeyboardButton() {
         kaartKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 3 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         kaartKeyboardButton.setImage(UIImage(named: "Kaart_Keyboard.png"), for: .normal)
-//        kaartKeyboardButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: UIControlState())
+        kaartKeyboardButton.setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
         kaartKeyboardButton.imageView?.contentMode = .scaleAspectFit
         kaartKeyboardButton.addTarget(self, action: #selector(handleKaartKeyboardPress(_:)), for: .touchUpInside)
         self.view.addSubview(kaartKeyboardButton)
@@ -1702,8 +1695,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         returnButton = KeyButton(frame: CGRect(x: keyWidth * 8.5 + spacing * 9.5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth * 1.5 + spacing / 2, height: keyHeight))
         returnButton.setTitle("\u{000023CE}", for: .normal)
         returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
-        returnButton.setTitleColor(UIColor.black, for: .normal)
-        returnButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
+        returnButton.setTitleColor(UIColor.white, for: .normal)
+        returnButton.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
     }
@@ -2076,7 +2069,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                                              width: controlKeyWidth,
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
+        button.setTitleColor(KeyButton.defaultKeyFill, for: .normal)
         button.addTarget(self, action: action, for: .touchUpInside)
         self.view.addSubview(button)
         return button
