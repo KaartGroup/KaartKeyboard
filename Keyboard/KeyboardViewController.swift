@@ -236,12 +236,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// Seventh column of the bottom preset row: swaps the number row between 1-9,0 and I-X.
     fileprivate var numeralSwapButton: KeyButton!
     
+    /// The two ends of the keyboard's grey range: the white KeyButton fills every key with, and
+    /// the preset keys' grey. The fills below are derived from these rather than written out as
+    /// literals, so moving either end carries through to everything measured against it.
+    fileprivate static let keyFillWhiteComponent: CGFloat = 1.0
+    fileprivate static let presetKeyFillComponent: CGFloat = 140.0 / 255.0
+
+    /// The grey for the number row, shift, delete, return and the two control keys: exactly
+    /// halfway between the two ends above. Kept as the midpoint expression rather than the 197.5
+    /// it works out to, so it stays the midpoint by construction.
+    fileprivate static let midKeyFillComponent: CGFloat =
+        (keyFillWhiteComponent + presetKeyFillComponent) / 2.0
+    fileprivate let midKeyFill = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
+
     /// The two fills the control keys alternate between, so the key's shade shows its state.
-    fileprivate let controlKeyFillPrimary = UIColor.gray
+    fileprivate let controlKeyFillPrimary = UIColor(white: KeyboardViewController.midKeyFillComponent, alpha: 1.0)
     fileprivate let controlKeyFillAlternate = UIColor(white: 187.0/255, alpha: 1.0)
-    
-    /// A shade lighter than the UIColor.gray the keyboard's other grey keys use.
-    fileprivate let presetKeyFill = UIColor(white: 140.0/255, alpha: 1.0)
+
+    fileprivate let presetKeyFill = UIColor(white: KeyboardViewController.presetKeyFillComponent, alpha: 1.0)
     
     /// The Arabic digits are single glyphs and carry 4pt more than the 20 every other titled key
     /// uses. The Roman numerals stay at 20: VIII is four glyphs wide and gains nothing from it.
@@ -1626,7 +1638,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftButton.tintColor = UIColor.white
         shiftButton.setTitleColor(UIColor.white, for: .normal)
         updateShiftGlyph()
-        shiftButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        shiftButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         shiftButton.addTarget(self, action: #selector(KeyboardViewController.shiftButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(shiftButton)
     }
@@ -1636,7 +1648,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteButton.setTitle("\u{232B}", for: .normal)
         deleteButton.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
         deleteButton.setTitleColor(UIColor.white, for: .normal)
-        deleteButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        deleteButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         deleteButton.addTarget(self, action: #selector(KeyboardViewController.deleteButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(deleteButton)
         
@@ -1684,7 +1696,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         returnButton.setTitle("\u{000023CE}", for: .normal)
         returnButton.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
         returnButton.setTitleColor(UIColor.white, for: .normal)
-        returnButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+        returnButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
         returnButton.addTarget(self, action: #selector(KeyboardViewController.returnButtonPressed(_:)), for: .touchUpInside)
         self.view.addSubview(returnButton)
     }
@@ -2004,7 +2016,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
             gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
             
-            numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.gray), for: .normal)
+            numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
             //numpadButton.setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
