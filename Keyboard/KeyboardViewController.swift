@@ -945,6 +945,22 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func loadView() {
         super.loadView()
+        reloadLanguages()
+    }
+
+    /// Re-reads which languages are switched on and decodes them, returning whether the set
+    /// changed. Safe to call at any point in the lifecycle.
+    ///
+    /// This used to be the body of loadView(), and viewWillAppear called loadView() directly to
+    /// pick up a change made in the container app. loadView()'s job is to create the view:
+    /// calling it a second time runs super.loadView(), which hands back a fresh empty view and
+    /// leaves every button property pointing at an orphan with no superview. The next
+    /// updateViewConstraints() then activates constraints between views with no common ancestor,
+    /// which throws.
+    @discardableResult
+    fileprivate func reloadLanguages() -> Bool {
+        let previous = languages.map { $0.title }
+
         // `defaults` is nil if the app group is unavailable, so read through it rather
         // than force-unwrapping: a missing suite should mean "no languages selected",
         // not a crash before the view exists.
@@ -966,9 +982,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             languages = [fallback]
         }
 
-        if let first = languages.first {
-            UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+        // Seed the current language only when there is not one already, or when the one stored is
+        // no longer switched on. This was an unconditional write of languages.first, and since the
+        // extension is torn down and relaunched constantly, the language chosen with the Kaart key
+        // never survived: the keyboard always came back in the first enabled language.
+        let stored = UserDefaults.standard.string(forKey: "CURRENT_LANG")
+        if stored == nil || languages.contains(where: { $0.title == stored }) == false {
+            if let first = languages.first {
+                UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+            }
         }
+
+        return languages.map { $0.title } != previous
     }
 
     /// Decodes one bundled language definition, returning nil if it is missing or malformed
@@ -989,13 +1014,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        for (key, value) in showLanguages {
-            if value != defaults?.bool(forKey: key) {
-                print("YES")
-                self.loadView()
-                break
-            }
+
+        // Pick up a language switched on or off in the container app since this keyboard was
+        // built. Same rebuild the Kaart key does, which is all a changed language list needs:
+        // the character rows, the space bar's label and the number row's symbols.
+        if reloadLanguages() {
+            addCharacterButtons()
+            addSpaceButton()
+            updateNumberRowSymbols()
+            shiftMode = .on
+            updateViewConstraints()
         }
     }
     
