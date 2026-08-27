@@ -110,8 +110,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate let spacing: CGFloat = KeyButton.gutter
     fileprivate let predictiveTextBoxHeight: CGFloat = 24.0
+
+    /// Never negative, whatever the view's width happens to be.
+    ///
+    /// Every width below divides the view's width, and `view.frame` is (0, 0, 0, 0) throughout
+    /// viewDidLoad -- the input view has not been sized yet -- which made each of them negative:
+    /// keyWidth came out at -5.5. The keys are built at these sizes and then positioned by
+    /// constraints, so the placeholder never showed, but UIKit spent the whole launch laying out
+    /// and drawing buttons whose size had a negative component, which is where the thirty
+    /// "CGAffineTransformInvert: singular matrix" errors per launch came from.
+    ///
+    /// Note this is not visible through CGRect.width, which standardises and reports the absolute
+    /// value; it is CGRect.size.width that goes negative.
+    fileprivate static func nonNegative(_ width: CGFloat) -> CGFloat {
+        return max(0, width)
+    }
+
     fileprivate var predictiveTextButtonWidth: CGFloat {
-        return (view.frame.width - 4 * spacing) / 3.0
+        return KeyboardViewController.nonNegative((view.frame.width - 4 * spacing) / 3.0)
     }
     fileprivate var keyboardHeight: CGFloat {
         if(UIScreen.main.bounds.width < UIScreen.main.bounds.height ){
@@ -126,12 +142,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // Width of individual letter keys
     fileprivate var keyWidth: CGFloat {
-        return (view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1)
+        return KeyboardViewController.nonNegative((view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1))
     }
     
     // The width a preset row's seven columns would each get if they were all equal.
     fileprivate var wordKeyWidth: CGFloat {
-        return (view.frame.width - 8 * spacing) / 7.0
+        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing) / 7.0)
     }
 
     // The two control keys carry a short label and do not need a preset's width. They match the
@@ -146,7 +162,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // than given a width, so this is the number that actually sizes them: widening the presets is
     // what squeezes the controls.
     fileprivate var presetKeyWidth: CGFloat {
-        return (view.frame.width - 8 * spacing - controlKeyWidth) / 6.0
+        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing - controlKeyWidth) / 6.0)
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -154,7 +170,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // reassign it, and which the number row used to be shrunk to 0.9 of so it could line up with
     // the eleven-slot QWERTY row above the numeral toggle that used to sit at its right end.
     fileprivate var numberKeyWidth: CGFloat {
-        return (view.frame.width - 11 * spacing) / 10.0
+        return KeyboardViewController.nonNegative((view.frame.width - 11 * spacing) / 10.0)
     }
     
     /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
@@ -1521,7 +1537,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func handleKaartKeyboardPress(_ sender: KeyButton) {
-        if languages.count < 2 { print("NO"); return}
+        if languages.count < 2 { return }
         for (i, lang) in languages.enumerated() {
             if lang.title == currentLanguage?.title {
                 UserDefaults.standard.set(languages[ (i + 1) <= languages.count - 1 ? i + 1 : 0 ].title, forKey: "CURRENT_LANG")
@@ -1813,11 +1829,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
-                let gradient = CAGradientLayer()
-                gradient.frame = self.shortWordButton.bounds
-                let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
-                gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-                
                 shortWordButton.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
@@ -2029,11 +2040,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             numpadButton.setTitleColor(UIColor.black, for: .normal)
-            let gradient = CAGradientLayer()
-            gradient.frame = self.shortWordButton.bounds
-            let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
-            gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-            
             numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
