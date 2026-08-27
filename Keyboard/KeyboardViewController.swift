@@ -859,7 +859,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         addNextKeyboardButton();
         addKaartKeyboardButton()
         addShortWordButton()
@@ -1002,23 +1002,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.updateViewConstraints()
     }
     
-    /// Re-lays out after isRenamingPreset changes. The two directions need different handling,
-    /// which was established by measuring the frame against the constraint rather than reasoned
-    /// out.
+    /// Re-lays out after isRenamingPreset changes. Both directions are handled the same way,
+    /// and that symmetry is the point: the band opens and closes over and over, so anything that
+    /// depends on which way it is going, or on what happened the time before, is a bug waiting for
+    /// the second rename.
     ///
-    /// Growing: change the constant and stand back. UIKit re-derives the input view's height and
-    /// the keyboard grows upward. Forcing a layout here instead resolves the rows against the
-    /// frame the view still has and marks the layout clean, so the system never asks for the new
-    /// height and the bottom row falls off the screen.
-    ///
-    /// Shrinking: the same does nothing, because UIKit pins the input view to the height it last
-    /// handed out with its own required UIView-Encapsulated-Layout-Height, and on the way down
-    /// that beats ours. Measured after closing the band: our constraint and the rows had moved to
-    /// the resting height while the frame stayed tall -- exactly the dead row left below the
-    /// keyboard. A forced layout settles it back down.
+    /// This is only the constraint update and a layout pass. It is enough because the keyboard is
+    /// still attached to the view controller that sizes it -- see the note in the Done handler,
+    /// which used to detach it here and is what actually broke the second rename.
     fileprivate func applyPresetBandChange() {
         updateViewConstraints()
-        guard isRenamingPreset == false else { return }
         view.setNeedsLayout()
         view.layoutIfNeeded()
     }
@@ -1044,8 +1037,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                                                   attribute: .notAnAttribute,
                                                   multiplier: 1,
                                                   constant: customHeight)
-            heightConstraint.priority = UILayoutPriority.required
-            
+            // Just below required, so this never contradicts UIView-Encapsulated-Layout-Height --
+            // the required constraint UIKit uses to hold an input view at the height it last handed
+            // out. Two required constraints disagreeing about the height would leave the winner up
+            // to Auto Layout rather than to us. This is precaution, not the fix for the band: what
+            // broke repeated renames was the keyboard detaching itself from its parent controller
+            // on Done, and that is fixed in the Done handler.
+            heightConstraint.priority = UILayoutPriority(999)
+
             view.addConstraint(heightConstraint)
         }
         else {
@@ -1909,11 +1908,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         isRenamingPreset = false
         applyPresetBandChange()
         
-        self.removeFromParentViewController()
-//        self.viewDidLoad()
-//        self.initializeKeyboard()
-//        self.updateViewConstraints()
-        
+        // No removeFromParentViewController() here, which is what this line used to do, and which
+        // is why a preset could only be renamed once. The keyboard was detaching itself from the
+        // controller that sizes it every time Done was pressed, so from then on the height it asked
+        // for was never granted: measured on the second rename, the height constraint and the rows
+        // had both moved to the taller value while the frame stayed at the old one -- the bottom row
+        // hanging half off the screen, and dead space below the keyboard on the way back down.
+        //
+        // Nothing wanted the controller gone. The band is closed by isRenamingPreset just above,
+        // and the editor's own views are removed a few lines before that.
+
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
         selectedShortWordIndex = nil
