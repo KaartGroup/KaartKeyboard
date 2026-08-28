@@ -1876,6 +1876,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     /// Row and column of the preset being edited, within the active group.
     fileprivate var selectedShortWordIndex: (row: Int, column: Int)?
+
+    /// The shift mode the document was in before the rename editor took it over, held so Done can
+    /// give it back. Nil whenever no rename is in progress.
+    fileprivate var shiftModeBeforeRenaming: ShiftMode?
     
     var shortWordTxtFld : UITextField = UITextField.init()
     
@@ -1931,7 +1935,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         doneBtn.backgroundColor = UIColor.gray
         self.view.addSubview(doneBtn)
-        
+
+        // Remember where shift was so Done can put it back, then start the preset name capitalised.
+        // Only on the way in: long-pressing a second preset while the editor is already open comes
+        // back through here, and overwriting the saved mode with the editor's own .on would lose the
+        // document's state instead of restoring it.
+        if shiftModeBeforeRenaming == nil {
+            shiftModeBeforeRenaming = shiftMode
+        }
         shiftMode = .on
     }
     
@@ -1981,7 +1992,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
         selectedShortWordIndex = nil
-        
+
+        // Hand shift back to the document. Opening the editor forces .on so the preset name starts
+        // capitalised, and typing a letter into it drops shift to .off -- so without this, finishing
+        // a rename silently changed the case of the next letter typed into whatever the user was
+        // actually writing.
+        if let restored = shiftModeBeforeRenaming {
+            shiftMode = restored
+            shiftModeBeforeRenaming = nil
+        }
     }
     
     //    let doneButton: UIButton = {
