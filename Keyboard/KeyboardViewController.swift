@@ -1717,8 +1717,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shortWordBanks[bank] = migrated
         }
         
+        // y outside the loop. It was declared inside it and incremented after it, so it was 0 on
+        // every pass and both preset rows were built at the same y. Auto Layout moves them to the
+        // right places immediately afterwards, which is why nothing looked wrong, but the frames a
+        // key is created with are the frames its labels are laid out against.
+        var y: CGFloat = 0.0
         for (rowIndex, row) in shortWord.enumerated(){
-            var y: CGFloat = 0.0
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
@@ -1858,8 +1862,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shortWord[target.row][target.column] = newStr
             
             let defaults : UserDefaults = UserDefaults.standard
+            // No synchronize(): deprecated since iOS 12 and a no-op long before that. The system
+            // persists these writes on its own.
             defaults.set(shortWord, forKey: shortWordKeys[activeBank])
-            defaults.synchronize()
             
             arrayOfShortWordButton[target.row][target.column].setTitle(newStr, for: .normal)
         }
