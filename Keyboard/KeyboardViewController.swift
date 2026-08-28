@@ -299,9 +299,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     //    fileprivate var uupButton: KeyButton!
     // MARK: Timers
     
+    /// Repeats a single backspace while delete is held.
     fileprivate var deleteButtonTimer: Timer?
+
+    /// The one pending one-shot in the delete key's chain: first the hand-over from character
+    /// repeat to word deletion, then each word delete scheduling the next. Only ever one at a time,
+    /// and held rather than dropped so releasing the key can cancel it.
+    fileprivate var deleteFollowUpTimer: Timer?
+
     fileprivate var spaceButtonTimer: Timer?
-    
+
     fileprivate var spaceTitle: String {
         return UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased()
             ?? currentLanguage?.title.uppercased() ?? ""
@@ -1176,104 +1183,108 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     //
+    // A tap and a hold are mutually exclusive on this key, so this only ever runs for a tap.
+    // Measured on an iPad simulator: a short press logs touchUpInside and no gesture states, while a
+    // hold logs .began/.ended and no touchUpInside at all -- the long-press recogniser's default
+    // cancelsTouchesInView cancels the button's tracking when it recognises. So there is no trailing
+    // delete to suppress here, and a flag that tried to suppress one would only leak state from a
+    // hold into the next tap and swallow it.
     @objc func deleteButtonPressed(_ sender: KeyButton) {
-        
-        if shortWordTxtFld.isHidden == true {
-            //        switch proxy.documentContextBeforeInput {
-            //        case let s where s?.hasSuffix("    ") == true: // Cursor in front of tab, so delete tab.
-            //            for _ in 0..<4 { // TODO: Update to use tab setting.
-            //                proxy.deleteBackward()
-            //            }
-            //        default:
-            proxy.deleteBackward()
-            //        }
-//            updateSuggestions()
-            
-        }else{
-            
-            var tempStr : NSString = shortWordTxtFld.text! as NSString
-            if shortWordTxtFld.text?.isEmpty == false  {
-                tempStr = tempStr.substring(to: tempStr.length - 1) as NSString
-                shortWordTxtFld.text = tempStr as String
-            }
-        }
-        
+        deleteOneBackward()
     }
-    
-    var longPressStoped:Bool = false;
-    
+
+    /// One backspace, aimed at whatever holds the text the user can see: the preset name while it is
+    /// being renamed, otherwise the document.
+    ///
+    /// Both the tap and the hold go through here. They used to disagree -- the tap branched on
+    /// shortWordTxtFld while the hold's timer called proxy.deleteBackward() directly -- so holding
+    /// delete with the rename editor open ate the document behind it instead of the name being
+    /// edited.
+    fileprivate func deleteOneBackward() {
+        guard shortWordTxtFld.isHidden else {
+            // dropLast() on the String drops one Character. The NSString substring this replaces cut
+            // one UTF-16 unit, which halves a non-BMP character and leaves a lone surrogate behind.
+            guard let text = shortWordTxtFld.text, text.isEmpty == false else { return }
+            shortWordTxtFld.text = String(text.dropLast())
+            return
+        }
+        proxy.deleteBackward()
+    }
+
+    /// Deletes the run of text before the cursor -- a word, or a run of whitespace -- and schedules
+    /// itself again, so a sustained hold accelerates from characters to words.
     @objc func startMoreDelete(_ timer: Timer)
     {
-        while true {
-            
-            if( longPressStoped )
-            {
-                break;
-            }
-            
-            if let documentContextBeforeInput = proxy.documentContextBeforeInput {
-                let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
-                if charactersToDelete == 0 {
-                    break;
-                }
-                for _ in 0..<charactersToDelete {
-                    proxy.deleteBackward()
-                }
-            }
-            else
-            {
-                break;
-            }
+        deleteFollowUpTimer = nil
 
-            timer.invalidate();
-            let longPressTime = Timer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
-            
-            RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
-            break
+        guard shortWordTxtFld.isHidden,
+              let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
+
+        let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
+        guard charactersToDelete > 0 else { return }
+
+        for _ in 0..<charactersToDelete {
+            proxy.deleteBackward()
         }
-        
-        timer.invalidate();
-        longPressStoped = false;
+
+        scheduleDeleteFollowUp(after: 0.2, selector: #selector(KeyboardViewController.startMoreDelete(_:)))
     }
-    
+
     @objc func handleDeleteButtonLongPress(_ timer: Timer) {
-        
-        timer.invalidate();
-        //timer = nil
-        
+        deleteFollowUpTimer = nil
+
+        // Word-at-a-time deletion is for the document. With the rename editor open the hold stays on
+        // single characters, which is all a one-line name field has to give.
+        guard shortWordTxtFld.isHidden else { return }
+
+        // Character repeat hands over to word deletion.
         deleteButtonTimer?.invalidate()
         deleteButtonTimer = nil
-        
-        let longPressTime = Timer(timeInterval: 0.3, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
-        
-        RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
+
+        scheduleDeleteFollowUp(after: 0.3, selector: #selector(KeyboardViewController.startMoreDelete(_:)))
     }
-    
+
+    /// Holds the single pending one-shot in `deleteFollowUpTimer` so releasing the key can cancel it.
+    ///
+    /// These timers used to be created and dropped on the floor -- added to the run loop and never
+    /// stored -- so nothing could invalidate them. Lifting a finger before one fired left it to go
+    /// off afterwards, and the only thing standing between it and more deletion was a
+    /// `longPressStoped` flag that `startMoreDelete` then reset to false on its way out, clearing
+    /// the very stop it had just obeyed.
+    fileprivate func scheduleDeleteFollowUp(after delay: TimeInterval, selector: Selector) {
+        deleteFollowUpTimer?.invalidate()
+        let timer = Timer(timeInterval: delay, target: self, selector: selector, userInfo: nil, repeats: false)
+        deleteFollowUpTimer = timer
+        RunLoop.main.add(timer, forMode: RunLoopMode.defaultRunLoopMode)
+    }
+
+    /// Stops every timer the delete key owns. One call for the whole machine, so a new press cannot
+    /// inherit a chain left running by the last one.
+    fileprivate func cancelDeleteTimers() {
+        deleteButtonTimer?.invalidate()
+        deleteButtonTimer = nil
+        deleteFollowUpTimer?.invalidate()
+        deleteFollowUpTimer = nil
+    }
+
     //Delete Button long press action
     @objc func handleLongPressForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        
-        
         switch gestureRecognizer.state {
-            
         case .began:
-            
-            longPressStoped = false;
-            if deleteButtonTimer == nil {
-                deleteButtonTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
-                deleteButtonTimer!.tolerance = 0.01
-                RunLoop.main.add(deleteButtonTimer!, forMode: RunLoopMode.defaultRunLoopMode)
-                
-                let longPressTime = Timer(timeInterval: 0.4, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)), userInfo: nil, repeats: false);
-                
-                RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
-            }
-            
+            guard deleteButtonTimer == nil else { break }
+
+            let repeatTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
+            repeatTimer.tolerance = 0.01
+            deleteButtonTimer = repeatTimer
+            RunLoop.main.add(repeatTimer, forMode: RunLoopMode.defaultRunLoopMode)
+
+            scheduleDeleteFollowUp(after: 0.4, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)))
+
+        case .ended, .cancelled, .failed:
+            cancelDeleteTimers()
+
         default:
-            
-            deleteButtonTimer?.invalidate()
-            deleteButtonTimer = nil
-            longPressStoped = true;
-            //updateSuggestions()
+            break
         }
     }
     
@@ -1285,7 +1296,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
-        proxy.deleteBackward()
+        deleteOneBackward()
     }
     
     @objc func spaceButtonPressed(_ sender: KeyButton) {
