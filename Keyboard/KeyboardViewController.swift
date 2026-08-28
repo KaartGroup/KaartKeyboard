@@ -13,7 +13,7 @@ import UIKit
 /**
  An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
  */
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate, TouchForwardingViewDelegate {
+class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate {
     
     // MARK: Constants
     
@@ -43,14 +43,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         get { return shortWordBanks[activeBank] }
         set { shortWordBanks[activeBank] = newValue }
     }
-    
-    fileprivate var isSecondary:Bool = false
-    
-    fileprivate var secondaryTap : UIGestureRecognizer!
-    
-    fileprivate var secondaryChar:String = ""
-    
-    fileprivate var secondaryToShow : [KeyButton] = []
     
     // Optional rather than trapping on languages[0]: loadView guarantees a non-empty list
     // in every reachable case, but a nil here degrades to "draw no keys" instead of killing
@@ -222,7 +214,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: User interface
     
-    fileprivate var swipeView: SwipeView!
     fileprivate var predictiveTextScrollView: PredictiveTextScrollView!
     fileprivate var suggestionButtons = [SuggestionButton]()
     
@@ -307,7 +298,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// and held rather than dropped so releasing the key can cancel it.
     fileprivate var deleteFollowUpTimer: Timer?
 
-    fileprivate var spaceButtonTimer: Timer?
 
     fileprivate var spaceTitle: String {
         return UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased()
@@ -417,16 +407,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         //                        characterButton.tertiaryLabel.text = " "
                     }
                     
-                }
-            }
-            if isSecondary{
-                for secondary in secondaryToShow{
-                    switch shiftMode {
-                    case .off:
-                        secondary.titleLabel?.text = secondary.titleLabel?.text?.lowercased()
-                    case .on, .caps:
-                        secondary.titleLabel?.text = secondary.titleLabel?.text?.uppercased()
-                    }
                 }
             }
         }
@@ -1310,13 +1290,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    func handleSwipeLeftForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        guard let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
-        for _ in 0..<charactersToDeleteBackward(from: documentContextBeforeInput) {
-            proxy.deleteBackward()
-        }
-    }
-    
     @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
         deleteOneBackward()
     }
@@ -1337,46 +1310,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         proxy.insertText(charStr)
 //        updateSuggestions()
-    }
-    
-    // Input the character "ñ" instead of tab
-    @objc func aapButtonPressed(_ sender: KeyButton) {
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func eepButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func iipButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func uupButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
     }
     
     // When the numpadButton is pressed
@@ -1427,37 +1360,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shiftMode = .on
     }
     
-    
-    // When the dotButton is pressed
-    @objc func dotButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(".")
-    }
-    
-    
-    
-    func handleLongPressForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        switch gestureRecognizer.state {
-        case .began:
-            if spaceButtonTimer == nil {
-                spaceButtonTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleSpaceButtonTimerTick(_:)), userInfo: nil, repeats: true)
-                spaceButtonTimer!.tolerance = 0.01
-                RunLoop.main.add(spaceButtonTimer!, forMode: RunLoopMode.defaultRunLoopMode)
-            }
-        default:
-            spaceButtonTimer?.invalidate()
-            spaceButtonTimer = nil
-//            updateSuggestions()
-        }
-    }
-    
-    @objc func handleSpaceButtonTimerTick(_ timer: Timer) {
-        proxy.insertText(" ")
-    }
     
     @objc func returnButtonPressed(_ sender: KeyButton) {
         
@@ -1642,47 +1544,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // MARK: TouchForwardingViewDelegate methods
-    
-    // TODO: Get this method to properly provide the desired behaviour.
-    func viewForHitTestWithPoint(_ point: CGPoint, event: UIEvent?, superResult: UIView?) -> UIView? {
-        for subview in view.subviews {
-            let convertPoint = subview.convert(point, from: view)
-            if subview is KeyButton && subview.point(inside: convertPoint, with: event) {
-                return subview
-            }
-        }
-        return swipeView
-    }
-    
     // MARK: Helper methods
-    
-    fileprivate func initializeKeyboard() {
-        for subview in self.view.subviews {
-            subview.removeFromSuperview() // Remove all buttons and gesture recognizers when view is recreated during orientation changes.
-        }
-        
-        addNextKeyboardButton();
-        addKaartKeyboardButton()
-        addShortWordButton()
-        addCharacterButtons()
-        addShiftButton();
-        addDeleteButton()
-        addSpaceButton()
-        addNumpadButton()
-        addPresetControlButtons()
-        addReturnButton()
-        addPredictiveTextScrollView()
-        
-        shortWordTxtFld.isHidden = true
-        shiftMode = .on
-
-        
-        self.requestSupplementaryLexicon { (lexObj) in
-            self.lexicon = lexObj;
-        }
-        
-    }
     
     fileprivate func addPredictiveTextScrollView() {
         predictiveTextScrollView = PredictiveTextScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: predictiveTextBoxHeight))
@@ -1816,32 +1678,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
 //        rowCount = 11.0
     }
-    
-    @objc func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
-        if(isSecondary){
-            isSecondary=false
-            
-            //            let button = gesture.view as? CharacterButton
-            //            let press : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressCharacterButton(_:)))
-            //            press.minimumPressDuration = 0.3
-            //            button?.addGestureRecognizer(press)
-            //            button?.removeGestureRecognizer(gesture)
-            
-            //            let button = gesture.view as? CharacterButton
-            //            button?.removeGestureRecognizer(gesture)
-            
-            //            secondaryIsActive.removeGestureRecognizer(gesture)
-            
-            for item in secondaryToShow{
-                item.isHidden = true
-            }
-            //            for item in arrayOfShortWordButton{
-            //                item.isHidden = false
-            //            }
-            self.addShortWordButton()
-        }
-    }
-    
     
     fileprivate func addShortWordButton(){
         
@@ -2060,37 +1896,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             var tmepStr : NSString = shortWordTxtFld.text! as NSString
             tmepStr = tmepStr.appending(senderStr) as NSString
             shortWordTxtFld.text = tmepStr as String
-            if isSecondary{
-                isSecondary=false
-                for item in secondaryToShow{
-                    item.isHidden=true
-                }
-                for row in arrayOfShortWordButton{
-                    for item in row {
-                        item.isHidden=false
-                    }
-                }
-            }
             return true
         }else{
             return false
         }
     }
     
-    
-    func updateshortWordTxtFldFrameOnRotareDevice() {
-        var tempRct: CGRect = shortWordEditRect
-
-        // Same split as addShortWordTxtFld: Done gets a control key's width at the trailing edge.
-        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
-        tempRct.origin.x =  spacing
-        shortWordTxtFld.frame = tempRct
-
-        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
-        tempRct.size.width = controlKeyWidth
-        doneBtn.frame = tempRct
-        
-    }
     
     fileprivate func addNumpadButton()
     {
@@ -2200,11 +2011,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             button.setTitle(titles[index], for: .normal)
             button.titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
         }
-    }
-    
-    fileprivate func addSwipeView() {
-        swipeView = SwipeView(containerView: view, topOffset: 0)
-        view.addSubview(swipeView)
     }
     
     fileprivate func updateSuggestions() {
