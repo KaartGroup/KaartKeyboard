@@ -1797,19 +1797,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         isRenamingPreset = true
         applyPresetBandChange()
 
-        var tempRct: CGRect = shortWordEditRect
-
-        // Done takes a control key's width at the band's trailing edge, which is the same margin
-        // the control keys use, so Done, P1/2 and Num line up in one column. The field takes the
-        // rest of the band.
-        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
-
-        tempRct.origin.x =  spacing
-
         self.shortWordTxtFld.removeFromSuperview()
-        
-        self.shortWordTxtFld = UITextField.init(frame: tempRct)
-        
+
+        // Created at zero and placed by layoutPresetEditor() below, so the geometry lives in one
+        // place instead of being computed here and then again on every relayout.
+        self.shortWordTxtFld = UITextField(frame: .zero)
+
         self.shortWordTxtFld.backgroundColor = UIColor.lightGray
         
         let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.pasteShortWord(_:)))
@@ -1818,13 +1811,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         self.view.addSubview(shortWordTxtFld)
         self.view.bringSubviewToFront(self.shortWordTxtFld)
-        
-        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
-
-        tempRct.size.width = controlKeyWidth
 
         doneBtn.removeFromSuperview()
-        doneBtn = KeyButton.init(frame: tempRct)
+        doneBtn = KeyButton(frame: .zero)
         
         doneBtn.setTitle("Done", for: .normal)
         doneBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: .normal)
@@ -1833,6 +1822,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         doneBtn.backgroundColor = UIColor.gray
         self.view.addSubview(doneBtn)
+
+        // Place both now rather than waiting for the next layout pass, so the editor never shows
+        // up at zero size for a frame.
+        layoutPresetEditor()
 
         // Remember where shift was so Done can put it back, then start the preset name capitalised.
         // Only on the way in: long-pressing a second preset while the editor is already open comes
@@ -1844,6 +1837,64 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         shiftMode = .on
     }
     
+    /// Places the rename editor's text field and Done key across the band.
+    ///
+    /// The two are positioned by frame rather than by constraints, unlike every key on the
+    /// keyboard, so nothing moved them when the keyboard's width changed: rotating the device
+    /// mid-rename left the editor at its portrait width while the presets underneath it took their
+    /// landscape positions. There was a method for recomputing these frames, but nothing ever
+    /// called it.
+    ///
+    /// Called from viewDidLayoutSubviews and on the way in, so the frames are derived from the
+    /// width the keyboard actually has at the moment they are applied.
+    fileprivate func layoutPresetEditor() {
+        guard isRenamingPreset else { return }
+
+        let band = shortWordEditRect
+
+        // Done takes a control key's width at the band's trailing edge, which is the margin the
+        // control keys use, so Done, P1/2 and Num line up in one column. The field takes the rest.
+        shortWordTxtFld.frame = CGRect(x: band.minX,
+                                       y: band.minY,
+                                       width: max(0, band.width - controlKeyWidth - spacing),
+                                       height: band.height)
+
+        doneBtn.frame = CGRect(x: band.maxX - controlKeyWidth,
+                               y: band.minY,
+                               width: controlKeyWidth,
+                               height: band.height)
+    }
+
+    /// The width the key constraints were last built for, so a change can be noticed.
+    fileprivate var lastLaidOutWidth: CGFloat = 0
+
+    /// Every layout pass, which is what a rotation ultimately produces.
+    ///
+    /// Two things have to happen when the keyboard's width changes, and neither happened before.
+    ///
+    /// The keys are constrained, but their constraints carry *constants* computed from the width --
+    /// `constant: keyWidth`, and so on -- so they only move if updateViewConstraints() runs again.
+    /// Measured with a temporary NSLog: updateViewConstraints is not called on a plain layout pass,
+    /// only when something asks for it, and the one thing that asked on rotation was
+    /// didRotate(from:), deprecated and not called since iOS 8. So the constants stayed at their
+    /// portrait values. Asking for them here, and only when the width actually changed, is what
+    /// makes rotation reach them. It settles after one extra pass, because the second pass sees the
+    /// same width and does nothing.
+    ///
+    /// The rename editor is positioned by frame rather than by constraints, so it needs placing on
+    /// every pass regardless.
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        let width = view.frame.width
+        if width > 0 && width != lastLaidOutWidth {
+            lastLaidOutWidth = width
+            updateViewConstraints()
+        }
+
+        layoutPresetEditor()
+    }
+
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
         if gesture.state == .began, let pasted = UIPasteboard.general.string {
             self.shortWordTxtFld.text = pasted
