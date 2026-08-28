@@ -440,8 +440,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func updateConstraintForCharacter()
     {
 //        let shortWord: KeyButton = arrayOfShortWordButton[1][0]
-        let firstNumberBtn:KeyButton = arrayOfNumberButton[0]
-        
+        // Nothing to hang the character rows off yet. Reached before the number row exists, or
+        // after a language with no usable rows left the grid empty; either way this used to be an
+        // index-out-of-range rather than a layout pass that does nothing.
+        guard let firstNumberBtn = arrayOfNumberButton.first,
+              characterButtons.contains(where: { $0.isEmpty == false }) else { return }
+
         var y = spacing * 3 + keyHeight * 2
         for (rowIndex, row) in characterButtons.enumerated()
         {
@@ -509,7 +513,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 }
                 else if( rowIndex == 1)
                 {
-                    let QCharBtn:CharacterButton = characterButtons[0][0];
+                    // Row 1 hangs off row 0's first key. Guarded rather than indexed: a language
+                    // whose first row is empty would otherwise trap here.
+                    guard let QCharBtn = characterButtons[0].first else { break }
                     
                     // Second Character Row "A"
                     if(  buttonIndex == 0)
@@ -574,7 +580,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 }
                 else
                 {
-                    let ACharBtn:CharacterButton = characterButtons[1][0];
+                    // Row 2 and the shift key both hang off row 1's first key.
+                    guard let ACharBtn = characterButtons[1].first else { break }
                     
                     // Last Chracter Row "Z"
                     if(  buttonIndex == 0)
@@ -826,8 +833,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func updateConstraintForNumberButton()
     {
         rowCount = 9.0
-        let firstButton = arrayOfNumberButton[0];
-        let shortWordBtn:KeyButton = arrayOfShortWordButton[1][0];
+        // The number row hangs off the second preset row. Both are built in viewDidLoad before this
+        // runs, but reading them positionally is what turns a build-order change into a crash.
+        guard let firstButton = arrayOfNumberButton.first,
+              arrayOfShortWordButton.count > 1,
+              let shortWordBtn = arrayOfShortWordButton[1].first else { return }
 
         removeAllConstrains(firstButton)
 
@@ -1031,7 +1041,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-            return try JSONDecoder().decode(Language.self, from: data)
+            let language = try JSONDecoder().decode(Language.self, from: data)
+
+            // A file can decode cleanly and still be unusable. No rows, or a row with no keys,
+            // leaves the character grid with a hole in it that the layout then reaches into --
+            // `characterButtons[1][0]` and friends are read positionally. Rejecting it here means
+            // the language drops out of the list and the caller falls back, rather than the
+            // keyboard coming up half-built.
+            guard language.rows.isEmpty == false,
+                  language.rows.allSatisfy({ $0.row.isEmpty == false }) else {
+                print("ignoring \(key).json: it has no character rows, or a row with no keys")
+                return nil
+            }
+            return language
         } catch {
             print("could not decode \(key).json: \(error)")
             return nil
@@ -1759,7 +1781,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         var y = spacing * 3 + keyHeight * 2
         
         guard let language = currentLanguage else { return }
-        for (rowIndex, row) in language.rows.enumerated() {
+
+        // The layout is built around exactly these three rows: row 1 is offset by half a key, row 2
+        // by a key and a half with shift filling the gap, and delete closes row 0. A file with more
+        // rows than that has nowhere to put them, and appending into characterButtons[3] would trap.
+        // Show the rows that do fit and say what was dropped, rather than losing the language.
+        if language.rows.count > characterButtons.count {
+            print("\(language.title) declares \(language.rows.count) character rows; the layout has "
+                + "\(characterButtons.count), so the extra rows are not shown")
+        }
+
+        for (rowIndex, row) in language.rows.prefix(characterButtons.count).enumerated() {
             
             
             var x: CGFloat = 0
