@@ -29,6 +29,17 @@ class KeyButton: UIButton {
     static let defaultKeyFill = UIColor(red: 234.0/255, green: 227.0/255, blue: 210.0/255, alpha: 1.0)
     static let defaultTitleColor = UIColor(red: 72.0/255, green: 55.0/255, blue: 42.0/255, alpha: 1.0)
 
+    /// The selected state, a shade down from the cream so a held key reads as held.
+    ///
+    /// This used to be a red-to-grey CAGradientLayer rendered to an image, in a palette nothing
+    /// else in the keyboard uses, and sized to `bounds` inside init -- before Auto Layout had
+    /// given the key a size -- so the image it produced was junk regardless.
+    ///
+    /// The preset and number keys set their own selected fill, and the only other key that asks
+    /// for this state is shift in caps mode, which nothing can currently reach: the only
+    /// assignment of ShiftMode.caps is the self-transition in shiftButtonPressed.
+    static let defaultSelectedKeyFill = UIColor(red: 205.0/255, green: 196.0/255, blue: 178.0/255, alpha: 1.0)
+
     /// Title sizes for the keys labelled with a symbol rather than text. Symbols like U+232B
     /// and U+21E7 are drawn well inside their em box, so at titleFontSize they read visibly
     /// smaller than the capitals beside them and need their own, larger sizes.
@@ -71,19 +82,9 @@ class KeyButton: UIButton {
         setTitleColor(KeyButton.defaultTitleColor, for: .normal)
         titleLabel?.sizeToFit()
 
-        let gradient = CAGradientLayer()
-        gradient.frame = bounds
-        let gradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).cgColor, UIColor(red: 254.0/255, green: 254.0/255, blue: 254.0/255, alpha: 1.0).cgColor]
-        gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-        //setBackgroundImage(gradient.UIImageFromCALayer(), forState: .Normal)
-
         setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
-        let selectedGradient = CAGradientLayer()
-        selectedGradient.frame = bounds
-        let selectedGradientColors: [AnyObject] = [UIColor(red: 1.0, green: 1.0/255, blue: 1.0/255, alpha: 1.0).cgColor, UIColor(red: 200.0/255, green: 210.0/255, blue: 214.0/255, alpha: 1.0).cgColor]
-        selectedGradient.colors = selectedGradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-        setBackgroundImage(selectedGradient.UIImageFromCALayer(), for: .selected)
-        
+        setBackgroundImage(UIImage.fromColor(KeyButton.defaultSelectedKeyFill), for: .selected)
+
         layer.masksToBounds = true
         layer.cornerRadius = 3.0
         

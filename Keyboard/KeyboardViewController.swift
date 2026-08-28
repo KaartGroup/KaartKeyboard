@@ -110,8 +110,24 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     fileprivate let spacing: CGFloat = KeyButton.gutter
     fileprivate let predictiveTextBoxHeight: CGFloat = 24.0
+
+    /// Never negative, whatever the view's width happens to be.
+    ///
+    /// Every width below divides the view's width, and `view.frame` is (0, 0, 0, 0) throughout
+    /// viewDidLoad -- the input view has not been sized yet -- which made each of them negative:
+    /// keyWidth came out at -5.5. The keys are built at these sizes and then positioned by
+    /// constraints, so the placeholder never showed, but UIKit spent the whole launch laying out
+    /// and drawing buttons whose size had a negative component, which is where the thirty
+    /// "CGAffineTransformInvert: singular matrix" errors per launch came from.
+    ///
+    /// Note this is not visible through CGRect.width, which standardises and reports the absolute
+    /// value; it is CGRect.size.width that goes negative.
+    fileprivate static func nonNegative(_ width: CGFloat) -> CGFloat {
+        return max(0, width)
+    }
+
     fileprivate var predictiveTextButtonWidth: CGFloat {
-        return (view.frame.width - 4 * spacing) / 3.0
+        return KeyboardViewController.nonNegative((view.frame.width - 4 * spacing) / 3.0)
     }
     fileprivate var keyboardHeight: CGFloat {
         if(UIScreen.main.bounds.width < UIScreen.main.bounds.height ){
@@ -126,12 +142,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // Width of individual letter keys
     fileprivate var keyWidth: CGFloat {
-        return (view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1)
+        return KeyboardViewController.nonNegative((view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1))
     }
     
     // The width a preset row's seven columns would each get if they were all equal.
     fileprivate var wordKeyWidth: CGFloat {
-        return (view.frame.width - 8 * spacing) / 7.0
+        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing) / 7.0)
     }
 
     // The two control keys carry a short label and do not need a preset's width. They match the
@@ -146,7 +162,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // than given a width, so this is the number that actually sizes them: widening the presets is
     // what squeezes the controls.
     fileprivate var presetKeyWidth: CGFloat {
-        return (view.frame.width - 8 * spacing - controlKeyWidth) / 6.0
+        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing - controlKeyWidth) / 6.0)
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -154,7 +170,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     // reassign it, and which the number row used to be shrunk to 0.9 of so it could line up with
     // the eleven-slot QWERTY row above the numeral toggle that used to sit at its right end.
     fileprivate var numberKeyWidth: CGFloat {
-        return (view.frame.width - 11 * spacing) / 10.0
+        return KeyboardViewController.nonNegative((view.frame.width - 11 * spacing) / 10.0)
     }
     
     /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
@@ -300,16 +316,48 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     fileprivate var lastWordTyped: String? {
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            let length = documentContextBeforeInput.length
-            if length > 0 && CharacterSet.letters.contains(UnicodeScalar(documentContextBeforeInput.character(at: length - 1))!) {
-                let components = documentContextBeforeInput.components(separatedBy: CharacterSet.letters.inverted) 
-                return components[components.endIndex - 1]
-            }
-        }
-        return nil
+        guard let context = proxy.documentContextBeforeInput,
+              let last = context.last, KeyboardViewController.isLetter(last) else { return nil }
+        return String(context.reversed().prefix(while: KeyboardViewController.isLetter).reversed())
     }
-    
+
+    /// Whether a character is a letter / whitespace, judged by its first Unicode scalar.
+    ///
+    /// The keyboard used to ask these questions of a UTF-16 code unit, via
+    /// `UnicodeScalar(_: UInt16)` on the last unit of the text before the cursor. That
+    /// initialiser is failable and returns nil for a surrogate, and the call sites force
+    /// unwrapped it -- so the trailing surrogate of any non-BMP character (every emoji) trapped.
+    /// Asking a Character instead means the question is always answerable.
+    ///
+    /// Swift 4 has no Character.isLetter, hence the scalar lookup rather than the one-liner.
+    fileprivate static func isLetter(_ character: Character) -> Bool {
+        guard let scalar = String(character).unicodeScalars.first else { return false }
+        return CharacterSet.letters.contains(scalar)
+    }
+
+    fileprivate static func isWhitespace(_ character: Character) -> Bool {
+        guard let scalar = String(character).unicodeScalars.first else { return false }
+        return CharacterSet.whitespaces.contains(scalar)
+    }
+
+    /// How many characters a backwards delete should remove to take out the run before the
+    /// cursor: a whole word when the cursor sits after a letter, the whole run of spaces when it
+    /// sits after whitespace, and a single character otherwise.
+    ///
+    /// Counted in Characters, not UTF-16 units, because that is what deleteBackward() removes per
+    /// call. The old count was in UTF-16 units, so a word containing an emoji or any other
+    /// non-BMP character deleted more than the word.
+    fileprivate func charactersToDeleteBackward(from context: String) -> Int {
+        guard let last = context.last else { return 0 }
+        if KeyboardViewController.isLetter(last) {
+            return context.reversed().prefix(while: KeyboardViewController.isLetter).count
+        }
+        if KeyboardViewController.isWhitespace(last) {
+            return context.reversed().prefix(while: KeyboardViewController.isWhitespace).count
+        }
+        return 1
+    }
+
     fileprivate var languageProvider: LanguageProvider = DefaultLanguageProvider() {
         didSet {
             for (rowIndex, row) in characterButtons.enumerated() {
@@ -318,7 +366,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     //                    characterButton.tertiaryCharacters = languageProvider.tertiaryCharacters[rowIndex][characterButtonIndex]
                 }
             }
-            currentLanguageLabel.text = languageProvider.language
+            // Optional. currentLanguageLabel is declared but never built -- the space bar carries
+            // the language name instead -- so this was a nil unwrap waiting for the first
+            // assignment to languageProvider, which nothing makes today.
+            currentLanguageLabel?.text = languageProvider.language
             suggestionProvider.clear()
             suggestionProvider.loadWeightedStrings(languageProvider.suggestionDictionary)
         }
@@ -913,6 +964,22 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func loadView() {
         super.loadView()
+        reloadLanguages()
+    }
+
+    /// Re-reads which languages are switched on and decodes them, returning whether the set
+    /// changed. Safe to call at any point in the lifecycle.
+    ///
+    /// This used to be the body of loadView(), and viewWillAppear called loadView() directly to
+    /// pick up a change made in the container app. loadView()'s job is to create the view:
+    /// calling it a second time runs super.loadView(), which hands back a fresh empty view and
+    /// leaves every button property pointing at an orphan with no superview. The next
+    /// updateViewConstraints() then activates constraints between views with no common ancestor,
+    /// which throws.
+    @discardableResult
+    fileprivate func reloadLanguages() -> Bool {
+        let previous = languages.map { $0.title }
+
         // `defaults` is nil if the app group is unavailable, so read through it rather
         // than force-unwrapping: a missing suite should mean "no languages selected",
         // not a crash before the view exists.
@@ -934,9 +1001,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             languages = [fallback]
         }
 
-        if let first = languages.first {
-            UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+        // Seed the current language only when there is not one already, or when the one stored is
+        // no longer switched on. This was an unconditional write of languages.first, and since the
+        // extension is torn down and relaunched constantly, the language chosen with the Kaart key
+        // never survived: the keyboard always came back in the first enabled language.
+        let stored = UserDefaults.standard.string(forKey: "CURRENT_LANG")
+        if stored == nil || languages.contains(where: { $0.title == stored }) == false {
+            if let first = languages.first {
+                UserDefaults.standard.set(first.title, forKey: "CURRENT_LANG")
+            }
         }
+
+        return languages.map { $0.title } != previous
     }
 
     /// Decodes one bundled language definition, returning nil if it is missing or malformed
@@ -957,13 +1033,16 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        for (key, value) in showLanguages {
-            if value != defaults?.bool(forKey: key) {
-                print("YES")
-                self.loadView()
-                break
-            }
+
+        // Pick up a language switched on or off in the container app since this keyboard was
+        // built. Same rebuild the Kaart key does, which is all a changed language list needs:
+        // the character rows, the space bar's label and the number row's symbols.
+        if reloadLanguages() {
+            addCharacterButtons()
+            addSpaceButton()
+            updateNumberRowSymbols()
+            shiftMode = .on
+            updateViewConstraints()
         }
     }
     
@@ -1132,46 +1211,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 break;
             }
             
-            //proxy.deleteBackward();
-            if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-                if documentContextBeforeInput.length > 0 {
-                    var charactersToDelete = 0
-                    switch documentContextBeforeInput {
-                    case let s where CharacterSet.letters.contains(UnicodeScalar(s.character(at: s.length - 1))!): // Cursor in front of letter, so delete up to first non-letter character.
-                        let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.letters.inverted, options: .backwards)
-                        if range.location != NSNotFound {
-                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                        } else {
-                            charactersToDelete = documentContextBeforeInput.length
-                        }
-                    case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
-                        let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.whitespaces.inverted, options: .backwards)
-                        if range.location != NSNotFound {
-                            charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                        } else {
-                            charactersToDelete = documentContextBeforeInput.length
-                        }
-                    default: // Just delete last character.
-                        
-                        charactersToDelete = 1
-                    }
-                    
-                    if( charactersToDelete == 0)
-                    {
-                        break;
-                    }
-                    for _ in 0..<charactersToDelete {
-                        proxy.deleteBackward()
-                    }
-                    
-                    //sleep(1)
+            if let documentContextBeforeInput = proxy.documentContextBeforeInput {
+                let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
+                if charactersToDelete == 0 {
+                    break;
+                }
+                for _ in 0..<charactersToDelete {
+                    proxy.deleteBackward()
                 }
             }
             else
             {
                 break;
             }
-            
+
             timer.invalidate();
             let longPressTime = Timer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
             
@@ -1225,36 +1278,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func handleSwipeLeftForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        // TODO: Figure out an implementation that doesn't use bridgeToObjectiveC, in case of funny unicode characters.
-        if let documentContextBeforeInput = proxy.documentContextBeforeInput as NSString? {
-            if documentContextBeforeInput.length > 0 {
-                var charactersToDelete = 0
-                switch documentContextBeforeInput {
-                case let s where CharacterSet.letters.contains(UnicodeScalar(s.character(at: s.length - 1))!): // Cursor in front of letter, so delete up to first non-letter character.
-                    let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.letters.inverted, options: .backwards)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                case let s where s.hasSuffix(" "): // Cursor in front of whitespace, so delete up to first non-whitespace character.
-                    let range = documentContextBeforeInput.rangeOfCharacter(from: CharacterSet.whitespaces.inverted, options: .backwards)
-                    if range.location != NSNotFound {
-                        charactersToDelete = documentContextBeforeInput.length - range.location - 1
-                    } else {
-                        charactersToDelete = documentContextBeforeInput.length
-                    }
-                default: // Just delete last character.
-                    
-                    charactersToDelete = 1
-                }
-                
-                for _ in 0..<charactersToDelete {
-                    proxy.deleteBackward()
-                }
-            }
+        guard let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
+        for _ in 0..<charactersToDeleteBackward(from: documentContextBeforeInput) {
+            proxy.deleteBackward()
         }
-//        updateSuggestions()
     }
     
     @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
@@ -1439,7 +1466,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func handleLongPressForButton(_ button: CharacterButton) {
         if button.tertiaryCharacters.isEmpty { return }
-        
+
+        // Whatever popup was open belongs to another key. Take it down rather than leaving its
+        // buttons stacked underneath the new one.
+        dismissTertiaryButtons()
+
         var y = button.frame.minY - (keyHeight + spacing)
         var x: CGFloat = button.frame.minX
         // The first popup row holds 5 accents and every row after it holds 6, with the close key
@@ -1485,26 +1516,28 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         tertiaryButtons.append(close)
     }
     
-    @objc func handleTertiaryPress(_ sender: KeyButton) {
-        let charStr = sender.titleLabel?.text
-        if updateShortField(charStr!) == true{
-            shiftMode = .off
-            for btn in tertiaryButtons {
-                btn.removeFromSuperview()
-            }
-            tertiaryButtons = []
-            return
-        }
-        proxy.insertText(charStr!)
-        shiftMode = .off
+    /// Takes down the accent popup, if one is open.
+    fileprivate func dismissTertiaryButtons() {
         for btn in tertiaryButtons {
             btn.removeFromSuperview()
         }
         tertiaryButtons = []
     }
+
+    @objc func handleTertiaryPress(_ sender: KeyButton) {
+        guard let charStr = sender.titleLabel?.text else {
+            dismissTertiaryButtons()
+            return
+        }
+        if updateShortField(charStr) == false {
+            proxy.insertText(charStr)
+        }
+        shiftMode = .off
+        dismissTertiaryButtons()
+    }
     
     @objc func handleKaartKeyboardPress(_ sender: KeyButton) {
-        if languages.count < 2 { print("NO"); return}
+        if languages.count < 2 { return }
         for (i, lang) in languages.enumerated() {
             if lang.title == currentLanguage?.title {
                 UserDefaults.standard.set(languages[ (i + 1) <= languages.count - 1 ? i + 1 : 0 ].title, forKey: "CURRENT_LANG")
@@ -1519,10 +1552,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func handleClosePress(_ sender: KeyButton) {
-        for btn in tertiaryButtons {
-            btn.removeFromSuperview()
-        }
-        tertiaryButtons = []
+        dismissTertiaryButtons()
     }
     
     func handleSwipeUpForButton(_ button: CharacterButton) {
@@ -1799,11 +1829,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
-                let gradient = CAGradientLayer()
-                gradient.frame = self.shortWordButton.bounds
-                let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
-                gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-                
                 shortWordButton.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
                 shortWordButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
                 shortWordButton.addTarget(self, action: #selector(KeyboardViewController.shortWordButtonPressed(_:)), for: .touchUpInside)
@@ -1820,13 +1845,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     @objc func longPressShortWord(_ gesture:UILongPressGestureRecognizer)  {
-        
+        // Only on .began, as pasteShortWord below already does. Without this the editor was torn
+        // down and rebuilt, and the band reopened and re-laid out, once more for the release and
+        // again for every touch move in between.
+        guard gesture.state == .began, let pressed = gesture.view as? UIButton else { return }
+
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
-        
+
         predictiveTextScrollView.isHidden = true
-        
-        selectedShortWordBtn = gesture.view as! UIButton
+
+        selectedShortWordBtn = pressed
         selectedShortWordBtn.layer.borderWidth = 3.0
         selectedShortWordBtn.layer.borderColor = UIColor.white.cgColor
         
@@ -2011,11 +2040,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             numpadButton.setTitleColor(UIColor.black, for: .normal)
-            let gradient = CAGradientLayer()
-            gradient.frame = self.shortWordButton.bounds
-            let gradientColors: [AnyObject] = [UIColor(red: 70.0/255, green: 70.0/255, blue: 70.0/255, alpha: 40.0).cgColor, UIColor(red: 60.0/255, green: 60.0/255, blue: 60.0/255, alpha: 1.0).cgColor]
-            gradient.colors = gradientColors // Declaration broken into two lines to prevent 'unable to bridge to Objective C' error.
-            
             numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             

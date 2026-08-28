@@ -118,9 +118,7 @@ class CharacterButton: KeyButton {
         self.delegate = delegate
         
         super.init(frame: frame)
-        print(frame.width < 60 ? "TRUE" : "FALSE")
-        print(frame.width)
-        
+
 //        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
         primaryLabel = UILabel(frame: CGRect(x: frame.width < 50 ? frame.width * 0.5 : 0.0, y: 0.0, width: frame.width < 50 ? 60 :frame.width, height: frame.height ))
         primaryLabel.font = UIFont(name: "Helvetica", size: CharacterButton.primaryFontSize)
@@ -199,7 +197,12 @@ class CharacterButton: KeyButton {
         delegate?.handleSwipeDownForButton(self)
     }
     
+    // Only on .began. A long press also reports .changed for every touch move that follows
+    // recognition, and .ended on release, and the delegate builds a fresh accent popup each time
+    // it is called -- so holding a key and sliding a finger stacked a new set of buttons per
+    // move. One press, one call.
     @objc func buttonLongPressed(_ longPressGestureRecognizer: UILongPressGestureRecognizer) {
+        guard longPressGestureRecognizer.state == .began else { return }
         delegate?.handleLongPressForButton(self)
     }
 }

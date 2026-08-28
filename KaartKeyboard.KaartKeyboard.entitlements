@@ -4,7 +4,9 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
+		<string>group.com.kaartgroup.KGKeyApp</string>
 		<string>group.com.kaartgroup.KaartKeyboard</string>
+		<string>group.com.kaartgroup.gokaart.keyboard</string>
 	</array>
 </dict>
 </plist>
