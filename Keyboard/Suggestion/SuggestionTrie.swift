@@ -58,7 +58,7 @@ class SuggestionTrie: SuggestionProvider {
     }
 
     fileprivate func insertString(_ s: String, charIndex: Int, weight: Int, node: inout SuggestionNode?) {
-        let charCount = s.characters.count
+        let charCount = s.count
         if charCount > 0 {
             if node == nil {
                 if charCount == charIndex + 1 {
@@ -79,7 +79,7 @@ class SuggestionTrie: SuggestionProvider {
     }
     
     fileprivate func searchForNodeMatchingPrefix(_ prefix: String, rootNode: SuggestionNode?) -> SuggestionNode? {
-        let charCount = prefix.characters.count
+        let charCount = prefix.count
         if rootNode == nil || charCount == 0 {
             return nil
         } else if charCount == 1 && prefix == rootNode!.char {
@@ -126,7 +126,7 @@ class SuggestionTrie: SuggestionProvider {
         let term: String
         var weight: Int
         var char: String {
-            return term[term.characters.count - 1]
+            return term[term.count - 1]
         }
         var isWordEnd: Bool
         

@@ -424,6 +424,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // after a language with no usable rows left the grid empty; either way this used to be an
         // index-out-of-range rather than a layout pass that does nothing.
         guard let firstNumberBtn = arrayOfNumberButton.first,
+              let shiftButton = shiftButton,
               characterButtons.contains(where: { $0.isEmpty == false }) else { return }
 
         var y = spacing * 3 + keyHeight * 2
@@ -720,6 +721,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForSpeceRow()
     {
+        // Bound to non-optional locals that shadow the properties. These are `KeyButton!`, and
+        // NSLayoutConstraint takes its items as `Any` -- so passing one straight through hands Auto
+        // Layout a boxed Optional instead of the view when it happens to be nil, rather than
+        // failing. Swift 5 warns about exactly that; a guard answers the warning and the underlying
+        // hazard at once.
+        guard let kaartKeyboardButton = kaartKeyboardButton,
+              let nextKeyboardButton = nextKeyboardButton,
+              let spaceButton = spaceButton,
+              let returnButton = returnButton,
+              let shiftButton = shiftButton else { return }
+
         rowCount = 9.0
         // Add Constraints for Kaart Button
         removeAllConstrains(kaartKeyboardButton)
@@ -751,25 +763,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let heightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 5)
-        
         let rightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .trailing, relatedBy: .equal, toItem: returnButton, attribute: .leading, multiplier: 1.0, constant: -spacing)
-        
-        let bottomConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1.0, constant: -spacing)
         
         spaceButton.translatesAutoresizingMaskIntoConstraints = false;
         
         topConsSpeceButton.isActive = true
         leftConsSpeceButton.isActive = true
         heightConsSpeceButton.isActive = true
-//        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
-        // activating it guarantees Auto Layout breaks one of them at runtime. It was briefly
-        // active, paired with a first-preset-row top constraint relaxed to 999 to make room for
-        // it -- but that relaxation is what let the system skip the rename band's height, so the
-        // pair has gone back out. The rows keep their full height and the keyboard grows instead.
-//        bottomConsSpeceButton.isActive = true
+        // No bottom constraint on the space row, and no explicit width. Top + height + bottom
+        // cannot all hold at once, so pinning the bottom guarantees Auto Layout breaks one of them
+        // at runtime. It was briefly pinned, paired with a first-preset-row top constraint relaxed
+        // to 999 to make room for it -- but that relaxation is what let the system skip the rename
+        // band's height, so the pair went back out. The rows keep their full height and the
+        // keyboard grows instead. The width comes from the leading and trailing constraints.
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -893,8 +900,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForPredictiveText()
     {
-        
-        // Add Constraints for Return Button
+        guard let predictiveTextScrollView = predictiveTextScrollView else { return }
+
         removeAllConstrains(predictiveTextScrollView);
         
         let topCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: spacing);
@@ -1057,7 +1064,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
+        guard let nextKeyboardButton = nextKeyboardButton,
+              let kaartKeyboardButton = kaartKeyboardButton,
+              let spaceButton = spaceButton,
+              let shiftButton = shiftButton else { return }
+
         removeAllConstrains(nextKeyboardButton);
         
         nextKeyboardButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1147,6 +1159,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // answer either: it feeds a 6.5 divisor while seven rows are laid out, so it is ~45pt
         // short and clips the bottom row. contentHeight is the constraints' own arithmetic.
         let customHeight = contentHeight
+
+        // Same reason as the key guards above: `view` is `UIView!` and the item parameter is `Any`.
+        let view: UIView = self.view
 
         if heightConstraint == nil {
             heightConstraint = NSLayoutConstraint(item: view,
@@ -1257,7 +1272,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         deleteFollowUpTimer?.invalidate()
         let timer = Timer(timeInterval: delay, target: self, selector: selector, userInfo: nil, repeats: false)
         deleteFollowUpTimer = timer
-        RunLoop.main.add(timer, forMode: RunLoopMode.defaultRunLoopMode)
+        RunLoop.main.add(timer, forMode: RunLoop.Mode.default)
     }
 
     /// Stops every timer the delete key owns. One call for the whole machine, so a new press cannot
@@ -1278,7 +1293,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             let repeatTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
             repeatTimer.tolerance = 0.01
             deleteButtonTimer = repeatTimer
-            RunLoop.main.add(repeatTimer, forMode: RunLoopMode.defaultRunLoopMode)
+            RunLoop.main.add(repeatTimer, forMode: RunLoop.Mode.default)
 
             scheduleDeleteFollowUp(after: 0.4, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)))
 
@@ -1534,7 +1549,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func handlePressForSuggestionButton(_ button: SuggestionButton) {
         if let lastWord = lastWordTyped {
-            for _ in lastWord.characters {
+            for _ in lastWord {
                 proxy.deleteBackward()
             }
             proxy.insertText(button.title + " ")
@@ -1798,7 +1813,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.shortWordTxtFld.addGestureRecognizer(gesture)
         
         self.view.addSubview(shortWordTxtFld)
-        self.view.bringSubview(toFront: self.shortWordTxtFld)
+        self.view.bringSubviewToFront(self.shortWordTxtFld)
         
         tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
 

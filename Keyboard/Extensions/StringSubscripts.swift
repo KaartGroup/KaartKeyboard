@@ -12,12 +12,18 @@ import Foundation
     A String extension that allows accessing substrings using subscript syntax.
 */
 extension String {
+    /// The Character at `i`, as a String.
+    ///
+    /// Indexes through the string rather than building an Array of every Character first, which is
+    /// what this did before. Same result -- String is Character-indexed either way -- without
+    /// allocating a copy of the whole string on each subscript.
     subscript(i: Int) -> String {
-        return String(Array(self.characters)[i])
+        return String(self[index(startIndex, offsetBy: i)])
     }
+
     subscript(range: Range<Int>) -> String {
-        let start = characters.index(startIndex, offsetBy: range.lowerBound)
-        let end = characters.index(startIndex, offsetBy: range.upperBound)
-        return substring(with: (start ..< end))
+        let start = index(startIndex, offsetBy: range.lowerBound)
+        let end = index(startIndex, offsetBy: range.upperBound)
+        return String(self[start ..< end])
     }
 }

@@ -12,7 +12,7 @@ import UIKit
 /**
     The method declared in the SuggestionButtonDelegate protocol allow the adopting delegate to respond to messages from the SuggestionButton class, handling button presses.
 */
-protocol SuggestionButtonDelegate: class {
+protocol SuggestionButtonDelegate: AnyObject {
     /**
         Respond to the SuggestionButton being pressed.
     
