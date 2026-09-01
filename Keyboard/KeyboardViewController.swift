@@ -2016,7 +2016,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         for index in 1...10{
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor.black, for: .normal)
+            // The same white the presets and the return key use. Set once here rather than in
+            // updateNumeralTitles, which only swaps the title and the font, so the arabic and
+            // roman numerals both read as white against the number key's fill.
+            numpadButton.setTitleColor(UIColor.white, for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
