@@ -21,15 +21,25 @@ class SplitViewController: UISplitViewController {
         // Do any additional setup after loading the view.
     }
     
+    /// Set once the onboarding has been put on screen, so it is offered on the way in and not again
+    /// every time this controller reappears -- which is what dismissing the modal, or coming back
+    /// from Settings, would otherwise do.
+    private var hasOfferedSetUp = false
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        if AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false {
-        
-            let storyboard = UIStoryboard(name: "MainStoryboard", bundle: nil)
-            let controller = storyboard.instantiateViewController(withIdentifier: "SetUpController")
-            self.present(controller, animated: true, completion: nil)
-        }
+
+        // Onboarding is for people who have *not* added the keyboard yet. The test used to be the
+        // other way round -- present the walkthrough when the keyboard is already enabled -- which
+        // was harmless only because AppDelegateSingleton's unassigned property made the whole
+        // condition false. Fixing that check without also turning this around would have started
+        // showing "here is how to enable the keyboard" to the one group who had already done it.
+        guard !hasOfferedSetUp, !AppDelegate.isKeyboardExtensionEnabled() else { return }
+        hasOfferedSetUp = true
+
+        let storyboard = UIStoryboard(name: "MainStoryboard", bundle: nil)
+        let controller = storyboard.instantiateViewController(withIdentifier: "SetUpController")
+        self.present(controller, animated: true, completion: nil)
     }
     
 

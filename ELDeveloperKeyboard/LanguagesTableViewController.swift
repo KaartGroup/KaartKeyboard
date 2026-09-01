@@ -32,14 +32,20 @@ class LanguagesTableViewController: UITableViewController {
     @IBOutlet weak var bulgarianSwitch: UISwitch!
     @IBOutlet weak var vietnameseSwitch: UISwitch!
     
+    /// Reads through `defaults` rather than force-unwrapping it seven times. The suite is nil if the
+    /// app group is unavailable, and an off switch is the honest answer to "we cannot read your
+    /// settings" -- the keyboard itself already treats a missing suite as no languages selected.
+    /// Also calls super, which the previous version skipped.
     override func viewDidAppear(_ animated: Bool) {
-        englishSwitch.isOn = (defaults?.bool(forKey: "english"))!
-        greekSwitch.isOn = (defaults?.bool(forKey: "greek"))!
-        serbainCyrillicSwitch.isOn = (defaults?.bool(forKey: "serbian-cyrillic"))!
-        romanianSwitch.isOn = (defaults?.bool(forKey: "romanian"))!
-        macedonianSwitch.isOn = (defaults?.bool(forKey: "macedonian"))!
-        bulgarianSwitch.isOn = (defaults?.bool(forKey: "bulgarian"))!
-        vietnameseSwitch.isOn = (defaults?.bool(forKey: "vietnamese"))!
+        super.viewDidAppear(animated)
+
+        englishSwitch.isOn = defaults?.bool(forKey: "english") ?? false
+        greekSwitch.isOn = defaults?.bool(forKey: "greek") ?? false
+        serbainCyrillicSwitch.isOn = defaults?.bool(forKey: "serbian-cyrillic") ?? false
+        romanianSwitch.isOn = defaults?.bool(forKey: "romanian") ?? false
+        macedonianSwitch.isOn = defaults?.bool(forKey: "macedonian") ?? false
+        bulgarianSwitch.isOn = defaults?.bool(forKey: "bulgarian") ?? false
+        vietnameseSwitch.isOn = defaults?.bool(forKey: "vietnamese") ?? false
     }
     
     @IBAction func englishSwitchChanged(_ sender: UISwitch) {

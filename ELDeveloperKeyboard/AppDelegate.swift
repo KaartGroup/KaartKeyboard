@@ -8,36 +8,34 @@
 
 import UIKit
 
-class AppDelegateSingleton {
-    static let shared = AppDelegateSingleton()
-    var appDelegate: AppDelegate?
-}
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-                            
+
     var window: UIWindow?
     var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
-    
-    public func isKeyboardExtensionEnabled() -> Bool {
-        guard let appBundleIdentifier = Bundle.main.bundleIdentifier else {
-            fatalError("isKeyboardExtensionEnabled(): Cannot retrieve bundle identifier.")
-        }
-        
+
+    /// Whether the user has added our keyboard in Settings.
+    ///
+    /// Static because it reads nothing but the bundle and the user's keyboard list. It used to be
+    /// an instance method reached through an AppDelegateSingleton whose `appDelegate` property was
+    /// never assigned -- nothing anywhere wrote to it -- so both call sites fell through their
+    /// `?? false` and this never actually ran. The Set-Up row stayed visible after the keyboard was
+    /// enabled, and the onboarding screen never presented itself. With no instance state to reach,
+    /// the singleton was only ever the thing standing between the call sites and the answer.
+    static func isKeyboardExtensionEnabled() -> Bool {
+        // No fatalError here, which is what a missing identifier used to raise. It cannot happen in
+        // a built app bundle, and "we could not tell" is a question this function already has an
+        // answer for: report not-enabled and show the onboarding, rather than killing the app on
+        // the way to its first screen.
+        guard let appBundleIdentifier = Bundle.main.bundleIdentifier else { return false }
+
         guard let keyboards = UserDefaults.standard.dictionaryRepresentation()["AppleKeyboards"] as? [String] else {
             // There is no key `AppleKeyboards` in NSUserDefaults. That happens sometimes.
             return false
         }
-        
+
         let keyboardExtensionBundleIdentifierPrefix = appBundleIdentifier + "."
-        for keyboard in keyboards {
-            if keyboard.hasPrefix(keyboardExtensionBundleIdentifierPrefix) {
-                print("Keyboard Enabled")
-                return true
-            }
-        }
-        print("Keyboard Disabled")
-        return false
+        return keyboards.contains { $0.hasPrefix(keyboardExtensionBundleIdentifierPrefix) }
     }
 
 //    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {

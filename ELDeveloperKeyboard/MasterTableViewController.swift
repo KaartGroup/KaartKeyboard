@@ -29,20 +29,31 @@ class MasterTableViewController: UITableViewController {
     // MARK: - Table view data source
 
 
+    /// The keyboard is enabled from Settings, which means it can change while this app sits in the
+    /// background. Re-reading on the way back in is what makes the Set-Up row disappear once the
+    /// user has actually followed the instructions; without it the row only ever reflected the state
+    /// at launch.
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+
+    // The first row is the Set-Up walkthrough, which is only worth showing until the keyboard has
+    // been added. Hiding it means dropping row 0 and shifting the rest up.
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let count = super.tableView(tableView, numberOfRowsInSection: section)
 
-        if AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false {
+        if AppDelegate.isKeyboardExtensionEnabled() {
             return count - 1
         }
         return count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        
-        if (AppDelegateSingleton.shared.appDelegate?.isKeyboardExtensionEnabled() ?? false){
-            return super.tableView(tableView, cellForRowAt: IndexPath(row: indexPath.row + 1, section:0))
+        if AppDelegate.isKeyboardExtensionEnabled() {
+            // indexPath.section rather than a hardcoded 0, so this keeps addressing the row the
+            // table asked about if a second section is ever added to the storyboard.
+            return super.tableView(tableView, cellForRowAt: IndexPath(row: indexPath.row + 1, section: indexPath.section))
         }
         return super.tableView(tableView, cellForRowAt: indexPath)
     }

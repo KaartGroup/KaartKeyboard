@@ -13,7 +13,7 @@ import UIKit
 /**
  An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
  */
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate, TouchForwardingViewDelegate {
+class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate {
     
     // MARK: Constants
     
@@ -43,14 +43,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         get { return shortWordBanks[activeBank] }
         set { shortWordBanks[activeBank] = newValue }
     }
-    
-    fileprivate var isSecondary:Bool = false
-    
-    fileprivate var secondaryTap : UIGestureRecognizer!
-    
-    fileprivate var secondaryChar:String = ""
-    
-    fileprivate var secondaryToShow : [KeyButton] = []
     
     // Optional rather than trapping on languages[0]: loadView guarantees a non-empty list
     // in every reachable case, but a nil here degrades to "draw no keys" instead of killing
@@ -222,7 +214,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: User interface
     
-    fileprivate var swipeView: SwipeView!
     fileprivate var predictiveTextScrollView: PredictiveTextScrollView!
     fileprivate var suggestionButtons = [SuggestionButton]()
     
@@ -299,9 +290,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     //    fileprivate var uupButton: KeyButton!
     // MARK: Timers
     
+    /// Repeats a single backspace while delete is held.
     fileprivate var deleteButtonTimer: Timer?
-    fileprivate var spaceButtonTimer: Timer?
-    
+
+    /// The one pending one-shot in the delete key's chain: first the hand-over from character
+    /// repeat to word deletion, then each word delete scheduling the next. Only ever one at a time,
+    /// and held rather than dropped so releasing the key can cancel it.
+    fileprivate var deleteFollowUpTimer: Timer?
+
+
     fileprivate var spaceTitle: String {
         return UserDefaults.standard.string(forKey: "CURRENT_LANG")?.uppercased()
             ?? currentLanguage?.title.uppercased() ?? ""
@@ -412,16 +409,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                     
                 }
             }
-            if isSecondary{
-                for secondary in secondaryToShow{
-                    switch shiftMode {
-                    case .off:
-                        secondary.titleLabel?.text = secondary.titleLabel?.text?.lowercased()
-                    case .on, .caps:
-                        secondary.titleLabel?.text = secondary.titleLabel?.text?.uppercased()
-                    }
-                }
-            }
         }
     }
     
@@ -433,8 +420,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func updateConstraintForCharacter()
     {
 //        let shortWord: KeyButton = arrayOfShortWordButton[1][0]
-        let firstNumberBtn:KeyButton = arrayOfNumberButton[0]
-        
+        // Nothing to hang the character rows off yet. Reached before the number row exists, or
+        // after a language with no usable rows left the grid empty; either way this used to be an
+        // index-out-of-range rather than a layout pass that does nothing.
+        guard let firstNumberBtn = arrayOfNumberButton.first,
+              let shiftButton = shiftButton,
+              characterButtons.contains(where: { $0.isEmpty == false }) else { return }
+
         var y = spacing * 3 + keyHeight * 2
         for (rowIndex, row) in characterButtons.enumerated()
         {
@@ -502,7 +494,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 }
                 else if( rowIndex == 1)
                 {
-                    let QCharBtn:CharacterButton = characterButtons[0][0];
+                    // Row 1 hangs off row 0's first key. Guarded rather than indexed: a language
+                    // whose first row is empty would otherwise trap here.
+                    guard let QCharBtn = characterButtons[0].first else { break }
                     
                     // Second Character Row "A"
                     if(  buttonIndex == 0)
@@ -567,7 +561,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 }
                 else
                 {
-                    let ACharBtn:CharacterButton = characterButtons[1][0];
+                    // Row 2 and the shift key both hang off row 1's first key.
+                    guard let ACharBtn = characterButtons[1].first else { break }
                     
                     // Last Chracter Row "Z"
                     if(  buttonIndex == 0)
@@ -726,6 +721,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForSpeceRow()
     {
+        // Bound to non-optional locals that shadow the properties. These are `KeyButton!`, and
+        // NSLayoutConstraint takes its items as `Any` -- so passing one straight through hands Auto
+        // Layout a boxed Optional instead of the view when it happens to be nil, rather than
+        // failing. Swift 5 warns about exactly that; a guard answers the warning and the underlying
+        // hazard at once.
+        guard let kaartKeyboardButton = kaartKeyboardButton,
+              let nextKeyboardButton = nextKeyboardButton,
+              let spaceButton = spaceButton,
+              let returnButton = returnButton,
+              let shiftButton = shiftButton else { return }
+
         rowCount = 9.0
         // Add Constraints for Kaart Button
         removeAllConstrains(kaartKeyboardButton)
@@ -757,25 +763,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         let heightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
         
-        let widthConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth * 5)
-        
         let rightConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .trailing, relatedBy: .equal, toItem: returnButton, attribute: .leading, multiplier: 1.0, constant: -spacing)
-        
-        let bottomConsSpeceButton = NSLayoutConstraint(item: spaceButton, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1.0, constant: -spacing)
         
         spaceButton.translatesAutoresizingMaskIntoConstraints = false;
         
         topConsSpeceButton.isActive = true
         leftConsSpeceButton.isActive = true
         heightConsSpeceButton.isActive = true
-//        widthConsSpeceButton.isActive = true
         rightConsSpeceButton.isActive = true
-        // bottomConsSpeceButton stays inactive: top + height + bottom cannot all hold, so
-        // activating it guarantees Auto Layout breaks one of them at runtime. It was briefly
-        // active, paired with a first-preset-row top constraint relaxed to 999 to make room for
-        // it -- but that relaxation is what let the system skip the rename band's height, so the
-        // pair has gone back out. The rows keep their full height and the keyboard grows instead.
-//        bottomConsSpeceButton.isActive = true
+        // No bottom constraint on the space row, and no explicit width. Top + height + bottom
+        // cannot all hold at once, so pinning the bottom guarantees Auto Layout breaks one of them
+        // at runtime. It was briefly pinned, paired with a first-preset-row top constraint relaxed
+        // to 999 to make room for it -- but that relaxation is what let the system skip the rename
+        // band's height, so the pair went back out. The rows keep their full height and the
+        // keyboard grows instead. The width comes from the leading and trailing constraints.
         
         // Add Constraints for Return Button
         removeAllConstrains(returnButton);
@@ -819,8 +820,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     func updateConstraintForNumberButton()
     {
         rowCount = 9.0
-        let firstButton = arrayOfNumberButton[0];
-        let shortWordBtn:KeyButton = arrayOfShortWordButton[1][0];
+        // The number row hangs off the second preset row. Both are built in viewDidLoad before this
+        // runs, but reading them positionally is what turns a build-order change into a crash.
+        guard let firstButton = arrayOfNumberButton.first,
+              arrayOfShortWordButton.count > 1,
+              let shortWordBtn = arrayOfShortWordButton[1].first else { return }
 
         removeAllConstrains(firstButton)
 
@@ -896,8 +900,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func updateConstraintForPredictiveText()
     {
-        
-        // Add Constraints for Return Button
+        guard let predictiveTextScrollView = predictiveTextScrollView else { return }
+
         removeAllConstrains(predictiveTextScrollView);
         
         let topCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: spacing);
@@ -1024,7 +1028,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-            return try JSONDecoder().decode(Language.self, from: data)
+            let language = try JSONDecoder().decode(Language.self, from: data)
+
+            // A file can decode cleanly and still be unusable. No rows, or a row with no keys,
+            // leaves the character grid with a hole in it that the layout then reaches into --
+            // `characterButtons[1][0]` and friends are read positionally. Rejecting it here means
+            // the language drops out of the list and the caller falls back, rather than the
+            // keyboard coming up half-built.
+            guard language.rows.isEmpty == false,
+                  language.rows.allSatisfy({ $0.row.isEmpty == false }) else {
+                print("ignoring \(key).json: it has no character rows, or a row with no keys")
+                return nil
+            }
+            return language
         } catch {
             print("could not decode \(key).json: \(error)")
             return nil
@@ -1048,7 +1064,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
+        guard let nextKeyboardButton = nextKeyboardButton,
+              let kaartKeyboardButton = kaartKeyboardButton,
+              let spaceButton = spaceButton,
+              let shiftButton = shiftButton else { return }
+
         removeAllConstrains(nextKeyboardButton);
         
         nextKeyboardButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1139,6 +1160,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // short and clips the bottom row. contentHeight is the constraints' own arithmetic.
         let customHeight = contentHeight
 
+        // Same reason as the key guards above: `view` is `UIView!` and the item parameter is `Any`.
+        let view: UIView = self.view
+
         if heightConstraint == nil {
             heightConstraint = NSLayoutConstraint(item: view,
                                                   attribute: .height,
@@ -1176,116 +1200,113 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     //
+    // A tap and a hold are mutually exclusive on this key, so this only ever runs for a tap.
+    // Measured on an iPad simulator: a short press logs touchUpInside and no gesture states, while a
+    // hold logs .began/.ended and no touchUpInside at all -- the long-press recogniser's default
+    // cancelsTouchesInView cancels the button's tracking when it recognises. So there is no trailing
+    // delete to suppress here, and a flag that tried to suppress one would only leak state from a
+    // hold into the next tap and swallow it.
     @objc func deleteButtonPressed(_ sender: KeyButton) {
-        
-        if shortWordTxtFld.isHidden == true {
-            //        switch proxy.documentContextBeforeInput {
-            //        case let s where s?.hasSuffix("    ") == true: // Cursor in front of tab, so delete tab.
-            //            for _ in 0..<4 { // TODO: Update to use tab setting.
-            //                proxy.deleteBackward()
-            //            }
-            //        default:
-            proxy.deleteBackward()
-            //        }
-//            updateSuggestions()
-            
-        }else{
-            
-            var tempStr : NSString = shortWordTxtFld.text! as NSString
-            if shortWordTxtFld.text?.isEmpty == false  {
-                tempStr = tempStr.substring(to: tempStr.length - 1) as NSString
-                shortWordTxtFld.text = tempStr as String
-            }
-        }
-        
+        deleteOneBackward()
     }
-    
-    var longPressStoped:Bool = false;
-    
+
+    /// One backspace, aimed at whatever holds the text the user can see: the preset name while it is
+    /// being renamed, otherwise the document.
+    ///
+    /// Both the tap and the hold go through here. They used to disagree -- the tap branched on
+    /// shortWordTxtFld while the hold's timer called proxy.deleteBackward() directly -- so holding
+    /// delete with the rename editor open ate the document behind it instead of the name being
+    /// edited.
+    fileprivate func deleteOneBackward() {
+        guard shortWordTxtFld.isHidden else {
+            // dropLast() on the String drops one Character. The NSString substring this replaces cut
+            // one UTF-16 unit, which halves a non-BMP character and leaves a lone surrogate behind.
+            guard let text = shortWordTxtFld.text, text.isEmpty == false else { return }
+            shortWordTxtFld.text = String(text.dropLast())
+            return
+        }
+        proxy.deleteBackward()
+    }
+
+    /// Deletes the run of text before the cursor -- a word, or a run of whitespace -- and schedules
+    /// itself again, so a sustained hold accelerates from characters to words.
     @objc func startMoreDelete(_ timer: Timer)
     {
-        while true {
-            
-            if( longPressStoped )
-            {
-                break;
-            }
-            
-            if let documentContextBeforeInput = proxy.documentContextBeforeInput {
-                let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
-                if charactersToDelete == 0 {
-                    break;
-                }
-                for _ in 0..<charactersToDelete {
-                    proxy.deleteBackward()
-                }
-            }
-            else
-            {
-                break;
-            }
+        deleteFollowUpTimer = nil
 
-            timer.invalidate();
-            let longPressTime = Timer(timeInterval: 0.2, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
-            
-            RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
-            break
+        guard shortWordTxtFld.isHidden,
+              let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
+
+        let charactersToDelete = charactersToDeleteBackward(from: documentContextBeforeInput)
+        guard charactersToDelete > 0 else { return }
+
+        for _ in 0..<charactersToDelete {
+            proxy.deleteBackward()
         }
-        
-        timer.invalidate();
-        longPressStoped = false;
+
+        scheduleDeleteFollowUp(after: 0.2, selector: #selector(KeyboardViewController.startMoreDelete(_:)))
     }
-    
+
     @objc func handleDeleteButtonLongPress(_ timer: Timer) {
-        
-        timer.invalidate();
-        //timer = nil
-        
+        deleteFollowUpTimer = nil
+
+        // Word-at-a-time deletion is for the document. With the rename editor open the hold stays on
+        // single characters, which is all a one-line name field has to give.
+        guard shortWordTxtFld.isHidden else { return }
+
+        // Character repeat hands over to word deletion.
         deleteButtonTimer?.invalidate()
         deleteButtonTimer = nil
-        
-        let longPressTime = Timer(timeInterval: 0.3, target: self, selector: #selector(KeyboardViewController.startMoreDelete(_:)), userInfo: nil, repeats: false);
-        
-        RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
+
+        scheduleDeleteFollowUp(after: 0.3, selector: #selector(KeyboardViewController.startMoreDelete(_:)))
     }
-    
+
+    /// Holds the single pending one-shot in `deleteFollowUpTimer` so releasing the key can cancel it.
+    ///
+    /// These timers used to be created and dropped on the floor -- added to the run loop and never
+    /// stored -- so nothing could invalidate them. Lifting a finger before one fired left it to go
+    /// off afterwards, and the only thing standing between it and more deletion was a
+    /// `longPressStoped` flag that `startMoreDelete` then reset to false on its way out, clearing
+    /// the very stop it had just obeyed.
+    fileprivate func scheduleDeleteFollowUp(after delay: TimeInterval, selector: Selector) {
+        deleteFollowUpTimer?.invalidate()
+        let timer = Timer(timeInterval: delay, target: self, selector: selector, userInfo: nil, repeats: false)
+        deleteFollowUpTimer = timer
+        RunLoop.main.add(timer, forMode: RunLoop.Mode.default)
+    }
+
+    /// Stops every timer the delete key owns. One call for the whole machine, so a new press cannot
+    /// inherit a chain left running by the last one.
+    fileprivate func cancelDeleteTimers() {
+        deleteButtonTimer?.invalidate()
+        deleteButtonTimer = nil
+        deleteFollowUpTimer?.invalidate()
+        deleteFollowUpTimer = nil
+    }
+
     //Delete Button long press action
     @objc func handleLongPressForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        
-        
         switch gestureRecognizer.state {
-            
         case .began:
-            
-            longPressStoped = false;
-            if deleteButtonTimer == nil {
-                deleteButtonTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
-                deleteButtonTimer!.tolerance = 0.01
-                RunLoop.main.add(deleteButtonTimer!, forMode: RunLoopMode.defaultRunLoopMode)
-                
-                let longPressTime = Timer(timeInterval: 0.4, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)), userInfo: nil, repeats: false);
-                
-                RunLoop.main.add(longPressTime, forMode: RunLoopMode.defaultRunLoopMode)
-            }
-            
+            guard deleteButtonTimer == nil else { break }
+
+            let repeatTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleDeleteButtonTimerTick(_:)), userInfo: nil, repeats: true)
+            repeatTimer.tolerance = 0.01
+            deleteButtonTimer = repeatTimer
+            RunLoop.main.add(repeatTimer, forMode: RunLoop.Mode.default)
+
+            scheduleDeleteFollowUp(after: 0.4, selector: #selector(KeyboardViewController.handleDeleteButtonLongPress(_:)))
+
+        case .ended, .cancelled, .failed:
+            cancelDeleteTimers()
+
         default:
-            
-            deleteButtonTimer?.invalidate()
-            deleteButtonTimer = nil
-            longPressStoped = true;
-            //updateSuggestions()
-        }
-    }
-    
-    func handleSwipeLeftForDeleteButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        guard let documentContextBeforeInput = proxy.documentContextBeforeInput else { return }
-        for _ in 0..<charactersToDeleteBackward(from: documentContextBeforeInput) {
-            proxy.deleteBackward()
+            break
         }
     }
     
     @objc func handleDeleteButtonTimerTick(_ timer: Timer) {
-        proxy.deleteBackward()
+        deleteOneBackward()
     }
     
     @objc func spaceButtonPressed(_ sender: KeyButton) {
@@ -1304,46 +1325,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         proxy.insertText(charStr)
 //        updateSuggestions()
-    }
-    
-    // Input the character "ñ" instead of tab
-    @objc func aapButtonPressed(_ sender: KeyButton) {
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func eepButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func iipButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
-    }
-    
-    @objc func uupButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(sender.currentTitle!)
-        shiftMode = .off
     }
     
     // When the numpadButton is pressed
@@ -1394,37 +1375,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shiftMode = .on
     }
     
-    
-    // When the dotButton is pressed
-    @objc func dotButtonPressed(_ sender: KeyButton){
-        
-        if updateShortField((sender.titleLabel?.text)!) == true{
-            return
-        }
-        
-        proxy.insertText(".")
-    }
-    
-    
-    
-    func handleLongPressForSpaceButtonWithGestureRecognizer(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        switch gestureRecognizer.state {
-        case .began:
-            if spaceButtonTimer == nil {
-                spaceButtonTimer = Timer(timeInterval: 0.1, target: self, selector: #selector(KeyboardViewController.handleSpaceButtonTimerTick(_:)), userInfo: nil, repeats: true)
-                spaceButtonTimer!.tolerance = 0.01
-                RunLoop.main.add(spaceButtonTimer!, forMode: RunLoopMode.defaultRunLoopMode)
-            }
-        default:
-            spaceButtonTimer?.invalidate()
-            spaceButtonTimer = nil
-//            updateSuggestions()
-        }
-    }
-    
-    @objc func handleSpaceButtonTimerTick(_ timer: Timer) {
-        proxy.insertText(" ")
-    }
     
     @objc func returnButtonPressed(_ sender: KeyButton) {
         
@@ -1599,7 +1549,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     func handlePressForSuggestionButton(_ button: SuggestionButton) {
         if let lastWord = lastWordTyped {
-            for _ in lastWord.characters {
+            for _ in lastWord {
                 proxy.deleteBackward()
             }
             proxy.insertText(button.title + " ")
@@ -1609,47 +1559,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    // MARK: TouchForwardingViewDelegate methods
-    
-    // TODO: Get this method to properly provide the desired behaviour.
-    func viewForHitTestWithPoint(_ point: CGPoint, event: UIEvent?, superResult: UIView?) -> UIView? {
-        for subview in view.subviews {
-            let convertPoint = subview.convert(point, from: view)
-            if subview is KeyButton && subview.point(inside: convertPoint, with: event) {
-                return subview
-            }
-        }
-        return swipeView
-    }
-    
     // MARK: Helper methods
-    
-    fileprivate func initializeKeyboard() {
-        for subview in self.view.subviews {
-            subview.removeFromSuperview() // Remove all buttons and gesture recognizers when view is recreated during orientation changes.
-        }
-        
-        addNextKeyboardButton();
-        addKaartKeyboardButton()
-        addShortWordButton()
-        addCharacterButtons()
-        addShiftButton();
-        addDeleteButton()
-        addSpaceButton()
-        addNumpadButton()
-        addPresetControlButtons()
-        addReturnButton()
-        addPredictiveTextScrollView()
-        
-        shortWordTxtFld.isHidden = true
-        shiftMode = .on
-
-        
-        self.requestSupplementaryLexicon { (lexObj) in
-            self.lexicon = lexObj;
-        }
-        
-    }
     
     fileprivate func addPredictiveTextScrollView() {
         predictiveTextScrollView = PredictiveTextScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: predictiveTextBoxHeight))
@@ -1748,7 +1658,17 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         var y = spacing * 3 + keyHeight * 2
         
         guard let language = currentLanguage else { return }
-        for (rowIndex, row) in language.rows.enumerated() {
+
+        // The layout is built around exactly these three rows: row 1 is offset by half a key, row 2
+        // by a key and a half with shift filling the gap, and delete closes row 0. A file with more
+        // rows than that has nowhere to put them, and appending into characterButtons[3] would trap.
+        // Show the rows that do fit and say what was dropped, rather than losing the language.
+        if language.rows.count > characterButtons.count {
+            print("\(language.title) declares \(language.rows.count) character rows; the layout has "
+                + "\(characterButtons.count), so the extra rows are not shown")
+        }
+
+        for (rowIndex, row) in language.rows.prefix(characterButtons.count).enumerated() {
             
             
             var x: CGFloat = 0
@@ -1774,32 +1694,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 //        rowCount = 11.0
     }
     
-    @objc func doubleTapCharacterButton(_ gesture:UIGestureRecognizer){
-        if(isSecondary){
-            isSecondary=false
-            
-            //            let button = gesture.view as? CharacterButton
-            //            let press : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.longPressCharacterButton(_:)))
-            //            press.minimumPressDuration = 0.3
-            //            button?.addGestureRecognizer(press)
-            //            button?.removeGestureRecognizer(gesture)
-            
-            //            let button = gesture.view as? CharacterButton
-            //            button?.removeGestureRecognizer(gesture)
-            
-            //            secondaryIsActive.removeGestureRecognizer(gesture)
-            
-            for item in secondaryToShow{
-                item.isHidden = true
-            }
-            //            for item in arrayOfShortWordButton{
-            //                item.isHidden = false
-            //            }
-            self.addShortWordButton()
-        }
-    }
-    
-    
     fileprivate func addShortWordButton(){
         
         for row in arrayOfShortWordButton {
@@ -1823,8 +1717,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shortWordBanks[bank] = migrated
         }
         
+        // y outside the loop. It was declared inside it and incremented after it, so it was 0 on
+        // every pass and both preset rows were built at the same y. Auto Layout moves them to the
+        // right places immediately afterwards, which is why nothing looked wrong, but the frames a
+        // key is created with are the frames its labels are laid out against.
+        var y: CGFloat = 0.0
         for (rowIndex, row) in shortWord.enumerated(){
-            var y: CGFloat = 0.0
             for index in 1...row.count{
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
@@ -1876,6 +1774,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     /// Row and column of the preset being edited, within the active group.
     fileprivate var selectedShortWordIndex: (row: Int, column: Int)?
+
+    /// The shift mode the document was in before the rename editor took it over, held so Done can
+    /// give it back. Nil whenever no rename is in progress.
+    fileprivate var shiftModeBeforeRenaming: ShiftMode?
     
     var shortWordTxtFld : UITextField = UITextField.init()
     
@@ -1895,19 +1797,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         isRenamingPreset = true
         applyPresetBandChange()
 
-        var tempRct: CGRect = shortWordEditRect
-
-        // Done takes a control key's width at the band's trailing edge, which is the same margin
-        // the control keys use, so Done, P1/2 and Num line up in one column. The field takes the
-        // rest of the band.
-        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
-
-        tempRct.origin.x =  spacing
-
         self.shortWordTxtFld.removeFromSuperview()
-        
-        self.shortWordTxtFld = UITextField.init(frame: tempRct)
-        
+
+        // Created at zero and placed by layoutPresetEditor() below, so the geometry lives in one
+        // place instead of being computed here and then again on every relayout.
+        self.shortWordTxtFld = UITextField(frame: .zero)
+
         self.shortWordTxtFld.backgroundColor = UIColor.lightGray
         
         let gesture : UILongPressGestureRecognizer = UILongPressGestureRecognizer.init(target: self, action: #selector(self.pasteShortWord(_:)))
@@ -1915,14 +1810,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         self.shortWordTxtFld.addGestureRecognizer(gesture)
         
         self.view.addSubview(shortWordTxtFld)
-        self.view.bringSubview(toFront: self.shortWordTxtFld)
-        
-        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
-
-        tempRct.size.width = controlKeyWidth
+        self.view.bringSubviewToFront(self.shortWordTxtFld)
 
         doneBtn.removeFromSuperview()
-        doneBtn = KeyButton.init(frame: tempRct)
+        doneBtn = KeyButton(frame: .zero)
         
         doneBtn.setTitle("Done", for: .normal)
         doneBtn.setBackgroundImage(UIImage.fromColor(UIColor.white), for: .normal)
@@ -1931,10 +1822,79 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         doneBtn.backgroundColor = UIColor.gray
         self.view.addSubview(doneBtn)
-        
+
+        // Place both now rather than waiting for the next layout pass, so the editor never shows
+        // up at zero size for a frame.
+        layoutPresetEditor()
+
+        // Remember where shift was so Done can put it back, then start the preset name capitalised.
+        // Only on the way in: long-pressing a second preset while the editor is already open comes
+        // back through here, and overwriting the saved mode with the editor's own .on would lose the
+        // document's state instead of restoring it.
+        if shiftModeBeforeRenaming == nil {
+            shiftModeBeforeRenaming = shiftMode
+        }
         shiftMode = .on
     }
     
+    /// Places the rename editor's text field and Done key across the band.
+    ///
+    /// The two are positioned by frame rather than by constraints, unlike every key on the
+    /// keyboard, so nothing moved them when the keyboard's width changed: rotating the device
+    /// mid-rename left the editor at its portrait width while the presets underneath it took their
+    /// landscape positions. There was a method for recomputing these frames, but nothing ever
+    /// called it.
+    ///
+    /// Called from viewDidLayoutSubviews and on the way in, so the frames are derived from the
+    /// width the keyboard actually has at the moment they are applied.
+    fileprivate func layoutPresetEditor() {
+        guard isRenamingPreset else { return }
+
+        let band = shortWordEditRect
+
+        // Done takes a control key's width at the band's trailing edge, which is the margin the
+        // control keys use, so Done, P1/2 and Num line up in one column. The field takes the rest.
+        shortWordTxtFld.frame = CGRect(x: band.minX,
+                                       y: band.minY,
+                                       width: max(0, band.width - controlKeyWidth - spacing),
+                                       height: band.height)
+
+        doneBtn.frame = CGRect(x: band.maxX - controlKeyWidth,
+                               y: band.minY,
+                               width: controlKeyWidth,
+                               height: band.height)
+    }
+
+    /// The width the key constraints were last built for, so a change can be noticed.
+    fileprivate var lastLaidOutWidth: CGFloat = 0
+
+    /// Every layout pass, which is what a rotation ultimately produces.
+    ///
+    /// Two things have to happen when the keyboard's width changes, and neither happened before.
+    ///
+    /// The keys are constrained, but their constraints carry *constants* computed from the width --
+    /// `constant: keyWidth`, and so on -- so they only move if updateViewConstraints() runs again.
+    /// Measured with a temporary NSLog: updateViewConstraints is not called on a plain layout pass,
+    /// only when something asks for it, and the one thing that asked on rotation was
+    /// didRotate(from:), deprecated and not called since iOS 8. So the constants stayed at their
+    /// portrait values. Asking for them here, and only when the width actually changed, is what
+    /// makes rotation reach them. It settles after one extra pass, because the second pass sees the
+    /// same width and does nothing.
+    ///
+    /// The rename editor is positioned by frame rather than by constraints, so it needs placing on
+    /// every pass regardless.
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        let width = view.frame.width
+        if width > 0 && width != lastLaidOutWidth {
+            lastLaidOutWidth = width
+            updateViewConstraints()
+        }
+
+        layoutPresetEditor()
+    }
+
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
         if gesture.state == .began, let pasted = UIPasteboard.general.string {
             self.shortWordTxtFld.text = pasted
@@ -1953,8 +1913,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shortWord[target.row][target.column] = newStr
             
             let defaults : UserDefaults = UserDefaults.standard
+            // No synchronize(): deprecated since iOS 12 and a no-op long before that. The system
+            // persists these writes on its own.
             defaults.set(shortWord, forKey: shortWordKeys[activeBank])
-            defaults.synchronize()
             
             arrayOfShortWordButton[target.row][target.column].setTitle(newStr, for: .normal)
         }
@@ -1981,7 +1942,15 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
         selectedShortWordIndex = nil
-        
+
+        // Hand shift back to the document. Opening the editor forces .on so the preset name starts
+        // capitalised, and typing a letter into it drops shift to .off -- so without this, finishing
+        // a rename silently changed the case of the next letter typed into whatever the user was
+        // actually writing.
+        if let restored = shiftModeBeforeRenaming {
+            shiftMode = restored
+            shiftModeBeforeRenaming = nil
+        }
     }
     
     //    let doneButton: UIButton = {
@@ -1998,37 +1967,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             var tmepStr : NSString = shortWordTxtFld.text! as NSString
             tmepStr = tmepStr.appending(senderStr) as NSString
             shortWordTxtFld.text = tmepStr as String
-            if isSecondary{
-                isSecondary=false
-                for item in secondaryToShow{
-                    item.isHidden=true
-                }
-                for row in arrayOfShortWordButton{
-                    for item in row {
-                        item.isHidden=false
-                    }
-                }
-            }
             return true
         }else{
             return false
         }
     }
     
-    
-    func updateshortWordTxtFldFrameOnRotareDevice() {
-        var tempRct: CGRect = shortWordEditRect
-
-        // Same split as addShortWordTxtFld: Done gets a control key's width at the trailing edge.
-        tempRct.size.width = shortWordEditRect.width - controlKeyWidth - spacing
-        tempRct.origin.x =  spacing
-        shortWordTxtFld.frame = tempRct
-
-        tempRct.origin.x = shortWordEditRect.maxX - controlKeyWidth
-        tempRct.size.width = controlKeyWidth
-        doneBtn.frame = tempRct
-        
-    }
     
     fileprivate func addNumpadButton()
     {
@@ -2138,11 +2082,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             button.setTitle(titles[index], for: .normal)
             button.titleLabel?.font = UIFont(name: "HelveticaNeue", size: size)
         }
-    }
-    
-    fileprivate func addSwipeView() {
-        swipeView = SwipeView(containerView: view, topOffset: 0)
-        view.addSubview(swipeView)
     }
     
     fileprivate func updateSuggestions() {

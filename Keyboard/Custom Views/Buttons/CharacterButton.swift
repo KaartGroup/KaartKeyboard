@@ -12,7 +12,7 @@ import UIKit
 /**
     The methods declared in the CharacterButtonDelegate protocol allow the adopting delegate to respond to messages from the CharacterButton class, handling button presses and swipes.
 */
-protocol CharacterButtonDelegate: class {
+protocol CharacterButtonDelegate: AnyObject {
     /**
         Respond to the CharacterButton being pressed.
         
