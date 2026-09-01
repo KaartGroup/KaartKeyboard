@@ -138,8 +138,8 @@ class SymbolKeyButton: KeyButton {
         symbolLabel.font = UIFont(name: "HelveticaNeue", size: SymbolKeyButton.symbolFontSize)
         symbolLabel.adjustsFontSizeToFitWidth = true
         symbolLabel.textAlignment = .left
-        // Same solid black as this key's numeral.
-        symbolLabel.textColor = UIColor.black
+        // Same white as this key's numeral, and as the preset keys.
+        symbolLabel.textColor = UIColor.white
         addSubview(symbolLabel)
     }
 

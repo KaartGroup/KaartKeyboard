@@ -8,6 +8,18 @@
 
 import Foundation
 import UIKit
+import os.log
+
+/// Where the keyboard's own diagnostics go.
+///
+/// `print()` writes to stdout, and an extension has no stdout unless a debugger is attached, so
+/// every message below was invisible in the field: a language file the layout could not use
+/// degraded silently. os_log reaches Console.app and `log stream` on a device with nothing
+/// attached. OSLog rather than the newer Logger, which needs iOS 14 -- the deployment target is 12.
+///
+/// The subsystem is the shared prefix rather than the extension's own bundle identifier, so one
+/// predicate follows the keyboard and the container app together.
+private let keyboardLog = OSLog(subsystem: "com.kaartgroup.KaartKeyboard", category: "keyboard")
 
 
 /**
@@ -130,11 +142,32 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    fileprivate var rowCount: CGFloat = 9.0
-    
-    // Width of individual letter keys
+    /// Width of a letter key in a character row holding `keyCount` of them.
+    ///
+    /// A character row is laid out on a grid of one more slot than it has keys: the spare slot is
+    /// delete at the end of the top row and shift at the start of the bottom one. Rows differ --
+    /// English is 10/9/9 and Macedonian 11/11/9 -- so this width is a property of the row rather
+    /// than of the keyboard.
+    ///
+    /// It used to read a stored `rowCount` that each row overwrote with its own key count as it was
+    /// laid out. Every reader outside that loop -- the space row, the number row, the accent popup,
+    /// the buttons built in viewDidLoad -- therefore got whichever row happened to be laid out
+    /// last, and three functions had to assign 9.0 back before they could trust their own widths.
+    /// Passing the count in leaves nothing to reset and nothing to leak.
+    fileprivate func keyWidth(inRowOf keyCount: Int) -> CGFloat {
+        let keys = CGFloat(keyCount)
+        return KeyboardViewController.nonNegative((view.frame.width - (keys + 2) * spacing) / (keys + 1))
+    }
+
+    /// The grid everything that is not a character row is sized against: the space row, the number
+    /// row, the accent popup, and the keys built before a language has been laid out. Nine is what
+    /// the old stored default and all three of those resets amounted to, so the widths are
+    /// unchanged.
+    fileprivate static let standardRowKeyCount = 9
+
+    // Width of individual letter keys, on the standard grid.
     fileprivate var keyWidth: CGFloat {
-        return KeyboardViewController.nonNegative((view.frame.width - (rowCount + 2) * spacing) / (rowCount + 1))
+        return keyWidth(inRowOf: KeyboardViewController.standardRowKeyCount)
     }
     
     // The width a preset row's seven columns would each get if they were all equal.
@@ -158,8 +191,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
-    // Not derived from keyWidth, which is tied to rowCount and would drift as the character rows
-    // reassign it, and which the number row used to be shrunk to 0.9 of so it could line up with
+    // Not derived from keyWidth, which is tied to a character row's key count, and which the
+    // number row used to be shrunk to 0.9 of so it could line up with
     // the eleven-slot QWERTY row above the numeral toggle that used to sit at its right end.
     fileprivate var numberKeyWidth: CGFloat {
         return KeyboardViewController.nonNegative((view.frame.width - 11 * spacing) / 10.0)
@@ -432,16 +465,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         {
             
 
+            let rowKeyWidth = keyWidth(inRowOf: row.count)
             var x: CGFloat
             switch rowIndex {
             case 1:
-                rowCount = CGFloat(row.count)
-                x = spacing * 1.5 + keyWidth * 0.5
+                x = spacing * 1.5 + rowKeyWidth * 0.5
             case 2:
-                rowCount = CGFloat(row.count)
-                x = spacing * 2.5 + keyWidth * 1.5
+                x = spacing * 2.5 + rowKeyWidth * 1.5
             default:
-                rowCount = CGFloat(row.count)
                 x = spacing
             }
             
@@ -462,7 +493,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false
                         topCons.isActive = true;
@@ -481,7 +512,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false;
                         topCons.isActive = true;
@@ -509,7 +540,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false
                         topCons.isActive = true;
@@ -528,7 +559,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false;
                         topCons.isActive = true;
@@ -570,11 +601,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         //First Row First Btn "A"
                         let topCons = NSLayoutConstraint(item: characterButton, attribute: .top, relatedBy: .equal, toItem: ACharBtn, attribute: .bottom, multiplier: 1.0, constant: spacing)
                         
-                        let leftCons = NSLayoutConstraint(item: characterButton, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: keyWidth + spacing * 2)
+                        let leftCons = NSLayoutConstraint(item: characterButton, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: rowKeyWidth + spacing * 2)
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false
                         topCons.isActive = true;
@@ -592,7 +623,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthConsShiftBtn = NSLayoutConstraint(item: shiftButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         shiftButton.translatesAutoresizingMaskIntoConstraints = false
                         topConsShiftBtn.isActive = true;
@@ -611,7 +642,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                         
                         let heightCons = NSLayoutConstraint(item: characterButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
                         
-                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+                        let widthCons = NSLayoutConstraint(item: characterButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: rowKeyWidth)
                         
                         characterButton.translatesAutoresizingMaskIntoConstraints = false;
                         topCons.isActive = true;
@@ -670,11 +701,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 }
                 //self.view.addSubview(characterButton)
                 //characterButtons[rowIndex].append(characterButton)
-                x += keyWidth + spacing
+                x += rowKeyWidth + spacing
             }
             y += keyHeight + spacing
         }
-//        rowCount = 11.0
     }
     
     // Delete now sits at the end of the first character row, immediately right of "P".
@@ -732,7 +762,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
               let returnButton = returnButton,
               let shiftButton = shiftButton else { return }
 
-        rowCount = 9.0
         // Add Constraints for Kaart Button
         removeAllConstrains(kaartKeyboardButton)
 
@@ -819,7 +848,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     func updateConstraintForNumberButton()
     {
-        rowCount = 9.0
         // The number row hangs off the second preset row. Both are built in viewDidLoad before this
         // runs, but reading them positionally is what turns a build-order change into a crash.
         guard let firstButton = arrayOfNumberButton.first,
@@ -1023,7 +1051,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// rather than substituting a nil into `languages`.
     fileprivate func loadLanguage(named key: String) -> Language? {
         guard let path = Bundle.main.path(forResource: key, ofType: "json") else {
-            print("language file not found: \(key).json")
+            os_log("language file not found: %{public}@.json", log: keyboardLog, type: .error, key)
             return nil
         }
         do {
@@ -1037,12 +1065,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             // keyboard coming up half-built.
             guard language.rows.isEmpty == false,
                   language.rows.allSatisfy({ $0.row.isEmpty == false }) else {
-                print("ignoring \(key).json: it has no character rows, or a row with no keys")
+                os_log("ignoring %{public}@.json: it has no character rows, or a row with no keys",
+                       log: keyboardLog, type: .error, key)
                 return nil
             }
             return language
         } catch {
-            print("could not decode \(key).json: \(error)")
+            os_log("could not decode %{public}@.json: %{public}@",
+                   log: keyboardLog, type: .error, key, String(describing: error))
             return nil
         }
     }
@@ -1664,34 +1694,38 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // rows than that has nowhere to put them, and appending into characterButtons[3] would trap.
         // Show the rows that do fit and say what was dropped, rather than losing the language.
         if language.rows.count > characterButtons.count {
-            print("\(language.title) declares \(language.rows.count) character rows; the layout has "
-                + "\(characterButtons.count), so the extra rows are not shown")
+            os_log("%{public}@ declares %ld character rows; the layout has %ld, so the extra rows are not shown",
+                   log: keyboardLog, type: .error,
+                   language.title, language.rows.count, characterButtons.count)
         }
 
         for (rowIndex, row) in language.rows.prefix(characterButtons.count).enumerated() {
             
             
+            // The widths updateConstraintForCharacter will use. The bottom row used to be built
+            // against `row.row.count + 1` here and `row.count` there, so the frames these buttons
+            // are created with described a different keyboard from the constraints that then
+            // position them. Invisible -- the constraint pass replaces these frames before
+            // anything is drawn, and measuring the glyphs put every row within 1.4pt of centre --
+            // but there is no reason for the two passes to disagree.
+            let rowKeyWidth = keyWidth(inRowOf: row.row.count)
             var x: CGFloat = 0
             switch rowIndex {
             case 1:
-                rowCount = CGFloat(row.row.count)
-                x = spacing * 1.5 + keyWidth * 0.5
+                x = spacing * 1.5 + rowKeyWidth * 0.5
             case 2:
-                rowCount = CGFloat(row.row.count + 1)
-                x = spacing * 2.5 + keyWidth * 1.5
+                x = spacing * 2.5 + rowKeyWidth * 1.5
             default:
-                rowCount = CGFloat(row.row.count)
                 x = spacing
             }
             for char in row.row {
-                let characterButton = CharacterButton(frame: CGRect(x: x, y: y, width: keyWidth, height: keyHeight), primaryCharacter: char.primary.lowercased(), secondaryCharacter: char.secondary, tertiaryCharacters: char.tertiary, delegate: self)
+                let characterButton = CharacterButton(frame: CGRect(x: x, y: y, width: rowKeyWidth, height: keyHeight), primaryCharacter: char.primary.lowercased(), secondaryCharacter: char.secondary, tertiaryCharacters: char.tertiary, delegate: self)
                 self.view.addSubview(characterButton)
                 characterButtons[rowIndex].append(characterButton)
-                x += keyWidth + spacing
+                x += rowKeyWidth + spacing
             }
             y += keyHeight + spacing
         }
-//        rowCount = 11.0
     }
     
     fileprivate func addShortWordButton(){
@@ -1980,10 +2014,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         arrayOfNumberButton = []
         
         for index in 1...10{
-            rowCount = 9.0
             numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
-            numpadButton.setTitleColor(UIColor.black, for: .normal)
+            // The same white the presets and the return key use. Set once here rather than in
+            // updateNumeralTitles, which only swaps the title and the font, so the arabic and
+            // roman numerals both read as white against the number key's fill.
+            numpadButton.setTitleColor(UIColor.white, for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(midKeyFill), for: .normal)
             numpadButton.setBackgroundImage(UIImage.fromColor(UIColor.black), for: .selected)
             
