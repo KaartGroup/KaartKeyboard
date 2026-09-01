@@ -8,6 +8,18 @@
 
 import Foundation
 import UIKit
+import os.log
+
+/// Where the keyboard's own diagnostics go.
+///
+/// `print()` writes to stdout, and an extension has no stdout unless a debugger is attached, so
+/// every message below was invisible in the field: a language file the layout could not use
+/// degraded silently. os_log reaches Console.app and `log stream` on a device with nothing
+/// attached. OSLog rather than the newer Logger, which needs iOS 14 -- the deployment target is 12.
+///
+/// The subsystem is the shared prefix rather than the extension's own bundle identifier, so one
+/// predicate follows the keyboard and the container app together.
+private let keyboardLog = OSLog(subsystem: "com.kaartgroup.KaartKeyboard", category: "keyboard")
 
 
 /**
@@ -1023,7 +1035,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// rather than substituting a nil into `languages`.
     fileprivate func loadLanguage(named key: String) -> Language? {
         guard let path = Bundle.main.path(forResource: key, ofType: "json") else {
-            print("language file not found: \(key).json")
+            os_log("language file not found: %{public}@.json", log: keyboardLog, type: .error, key)
             return nil
         }
         do {
@@ -1037,12 +1049,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             // keyboard coming up half-built.
             guard language.rows.isEmpty == false,
                   language.rows.allSatisfy({ $0.row.isEmpty == false }) else {
-                print("ignoring \(key).json: it has no character rows, or a row with no keys")
+                os_log("ignoring %{public}@.json: it has no character rows, or a row with no keys",
+                       log: keyboardLog, type: .error, key)
                 return nil
             }
             return language
         } catch {
-            print("could not decode \(key).json: \(error)")
+            os_log("could not decode %{public}@.json: %{public}@",
+                   log: keyboardLog, type: .error, key, String(describing: error))
             return nil
         }
     }
@@ -1664,8 +1678,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         // rows than that has nowhere to put them, and appending into characterButtons[3] would trap.
         // Show the rows that do fit and say what was dropped, rather than losing the language.
         if language.rows.count > characterButtons.count {
-            print("\(language.title) declares \(language.rows.count) character rows; the layout has "
-                + "\(characterButtons.count), so the extra rows are not shown")
+            os_log("%{public}@ declares %ld character rows; the layout has %ld, so the extra rows are not shown",
+                   log: keyboardLog, type: .error,
+                   language.title, language.rows.count, characterButtons.count)
         }
 
         for (rowIndex, row) in language.rows.prefix(characterButtons.count).enumerated() {
