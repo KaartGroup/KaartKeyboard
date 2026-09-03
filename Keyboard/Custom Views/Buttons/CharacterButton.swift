@@ -128,7 +128,7 @@ class CharacterButton: KeyButton {
         addSubview(primaryLabel)
         
         secondaryLabel = UILabel(frame: CGRect(x: CharacterButton.secondaryInset, y: 0.0, width: 60, height: frame.height * 0.5)) // width = 60
-        secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 11.5)
         secondaryLabel.adjustsFontSizeToFitWidth = true
         secondaryLabel.textColor = CharacterButton.cornerGlyphColor
         secondaryLabel.textAlignment = .left
