@@ -446,10 +446,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     
-    //@IBOutlet var nextKeyboardButton: UIButton!
-    //var heightConstraint: NSLayoutConstraint!
-    var nextKeyboardButtonLeftSideConstraint: NSLayoutConstraint!
-    
     func updateConstraintForCharacter()
     {
 //        let shortWord: KeyButton = arrayOfShortWordButton[1][0]
@@ -782,7 +778,39 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         heightConsKaartButton.isActive = true
         widthConsKaartButton.isActive = true
         rightConsKaartButton.isActive = true
-        
+
+        // Add Constraints for the globe (next keyboard) button.
+        //
+        // These used to be built in viewDidAppear instead, which runs once per appearance and
+        // never again -- so the globe was the one key in the row updateViewConstraints() did not
+        // reach. Its width is a constant computed from keyWidth, and rotating the device changes
+        // keyWidth (77.9pt to 115.5pt on an 11" iPad), so the globe kept its portrait width in
+        // landscape while every key around it took its new one. The row still filled the width,
+        // because the space bar has no width of its own and absorbs whatever is left, so the
+        // error showed up as a narrow globe and an over-wide space bar rather than as a gap.
+        //
+        // It belongs here: this function already owns the rest of the bottom row, and already
+        // hangs the kaart key and the space bar off this button.
+        removeAllConstrains(nextKeyboardButton)
+
+        let topConsNextKeyboardButton = NSLayoutConstraint(item: nextKeyboardButton, attribute: .top, relatedBy: .equal, toItem: shiftButton, attribute: .bottom, multiplier: 1.0, constant: spacing)
+
+        let leftConsNextKeyboardButton = NSLayoutConstraint(item: nextKeyboardButton, attribute: .leading, relatedBy: .equal, toItem: kaartKeyboardButton, attribute: .trailing, multiplier: 1.0, constant: spacing)
+
+        let rightConsNextKeyboardButton = NSLayoutConstraint(item: nextKeyboardButton, attribute: .trailing, relatedBy: .equal, toItem: spaceButton, attribute: .leading, multiplier: 1.0, constant: -spacing)
+
+        let heightConsNextKeyboardButton = NSLayoutConstraint(item: nextKeyboardButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyHeight)
+
+        let widthConsNextKeyboardButton = NSLayoutConstraint(item: nextKeyboardButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: keyWidth)
+
+        nextKeyboardButton.translatesAutoresizingMaskIntoConstraints = false
+
+        topConsNextKeyboardButton.isActive = true
+        leftConsNextKeyboardButton.isActive = true
+        rightConsNextKeyboardButton.isActive = true
+        heightConsNextKeyboardButton.isActive = true
+        widthConsNextKeyboardButton.isActive = true
+
         // Add Constraints for Space Button
         removeAllConstrains(spaceButton);
         
@@ -1090,71 +1118,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
             shiftMode = .on
             updateViewConstraints()
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        guard let nextKeyboardButton = nextKeyboardButton,
-              let kaartKeyboardButton = kaartKeyboardButton,
-              let spaceButton = spaceButton,
-              let shiftButton = shiftButton else { return }
-
-        removeAllConstrains(nextKeyboardButton);
-        
-        nextKeyboardButton.translatesAutoresizingMaskIntoConstraints = false
-        let nextKeyboardButtonLeftSideConstraint = NSLayoutConstraint(
-            item: nextKeyboardButton,
-            attribute: .leading,
-            relatedBy: .equal,
-            toItem: kaartKeyboardButton,
-            attribute: .trailing,
-            multiplier: 1.0,
-            constant: spacing)
-        
-        let nextKeyboardButtonRightSideConstraint = NSLayoutConstraint(
-            item: nextKeyboardButton,
-            attribute: .trailing,
-            relatedBy: .equal,
-            toItem: spaceButton,
-            attribute: .leading,
-            multiplier: 1.0,
-            constant: -spacing)
-        
-        let nextKeyboardButtonTopConstraint = NSLayoutConstraint(
-            item: nextKeyboardButton,
-            attribute: .top,
-            relatedBy: .equal,
-            toItem: shiftButton,
-            attribute: .bottom,
-            multiplier: 1.0,
-            constant: spacing)
-        
-        let nextKeyboardButtonHeightConstraint = NSLayoutConstraint(
-            item: nextKeyboardButton,
-            attribute: .height,
-            relatedBy: .equal,
-            toItem: nil,
-            attribute: .notAnAttribute,
-            multiplier: 1.0,
-            constant: keyHeight)
-        
-        let widthConsNextKeyboardButton = NSLayoutConstraint(
-            item: nextKeyboardButton,
-            attribute: .width,
-            relatedBy: .equal,
-            toItem: nil,
-            attribute: .notAnAttribute,
-            multiplier: 1.0,
-            constant: keyWidth )
-        
-        view.addConstraints([
-            nextKeyboardButtonLeftSideConstraint,
-            nextKeyboardButtonTopConstraint,
-            nextKeyboardButtonRightSideConstraint,
-            nextKeyboardButtonHeightConstraint,
-            widthConsNextKeyboardButton])
-        
     }
     
     override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
