@@ -119,15 +119,19 @@ class CharacterButton: KeyButton {
         
         super.init(frame: frame)
 
-//        primaryLabel = UILabel(frame: CGRect(x: frame.width * 0.45, y: 0.0, width: 60 , height: frame.height ))
-        primaryLabel = UILabel(frame: CGRect(x: frame.width < 50 ? frame.width * 0.5 : 0.0, y: 0.0, width: frame.width < 50 ? 60 :frame.width, height: frame.height ))
+        // Both labels are placed by layoutSubviews below, so they are created at zero and the
+        // geometry lives in one place. They used to be sized here, from the frame the key is
+        // constructed with -- and addCharacterButtons() runs in viewDidLoad, where the input
+        // view is still (0, 0, 0, 0), so that frame is zero wide. See the comment on
+        // layoutSubviews for what that did to the letter.
+        primaryLabel = UILabel(frame: .zero)
         primaryLabel.font = UIFont(name: "Helvetica", size: CharacterButton.primaryFontSize)
         primaryLabel.textColor = KeyButton.defaultTitleColor
         primaryLabel.textAlignment = .center
         primaryLabel.text = primaryCharacter
         addSubview(primaryLabel)
         
-        secondaryLabel = UILabel(frame: CGRect(x: CharacterButton.secondaryInset, y: 0.0, width: 60, height: frame.height * 0.5)) // width = 60
+        secondaryLabel = UILabel(frame: .zero)
         secondaryLabel.font = UIFont(name: "HelveticaNeue", size: 11.5)
         secondaryLabel.adjustsFontSizeToFitWidth = true
         secondaryLabel.textColor = CharacterButton.cornerGlyphColor
@@ -162,6 +166,38 @@ class CharacterButton: KeyButton {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Overridden methods
+
+    /// Places the letter and its corner glyph against the size the key was actually given.
+    ///
+    /// The keys are built at one size and then positioned and resized by constraints, exactly as
+    /// the number keys are -- so the frames handed to the labels in init describe a key that no
+    /// longer exists by the time anything is drawn. SymbolKeyButton already lays its glyph out
+    /// here for that reason; CharacterButton did not, and kept the frames it was born with.
+    ///
+    /// Since addCharacterButtons() runs in viewDidLoad, where the input view has not been sized,
+    /// those frames were zero wide: the letter got a fixed 60pt-wide label at x = 0 and so sat
+    /// centred on 30pt rather than on the middle of the key. Measured on an iPad Pro 11", every
+    /// letter was 4.8-5.8pt left of centre on the top row and 8.2-9.8pt left on the other two --
+    /// the error is keyWidth / 2 - 30, so it grows with the key. The number, preset and space
+    /// keys, which centre their titles through UIButton, were all dead on centre, which is what
+    /// made the character rows look subtly wrong next to them.
+    ///
+    /// It also went the other way on a narrow key: 60pt of label does not fit an iPhone's ~31pt
+    /// letter key, and the overflow was clipped by KeyButton's masksToBounds.
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // The full key, so the letter centres on it the way every other key's title does.
+        primaryLabel.frame = bounds
+
+        // Top-left corner, inset off the edge, over the upper half of the key.
+        secondaryLabel.frame = CGRect(x: CharacterButton.secondaryInset,
+                                      y: 0.0,
+                                      width: max(0, bounds.width - CharacterButton.secondaryInset),
+                                      height: bounds.height * 0.5)
+    }
+
     // MARK: Methods
 
     /// Cases an accent for display or insertion, leaving it alone when uppercasing would make it

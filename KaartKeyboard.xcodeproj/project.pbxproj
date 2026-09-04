@@ -7,21 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		072711351967691600A896D1 /* SuggestionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072711341967691600A896D1 /* SuggestionButton.swift */; };
-		0727113919684B4700A896D1 /* PredictiveTextScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0727113819684B4700A896D1 /* PredictiveTextScrollView.swift */; };
 		076EF58E19650431009A561C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF58D19650431009A561C /* AppDelegate.swift */; };
 		076EF59019650431009A561C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 076EF58F19650431009A561C /* Images.xcassets */; };
-		076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E3196506A6009A561C /* LanguageProvider.swift */; };
-		076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */; };
-		076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5E719650727009A561C /* SwiftLanguageProvider.swift */; };
 		076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EA19650B93009A561C /* StringSubscripts.swift */; };
 		076EF5ED19650BD3009A561C /* UIImageFromCALayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */; };
-		076EF5F019650BFA009A561C /* CircularArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EF19650BFA009A561C /* CircularArray.swift */; };
 		076EF5F219650C79009A561C /* KeyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F119650C79009A561C /* KeyButton.swift */; };
 		076EF5F419650C90009A561C /* CharacterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F319650C90009A561C /* CharacterButton.swift */; };
-		076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FA19650F24009A561C /* SuggestionProvider.swift */; };
-		076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5FC19650FB5009A561C /* SuggestionTrie.swift */; };
-		07D5B820196622350046B202 /* WeightedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D5B81F196622350046B202 /* WeightedString.swift */; };
 		261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261D758121652F2500182E80 /* MasterTableViewController.swift */; };
 		261D75842165309800182E80 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261D75832165309800182E80 /* DetailViewController.swift */; };
 		26269A3B2229896C006EE067 /* vietnamese.json in Resources */ = {isa = PBXBuildFile; fileRef = 26269A3A2229896C006EE067 /* vietnamese.json */; };
@@ -74,8 +65,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		072711341967691600A896D1 /* SuggestionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionButton.swift; sourceTree = "<group>"; };
-		0727113819684B4700A896D1 /* PredictiveTextScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PredictiveTextScrollView.swift; sourceTree = "<group>"; };
 		076EF58819650431009A561C /* KaartKeyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KaartKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF58C19650431009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF58D19650431009A561C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,18 +72,11 @@
 		076EF5D41965061C009A561C /* KaartKeyboard.KaartKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KaartKeyboard.KaartKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		076EF5D71965061C009A561C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		076EF5D81965061C009A561C /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
-		076EF5E3196506A6009A561C /* LanguageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageProvider.swift; sourceTree = "<group>"; };
-		076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultLanguageProvider.swift; sourceTree = "<group>"; };
-		076EF5E719650727009A561C /* SwiftLanguageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftLanguageProvider.swift; sourceTree = "<group>"; };
 		076EF5EA19650B93009A561C /* StringSubscripts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringSubscripts.swift; sourceTree = "<group>"; };
 		076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageFromCALayer.swift; sourceTree = "<group>"; };
-		076EF5EF19650BFA009A561C /* CircularArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularArray.swift; sourceTree = "<group>"; };
 		076EF5F119650C79009A561C /* KeyButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyButton.swift; sourceTree = "<group>"; };
 		076EF5F319650C90009A561C /* CharacterButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterButton.swift; sourceTree = "<group>"; };
 		076EF5F719650F00009A561C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		076EF5FA19650F24009A561C /* SuggestionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
-		076EF5FC19650FB5009A561C /* SuggestionTrie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionTrie.swift; sourceTree = "<group>"; };
-		07D5B81F196622350046B202 /* WeightedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeightedString.swift; sourceTree = "<group>"; };
 		261472831ECCB62F00F1B57C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		261472841ECCB62F00F1B57C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		261472871ECCB67800F1B57C /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -142,7 +124,6 @@
 			isa = PBXGroup;
 			children = (
 				0727113719684AF800A896D1 /* Buttons */,
-				0727113819684B4700A896D1 /* PredictiveTextScrollView.swift */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -152,7 +133,6 @@
 			children = (
 				076EF5F119650C79009A561C /* KeyButton.swift */,
 				076EF5F319650C90009A561C /* CharacterButton.swift */,
-				072711341967691600A896D1 /* SuggestionButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -212,12 +192,8 @@
 				262A4914216EAD2300E794E1 /* Language.swift */,
 				261D75882165719E00182E80 /* Languages */,
 				076EF5D81965061C009A561C /* KeyboardViewController.swift */,
-				07D5B81F196622350046B202 /* WeightedString.swift */,
 				072711361967692900A896D1 /* Custom Views */,
-				076EF5E21965068F009A561C /* Language Providers */,
-				076EF5F919650F0A009A561C /* Suggestion */,
 				076EF5E919650A93009A561C /* Extensions */,
-				076EF5EE19650BE8009A561C /* Helper */,
 				076EF5D61965061C009A561C /* Supporting Files */,
 			);
 			path = Keyboard;
@@ -231,17 +207,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		076EF5E21965068F009A561C /* Language Providers */ = {
-			isa = PBXGroup;
-			children = (
-				076EF5E3196506A6009A561C /* LanguageProvider.swift */,
-				076EF5E5196506F0009A561C /* DefaultLanguageProvider.swift */,
-				076EF5E719650727009A561C /* SwiftLanguageProvider.swift */,
-			);
-			name = "Language Providers";
-			path = LanguageProviders;
-			sourceTree = "<group>";
-		};
 		076EF5E919650A93009A561C /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -249,23 +214,6 @@
 				076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		076EF5EE19650BE8009A561C /* Helper */ = {
-			isa = PBXGroup;
-			children = (
-				076EF5EF19650BFA009A561C /* CircularArray.swift */,
-			);
-			path = Helper;
-			sourceTree = "<group>";
-		};
-		076EF5F919650F0A009A561C /* Suggestion */ = {
-			isa = PBXGroup;
-			children = (
-				076EF5FA19650F24009A561C /* SuggestionProvider.swift */,
-				076EF5FC19650FB5009A561C /* SuggestionTrie.swift */,
-			);
-			path = Suggestion;
 			sourceTree = "<group>";
 		};
 		261472821ECCB62F00F1B57C /* Frameworks */ = {
@@ -440,21 +388,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				076EF5F019650BFA009A561C /* CircularArray.swift in Sources */,
-				076EF5E4196506A6009A561C /* LanguageProvider.swift in Sources */,
 				262A491B216EB25F00E794E1 /* Language.swift in Sources */,
-				072711351967691600A896D1 /* SuggestionButton.swift in Sources */,
 				076EF5EB19650B93009A561C /* StringSubscripts.swift in Sources */,
-				076EF5E6196506F0009A561C /* DefaultLanguageProvider.swift in Sources */,
-				0727113919684B4700A896D1 /* PredictiveTextScrollView.swift in Sources */,
 				076EF5ED19650BD3009A561C /* UIImageFromCALayer.swift in Sources */,
 				2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */,
-				07D5B820196622350046B202 /* WeightedString.swift in Sources */,
-				076EF5E819650727009A561C /* SwiftLanguageProvider.swift in Sources */,
-				076EF5FD19650FB5009A561C /* SuggestionTrie.swift in Sources */,
 				076EF5F219650C79009A561C /* KeyButton.swift in Sources */,
 				076EF5F419650C90009A561C /* CharacterButton.swift in Sources */,
-				076EF5FB19650F24009A561C /* SuggestionProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
