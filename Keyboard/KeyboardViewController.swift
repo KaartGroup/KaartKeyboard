@@ -25,7 +25,7 @@ private let keyboardLog = OSLog(subsystem: "com.kaartgroup.KaartKeyboard", categ
 /**
  An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
  */
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, SuggestionButtonDelegate {
+class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     
     // MARK: Constants
     
@@ -108,12 +108,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
     }
     
-    lazy var suggestionProvider: SuggestionProvider = SuggestionTrie()
-    
-    lazy var languageProviders = CircularArray(items: [DefaultLanguageProvider(), SwiftLanguageProvider()] as [LanguageProvider])
-    
     fileprivate let spacing: CGFloat = KeyButton.gutter
-    fileprivate let predictiveTextBoxHeight: CGFloat = 24.0
+
+    /// A 24pt term in the key-height formula below, and nothing else.
+    ///
+    /// It was the height of the predictive strip that used to sit above the presets. The strip is
+    /// gone, but this is not: dropping the term would make every key 3.7pt taller and move every
+    /// row, so it is kept and named for what it now does rather than for what it used to be.
+    fileprivate let keyHeightReserve: CGFloat = 24.0
 
     /// Never negative, whatever the view's width happens to be.
     ///
@@ -130,9 +132,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return max(0, width)
     }
 
-    fileprivate var predictiveTextButtonWidth: CGFloat {
-        return KeyboardViewController.nonNegative((view.frame.width - 4 * spacing) / 3.0)
-    }
     fileprivate var keyboardHeight: CGFloat {
         if(UIScreen.main.bounds.width < UIScreen.main.bounds.height ){
             return 440
@@ -205,14 +204,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     /// Height of individual keys. The same whether or not a preset is being renamed: the band
     /// takes its room from the keyboard's height, not from the rows.
     fileprivate var keyHeight: CGFloat {
-        return (keyboardHeight - 7.0 * spacing - predictiveTextBoxHeight) / 6.5
+        return (keyboardHeight - 7.0 * spacing - keyHeightReserve) / 6.5
     }
 
     /// The height the input view asks for: seven rows at their full height, plus the rename band
     /// when it is open. The keyboard grows at the top to make room for the editor and gives the
     /// height straight back on Done.
     fileprivate var contentHeight: CGFloat {
-        return predictiveTextBandHeight + 8 * spacing + rowCountVertical * keyHeight
+        return presetEditBandHeight + 8 * spacing + rowCountVertical * keyHeight
     }
 
     // True only while a preset is being renamed. Drives the band below, so the keyboard gives the
@@ -226,13 +225,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
     // The band between the system bar and the first preset row.
     //
-    // Nothing lives there at rest: the predictive / recent text strip it used to hold never had
-    // anything to show, every updateSuggestions() call site being commented out, so the band is 0
-    // and the presets sit straight below the system bar. Renaming a preset opens it, and the seven
-    // rows below give up the height for it, so the editor gets a line of its own without the
-    // keyboard having to grow, without covering the presets and without pushing the bottom row off
-    // the screen.
-    fileprivate var predictiveTextBandHeight: CGFloat {
+    // Nothing lives there at rest, so the band is 0 and the presets sit straight below the system
+    // bar. Renaming a preset opens it, and the seven rows below give up the height for it, so the
+    // editor gets a line of its own without the keyboard having to grow, without covering the
+    // presets and without pushing the bottom row off the screen. It held the predictive strip
+    // before that, which is where the name it used to carry came from.
+    fileprivate var presetEditBandHeight: CGFloat {
         return isRenamingPreset ? presetEditFieldHeight + spacing : 0.0
     }
 
@@ -247,9 +245,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     
     // MARK: User interface
     
-    fileprivate var predictiveTextScrollView: PredictiveTextScrollView!
-    fileprivate var suggestionButtons = [SuggestionButton]()
-    
     fileprivate lazy var characterButtons: [[CharacterButton]] = [
         [],
         [],
@@ -263,7 +258,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     fileprivate var nextKeyboardButton: KeyButton!
     fileprivate var spaceButton: KeyButton!
     fileprivate var returnButton: KeyButton!
-    fileprivate var currentLanguageLabel: UILabel!
     fileprivate var kaartKeyboardButton: KeyButton!
     //    fileprivate var oopButton: KeyButton!
     //    fileprivate var nnpButton: KeyButton!
@@ -345,12 +339,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return textDocumentProxy
     }
     
-    fileprivate var lastWordTyped: String? {
-        guard let context = proxy.documentContextBeforeInput,
-              let last = context.last, KeyboardViewController.isLetter(last) else { return nil }
-        return String(context.reversed().prefix(while: KeyboardViewController.isLetter).reversed())
-    }
-
     /// Whether a character is a letter / whitespace, judged by its first Unicode scalar.
     ///
     /// The keyboard used to ask these questions of a UTF-16 code unit, via
@@ -388,23 +376,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         return 1
     }
 
-    fileprivate var languageProvider: LanguageProvider = DefaultLanguageProvider() {
-        didSet {
-            for (rowIndex, row) in characterButtons.enumerated() {
-                for (characterButtonIndex, characterButton) in row.enumerated() {
-                    characterButton.secondaryCharacter = languageProvider.secondaryCharacters[rowIndex][characterButtonIndex]
-                    //                    characterButton.tertiaryCharacters = languageProvider.tertiaryCharacters[rowIndex][characterButtonIndex]
-                }
-            }
-            // Optional. currentLanguageLabel is declared but never built -- the space bar carries
-            // the language name instead -- so this was a nil unwrap waiting for the first
-            // assignment to languageProvider, which nothing makes today.
-            currentLanguageLabel?.text = languageProvider.language
-            suggestionProvider.clear()
-            suggestionProvider.loadWeightedStrings(languageProvider.suggestionDictionary)
-        }
-    }
-    
     fileprivate enum ShiftMode {
         case off, on, caps
     }
@@ -764,7 +735,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
                 let shortWordButtonObj = button;
                 removeAllConstrains(shortWordButtonObj)
 
-                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? predictiveTextBandHeight + spacing : spacing);
+                let topCons = NSLayoutConstraint(item: shortWordButtonObj, attribute: .top, relatedBy: .equal, toItem: rowIndex == 0 ? view : arrayOfShortWordButton[0][0], attribute: rowIndex == 0 ? .top : .bottom, multiplier: 1.0, constant: rowIndex == 0 ? presetEditBandHeight + spacing : spacing);
 
                 // Left required. This is the constraint that makes the rename band real: every
                 // other row chains off it, so it is what tells the system the keyboard needs the
@@ -787,27 +758,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    func updateConstraintForPredictiveText()
-    {
-        guard let predictiveTextScrollView = predictiveTextScrollView else { return }
-
-        removeAllConstrains(predictiveTextScrollView);
-        
-        let topCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: spacing);
-        
-        let rightCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -spacing );
-        
-        let heightCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 30)
-        
-        let leftCons = NSLayoutConstraint(item: predictiveTextScrollView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: spacing )
-        
-        predictiveTextScrollView.translatesAutoresizingMaskIntoConstraints = false;
-        //predictiveTextScrollView.backgroundColor = UIColor.redColor()
-        topCons.isActive = true
-        rightCons.isActive = true
-        heightCons.isActive = true
-        leftCons.isActive = true
-    }
     override func updateViewConstraints()
     {
         super.updateViewConstraints()
@@ -823,11 +773,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
-        updateConstraintForPredictiveText()
         setUpHeightConstraint()
     }
     
-    var lexicon:UILexicon!;
     let currentString:NSString = "";
     
     override func viewDidLoad() {
@@ -845,14 +793,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         addDeleteButton()
         addSpaceButton()
         addReturnButton()
-        addPredictiveTextScrollView()
         
         shortWordTxtFld.isHidden = true
         shiftMode = .on
-        
-        self.requestSupplementaryLexicon { (lexObj) in
-            self.lexicon = lexObj;
-        }
     }
     
     override func loadView() {
@@ -1144,13 +1087,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         // Capitalise the first letter of every word. Deliberate since 877a1c7 (2017): what
         // gets typed here are OSM name values -- "Main Street", "Piata Unirii" -- where every
-        // word is capitalised. This supersedes the active LanguageProvider's
-        // autocapitalizeAfter sentence-ender list rather than consulting it, so there is no
-        // condition to evaluate and no documentContextBeforeInput to unwrap.
+        // word is capitalised. Unconditional: there is no sentence-ender list to consult and no
+        // documentContextBeforeInput to unwrap.
         shiftMode = .on
         
         proxy.insertText(charStr)
-//        updateSuggestions()
     }
     
     // When the numpadButton is pressed
@@ -1212,7 +1153,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         
         proxy.insertText(senderStr)
         shiftMode = .on
-//        updateSuggestions()
         
     }
     
@@ -1237,7 +1177,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
         
         proxy.insertText(charStr)
-//        updateSuggestions()
     }
     
     func handleLongPressForButton(_ button: CharacterButton) {
@@ -1332,7 +1271,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
     }
     
     func handleSwipeUpForButton(_ button: CharacterButton) {
-//        updateSuggestions()
     }
     
     // Types whatever the key shows in its corner, so the glyph and the gesture always agree.
@@ -1368,34 +1306,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         if charStr.count > 1 {
             proxy.insertText(" ")
         }
-//        updateSuggestions()
-    }
-    
-    // MARK: SuggestionButtonDelegate methods
-    
-    func handlePressForSuggestionButton(_ button: SuggestionButton) {
-        if let lastWord = lastWordTyped {
-            for _ in lastWord {
-                proxy.deleteBackward()
-            }
-            proxy.insertText(button.title + " ")
-            for suggestionButton in suggestionButtons {
-                suggestionButton.removeFromSuperview()
-            }
-        }
     }
     
     // MARK: Helper methods
-    
-    fileprivate func addPredictiveTextScrollView() {
-        predictiveTextScrollView = PredictiveTextScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: predictiveTextBoxHeight))
-        // Built and constrained as before, but kept hidden while the predictive feature is
-        // parked. At rest the band is 0 and the strip would sit on top of the first preset row,
-        // where a visible scroll view would swallow that row's taps. Drop this line to bring the
-        // strip back once it has something to show.
-        predictiveTextScrollView.isHidden = true
-        self.view.addSubview(predictiveTextScrollView)
-    }
     
     fileprivate func addShiftButton() {
         shiftButton = KeyButton(frame: CGRect(x: spacing, y: keyHeight * 4.0 + spacing * 5.0, width: keyWidth, height: keyHeight))
@@ -1580,8 +1493,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
         selectedShortWordBtn.layer.borderWidth = 0.0
         selectedShortWordBtn.layer.borderColor = UIColor.clear.cgColor
-
-        predictiveTextScrollView.isHidden = true
 
         selectedShortWordBtn = pressed
         selectedShortWordBtn.layer.borderWidth = 3.0
@@ -1865,7 +1776,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {
         let button = KeyButton(frame: CGRect(x: view.frame.width - controlKeyWidth - spacing,
-                                             y: predictiveTextBandHeight + spacing,
+                                             y: presetEditBandHeight + spacing,
                                              width: controlKeyWidth,
                                              height: keyHeight))
         button.setTitle(title, for: .normal)
@@ -1916,46 +1827,4 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate, Su
         }
     }
     
-    fileprivate func updateSuggestions() {
-        
-        if let lastWord = lastWordTyped {
-            
-            let filtedArray = self.lexicon.entries.filter({ (lexiconEntry) -> Bool in
-                
-                if ((lexiconEntry.documentText.range(of: lastWord, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                {
-                    return true
-                }
-                else
-                {
-                    return false
-                }
-            })
-            
-            DispatchQueue.main.async(execute: {
-                
-                for view in self.predictiveTextScrollView.subviews {
-                    view.removeFromSuperview()
-                    
-                }
-                self.suggestionButtons = [];
-                
-                var x = self.spacing
-                for i in 0..<filtedArray.count
-                {
-                    let entry:UILexiconEntry = filtedArray[i]
-                    let text = entry.userInput;
-                    
-                    let suggestionButton = SuggestionButton(frame: CGRect(x: x, y: 0.0, width: self.predictiveTextButtonWidth, height: self.predictiveTextBoxHeight), title: text, delegate: self)
-                    
-                    self.predictiveTextScrollView?.addSubview(suggestionButton)
-                    self.suggestionButtons.append(suggestionButton)
-                    
-                    x += self.predictiveTextButtonWidth + self.spacing
-                }
-                
-                self.predictiveTextScrollView!.contentSize = CGSize(width: x, height: self.predictiveTextBoxHeight)
-            })
-        }
-    }
 }
