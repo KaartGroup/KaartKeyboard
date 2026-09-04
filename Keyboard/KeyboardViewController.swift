@@ -895,13 +895,20 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
             updateViewConstraints()
         }
     }
-    
-    override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
-        //shiftMode = .On
-        self.setUpHeightConstraint()
-        self.updateViewConstraints()
+
+    /// Stops the delete key's timers when the keyboard goes away.
+    ///
+    /// They were cancelled only by the long-press recogniser reaching .ended, .cancelled or
+    /// .failed. If the keyboard is dismissed mid-hold -- the text field resigns, the host app is
+    /// backgrounded -- that never arrives, and the repeating timer keeps firing against a
+    /// controller it holds a strong reference to, deleting into a proxy that is no longer on
+    /// screen. The timer's own retain of self is also why a deinit could not do this job: nothing
+    /// would ever call it.
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancelDeleteTimers()
     }
-    
+
     /// Re-lays out after isRenamingPreset changes. Both directions are handled the same way,
     /// and that symmetry is the point: the band opens and closes over and over, so anything that
     /// depends on which way it is going, or on what happened the time before, is a bug waiting for
@@ -964,7 +971,9 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         case .on:
             shiftMode = .off
         case .caps:
-            shiftMode = .caps
+            // Assigning .caps to itself here still ran the didSet, relabelling every character
+            // button to the case it already had. Nothing can reach this state today in any case.
+            break
         }
     }
     
@@ -1423,7 +1432,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
             case 1:
                 x = spacing * 1.5 + rowKeyWidth * 0.5
             case 2:
-                x = spacing * 2.5 + rowKeyWidth * 1.5
+                // A whole key and two gutters: the slot shift fills. Matches the inset
+                // updateConstraintForCharacter() uses, which is what actually places the key --
+                // this used to read spacing * 2.5 + rowKeyWidth * 1.5, 41pt away from it.
+                x = rowKeyWidth + spacing * 2
             default:
                 x = spacing
             }
@@ -1721,7 +1733,13 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         arrayOfNumberButton = []
         
         for index in 1...10{
-            numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + keyWidth * CGFloat(index-1), y: spacing + keyHeight, width: keyWidth/12, height: keyHeight))
+            // The number row's own grid, which is what updateConstraintForNumberButton() then
+            // constrains these to. They were built against keyWidth -- a character row's width --
+            // at a twelfth of it, which was neither this key's width nor any other.
+            numpadButton = SymbolKeyButton(frame: CGRect(x: spacing * CGFloat(index) + numberKeyWidth * CGFloat(index - 1),
+                                                        y: spacing + keyHeight,
+                                                        width: numberKeyWidth,
+                                                        height: keyHeight))
             numpadButton.setTitle(arabicNumerals[index - 1], for: .normal)
             // The same white the presets and the return key use. Set once here rather than in
             // updateNumeralTitles, which only swaps the title and the font, so the arabic and
