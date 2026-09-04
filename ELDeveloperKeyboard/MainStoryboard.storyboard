@@ -522,6 +522,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Kaart_Keyboard.png" width="1536" height="1536"/>
+        <image name="Kaart_Keyboard.png" width="1024" height="1024"/>
     </resources>
 </document>

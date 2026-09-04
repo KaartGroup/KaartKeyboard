@@ -28,7 +28,7 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Kaart_Keyboard.png" translatesAutoresizingMaskIntoConstraints="NO" id="xVf-qs-F51">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Kaart_Keyboard.png" translatesAutoresizingMaskIntoConstraints="NO" id="xVf-qs-F51">
                                 <rect key="frame" x="222" y="324" width="325" height="377"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
@@ -56,6 +56,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Kaart_Keyboard.png" width="1536" height="1536"/>
+        <image name="Kaart_Keyboard.png" width="1024" height="1024"/>
     </resources>
 </document>
