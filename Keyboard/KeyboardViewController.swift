@@ -1125,10 +1125,12 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         proxy.insertText(key.symbol)
     }
 
-    // Swaps the number row between Arabic and Roman numerals.
+    // Swaps the number row between Arabic and Roman numerals, and with it the symbols in the
+    // keys' corners: the digit-shifted punctuation on the Arabic plane, the rest on the Roman.
     @objc func numeralSwapPressed(_ sender: KeyButton){
         isRomanNumerals = !isRomanNumerals
         updateNumeralTitles()
+        updateNumberRowSymbols()
         updatePresetControlFills()
     }
     
@@ -1763,12 +1765,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         updateNumberRowSymbols()
     }
 
-    /// Repaints the number row's corner symbols from the active language. Separate from
-    /// addNumpadButton so a language switch, which rebuilds only the character rows, can bring
-    /// the symbols along with it.
+    /// Repaints the number row's corner symbols from the active language and the active numeral
+    /// plane. Separate from addNumpadButton so a language switch, which rebuilds only the
+    /// character rows, can bring the symbols along with it.
+    ///
+    /// The two planes hold different symbols: the ones that belong to a digit ride the Arabic
+    /// plane on that digit's key, and the rest ride the Roman plane. See
+    /// Language.numberRowSymbolPlanes for the split. That makes Num a symbol swap as well as a
+    /// numeral swap, which is why numeralSwapPressed calls this.
     fileprivate func updateNumberRowSymbols() {
-        let symbols = Language.numberRowSymbols(currentLanguage?.numberRowSymbols,
-                                                paddedTo: arrayOfNumberButton.count)
+        let planes = Language.numberRowSymbolPlanes(currentLanguage?.numberRowSymbols,
+                                                    paddedTo: arrayOfNumberButton.count)
+        let symbols = isRomanNumerals ? planes.roman : planes.arabic
         for (index, button) in arrayOfNumberButton.enumerated() {
             (button as? SymbolKeyButton)?.symbol = symbols[index]
         }
