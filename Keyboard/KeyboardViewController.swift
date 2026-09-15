@@ -1309,7 +1309,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
             return
         }
 
+        // A punctuation key whose corner is blank swipes to nothing, the way a letter key with
+        // no accents already does. The comma carries no glyph now that ! sits on the 1 key.
         charStr = button.secondaryCharacter
+        guard charStr.isEmpty == false else { return }
+
         if updateShortField(charStr) == true{
             return
         }
