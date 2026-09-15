@@ -24,38 +24,28 @@ class Language: Decodable{
     /// Latin-layout punctuation, used when a language file names no set of its own.
     static let defaultNumberRowSymbols = ["'", "\"", ":", ";", "-", "/", "(", ")", "#", "*"]
 
-    /// Where a symbol sits on a shifted number row, as a zero-based index into keys 1-9,0. Only
-    /// the ten symbols that have a conventional number home appear; everything else -- quotes,
-    /// colons, the hyphen, the slash -- has no number it belongs to and is placed by
-    /// `numberRowSymbolPlanes` on the Roman plane instead.
-    static let symbolHomeOnNumberKey: [String: Int] = [
-        "!": 0, "@": 1, "#": 2, "$": 3, "%": 4, "^": 5, "&": 6, "*": 7, "(": 8, ")": 9
-    ]
+    /// The shifted number row: the symbol that belongs to each key 1-9,0, in key order. This is
+    /// the Arabic plane, whole and identical in every language, so the row reads the way a
+    /// shifted number row does anywhere else rather than carrying whichever punctuation a
+    /// language file happened to list first.
+    static let shiftedNumberRowSymbols = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")"]
 
     /// Splits a language's symbols across the two numeral planes the Num key swaps between.
     ///
-    /// A symbol that belongs to a number goes on that number's key -- `#` on 3, `(` on 9 -- so
-    /// the Arabic plane reads the way a shifted number row does anywhere else, with gaps where
-    /// the language names no symbol for that digit. Everything left over keeps its listed order
-    /// and fills the Roman plane from I rightwards, so no symbol the language defines is lost;
-    /// it just costs one tap of Num to reach.
+    /// The Arabic plane is always `shiftedNumberRowSymbols`. A language's own set then supplies
+    /// the Roman plane -- but only the part of it that the Arabic plane does not already carry,
+    /// so a language naming `#` or `(` does not have to spend a Roman key repeating a symbol
+    /// that is one plane away. What is left keeps its listed order and fills from I rightwards,
+    /// which for English is `'` `"` `:` `;` `-` `/` on I-VI.
     ///
-    /// Two symbols claiming the same digit is not something any current language file does, but
-    /// if it happened the first listed keeps the key and the second falls through to the Roman
-    /// plane rather than overwriting it.
+    /// Nothing a language file defines is dropped, and nothing appears twice.
     static func numberRowSymbolPlanes(_ symbols: [String]?, paddedTo count: Int) -> (arabic: [String], roman: [String]) {
-        let resolved = symbols ?? defaultNumberRowSymbols
+        var arabic = Array(shiftedNumberRowSymbols.prefix(count))
+        arabic += Array(repeating: "", count: count - arabic.count)
 
-        var arabic = Array(repeating: "", count: count)
-        var leftovers: [String] = []
-
-        for symbol in resolved where symbol.isEmpty == false {
-            if let home = symbolHomeOnNumberKey[symbol], home < count, arabic[home].isEmpty {
-                arabic[home] = symbol
-            } else {
-                leftovers.append(symbol)
-            }
-        }
+        let carriedByArabic = Set(arabic)
+        let leftovers = (symbols ?? defaultNumberRowSymbols)
+            .filter { $0.isEmpty == false && carriedByArabic.contains($0) == false }
 
         var roman = Array(leftovers.prefix(count))
         roman += Array(repeating: "", count: count - roman.count)

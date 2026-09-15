@@ -1126,7 +1126,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     }
 
     // Swaps the number row between Arabic and Roman numerals, and with it the symbols in the
-    // keys' corners: the digit-shifted punctuation on the Arabic plane, the rest on the Roman.
+    // keys' corners: the shifted number row on the Arabic plane, the rest on the Roman.
     @objc func numeralSwapPressed(_ sender: KeyButton){
         isRomanNumerals = !isRomanNumerals
         updateNumeralTitles()
@@ -1769,8 +1769,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     /// plane. Separate from addNumpadButton so a language switch, which rebuilds only the
     /// character rows, can bring the symbols along with it.
     ///
-    /// The two planes hold different symbols: the ones that belong to a digit ride the Arabic
-    /// plane on that digit's key, and the rest ride the Roman plane. See
+    /// The two planes hold different symbols: the Arabic plane carries the shifted number row,
+    /// and the Roman plane carries whatever else the language names. See
     /// Language.numberRowSymbolPlanes for the split. That makes Num a symbol swap as well as a
     /// numeral swap, which is why numeralSwapPressed calls this.
     fileprivate func updateNumberRowSymbols() {
