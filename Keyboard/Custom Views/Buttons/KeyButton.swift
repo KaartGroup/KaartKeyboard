@@ -26,6 +26,29 @@ class KeyButton: UIButton {
         return UIDevice.current.userInterfaceIdiom == .phone
     }
 
+    /// Whether the phone is on its side.
+    ///
+    /// UIScreen and not UIDevice.current.orientation, which is normally .unknown in a keyboard
+    /// extension -- the process gets no device-orientation notifications -- and which has misled
+    /// this keyboard before. The same test KeyboardViewController.keyboardHeight has always used.
+    static var isPhoneLandscape: Bool {
+        return isPhoneLayout && UIScreen.main.bounds.width > UIScreen.main.bounds.height
+    }
+
+    /// The painted height of a key on a phone.
+    ///
+    /// 46pt upright: a 51pt touch target once the outset either side is counted, comfortably above
+    /// the 44pt minimum.
+    ///
+    /// On its side there is no height left to spend -- six rows at 46pt is 316pt of a landscape
+    /// iPhone's 402, near the whole screen -- so the keys come down to 32pt, which is about what the
+    /// system keyboard's own landscape keys measure. That is a 37pt target, under the minimum, and
+    /// it is the trade landscape forces: the alternative is a keyboard with nothing left to type
+    /// into.
+    static var phoneKeyHeight: CGFloat {
+        return isPhoneLandscape ? 32.0 : 46.0
+    }
+
     /// The gutter the keyboard lays out between keys. Single source of truth for
     /// KeyboardViewController.spacing and for the touch outset below.
     static let gutter: CGFloat = 5.0
@@ -61,12 +84,18 @@ class KeyButton: UIButton {
     /// glyph too large for its key rather than letting it overflow. Backspace at 42pt is the
     /// largest and yields a 49pt label against a 58.5pt key in portrait and a 54pt key in
     /// landscape, so it is near the ceiling; going above it wants a landscape check.
-    /// A phone's keys are 46pt tall against the iPad's 58.6, and these four are bounded by that
-    /// height, so they come down with it or they clip. One factor rather than four more literals:
-    /// the four have been tuned against each other, and scaling them together is what keeps that
-    /// tuning intact on a shorter key.
+    /// The key height the four sizes below were measured against: the iPad's, in portrait, which is
+    /// the 58.5pt the note above cites.
+    static let tunedKeyHeight: CGFloat = 58.5
+
+    /// These four are bounded by the key height, so they follow whatever height the keys actually
+    /// have or they clip -- backspace draws a label 1.17x its point size, and a 42pt glyph wants a
+    /// 49pt key. A phone is 0.79 of the tuned height upright and 0.55 on its side.
+    ///
+    /// One factor rather than literals per device: the four were tuned against each other, and
+    /// scaling them together is what keeps that relationship at any key height.
     static var glyphScale: CGFloat {
-        return isPhoneLayout ? 0.78 : 1.0
+        return isPhoneLayout ? phoneKeyHeight / tunedKeyHeight : 1.0
     }
 
     static var backspaceTitleFontSize: CGFloat { return 42.0 * glyphScale }

@@ -236,23 +236,17 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         return CGFloat(visiblePresetRows) + 5.0
     }
 
-    /// The painted height of a key on a phone.
-    ///
-    /// Stated outright rather than run through the iPad's formula below. That formula divides by
-    /// 6.5 while seven rows are laid out and subtracts a 24pt reserve left over from a predictive
-    /// strip the keyboard no longer has, so reaching a given phone height through it would mean
-    /// picking a keyboardHeight that means nothing on its own.
-    ///
-    /// 46pt is the number itself: a 51pt touch target once KeyButton's outset either side is
-    /// counted, above the 44pt minimum, against the 58.6pt the iPad's formula was handing a phone.
-    /// Six rows of it come to 316pt of an iPhone 17's 874, down from 394.
-    fileprivate static let phoneKeyHeight: CGFloat = 46.0
-
     /// Height of individual keys. The same whether or not a preset is being renamed: the band
     /// takes its room from the keyboard's height, not from the rows.
+    ///
+    /// A phone states its height outright, in KeyButton alongside the glyph sizes that have to
+    /// follow it, rather than reaching it through the formula below: that divides keyboardHeight by
+    /// 6.5 while seven rows are laid out and subtracts a 24pt reserve left over from a predictive
+    /// strip the keyboard no longer has, so a phone height reached through it would mean picking a
+    /// keyboardHeight that means nothing on its own.
     fileprivate var keyHeight: CGFloat {
         if KeyboardViewController.isPhone {
-            return KeyboardViewController.phoneKeyHeight
+            return KeyButton.phoneKeyHeight
         }
         return (keyboardHeight - 7.0 * spacing - keyHeightReserve) / 6.5
     }
@@ -1909,10 +1903,34 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         if width > 0 && width != lastLaidOutWidth {
             lastLaidOutWidth = width
             updateViewConstraints()
+            refreshGlyphSizes()
         }
 
         layoutPresetEditor()
         layoutLanguagePanel()
+    }
+
+    /// Re-applies the glyph sizes, which come from the key height and so change with a phone's
+    /// orientation.
+    ///
+    /// The keys themselves are resized by their constraints, but a font is set once, when the key is
+    /// built. Without this a rotation left a portrait-sized glyph on a landscape-sized key, and
+    /// KeyButton masks to bounds -- so backspace would have been cut off rather than drawn smaller.
+    /// Rebuilding the keys instead would do it too, and would also stack a second copy of every
+    /// gesture recogniser on them.
+    fileprivate func refreshGlyphSizes() {
+        deleteButton?.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
+        returnButton?.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
+        nextKeyboardButton?.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
+
+        // Sets the size for the iOS 12 fallback title; updateShiftGlyph() re-renders the SF Symbol
+        // at the new size above that.
+        shiftButton?.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        updateShiftGlyph()
+
+        if KeyboardViewController.isPhone, let swapButton = numeralSwapButton {
+            applySwapGlyph(to: swapButton)
+        }
     }
 
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
