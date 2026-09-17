@@ -17,6 +17,15 @@ class KeyButton: UIButton {
     
     // MARK: Properties
     
+    /// Whether the keys are being laid out for a phone, which several of the sizes below depend on.
+    ///
+    /// The idiom and not the size class: an iPad in a narrow split is still an iPad, and the app
+    /// that hosts this keyboard forces a compact horizontal size class on the screen it is raised
+    /// over, so a size-class test would give a phone's sizes on an iPad.
+    static var isPhoneLayout: Bool {
+        return UIDevice.current.userInterfaceIdiom == .phone
+    }
+
     /// The gutter the keyboard lays out between keys. Single source of truth for
     /// KeyboardViewController.spacing and for the touch outset below.
     static let gutter: CGFloat = 5.0
@@ -119,7 +128,18 @@ class SymbolKeyButton: KeyButton {
 
     /// Smaller than the letter keys' corner glyph: a number key is narrower than a letter key and
     /// its numeral is centred across the same width, so a full-size glyph crowds it.
-    static let symbolFontSize: CGFloat = 18.0
+    static let padSymbolFontSize: CGFloat = 18.0
+
+    /// What a phone takes off that: 30%.
+    ///
+    /// A phone's number key is roughly a third the width of an iPad's, and the symbol shares the key
+    /// with a numeral centred across the whole of it, so the size the iPad reads comfortably at
+    /// crowds the numeral here.
+    static let phoneSymbolScale: CGFloat = 0.7
+
+    static var symbolFontSize: CGFloat {
+        return isPhoneLayout ? padSymbolFontSize * phoneSymbolScale : padSymbolFontSize
+    }
 
     fileprivate(set) var symbolLabel: UILabel!
 

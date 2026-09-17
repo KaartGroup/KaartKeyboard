@@ -112,13 +112,10 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
     }
     
-    /// Whether this is the phone layout.
-    ///
-    /// The idiom and not the size class: an iPad in a narrow split is still an iPad, and the app
-    /// that will host this keyboard forces a compact horizontal size class on iPad in the screen the
-    /// keyboard is raised over -- so a size-class test would give a phone layout on an iPad.
+    /// Whether this is the phone layout. Defined by KeyButton, which needs the same answer for its
+    /// own sizes and is the lower of the two layers.
     fileprivate static var isPhone: Bool {
-        return UIDevice.current.userInterfaceIdiom == .phone
+        return KeyButton.isPhoneLayout
     }
 
     /// How many of the bank's two preset rows are drawn.
