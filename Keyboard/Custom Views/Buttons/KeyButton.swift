@@ -17,6 +17,38 @@ class KeyButton: UIButton {
     
     // MARK: Properties
     
+    /// Whether the keys are being laid out for a phone, which several of the sizes below depend on.
+    ///
+    /// The idiom and not the size class: an iPad in a narrow split is still an iPad, and the app
+    /// that hosts this keyboard forces a compact horizontal size class on the screen it is raised
+    /// over, so a size-class test would give a phone's sizes on an iPad.
+    static var isPhoneLayout: Bool {
+        return UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    /// Whether the phone is on its side.
+    ///
+    /// UIScreen and not UIDevice.current.orientation, which is normally .unknown in a keyboard
+    /// extension -- the process gets no device-orientation notifications -- and which has misled
+    /// this keyboard before. The same test KeyboardViewController.keyboardHeight has always used.
+    static var isPhoneLandscape: Bool {
+        return isPhoneLayout && UIScreen.main.bounds.width > UIScreen.main.bounds.height
+    }
+
+    /// The painted height of a key on a phone.
+    ///
+    /// 46pt upright: a 51pt touch target once the outset either side is counted, comfortably above
+    /// the 44pt minimum.
+    ///
+    /// On its side there is no height left to spend -- six rows at 46pt is 316pt of a landscape
+    /// iPhone's 402, near the whole screen -- so the keys come down to 32pt, which is about what the
+    /// system keyboard's own landscape keys measure. That is a 37pt target, under the minimum, and
+    /// it is the trade landscape forces: the alternative is a keyboard with nothing left to type
+    /// into.
+    static var phoneKeyHeight: CGFloat {
+        return isPhoneLandscape ? 32.0 : 46.0
+    }
+
     /// The gutter the keyboard lays out between keys. Single source of truth for
     /// KeyboardViewController.spacing and for the touch outset below.
     static let gutter: CGFloat = 5.0
@@ -52,10 +84,29 @@ class KeyButton: UIButton {
     /// glyph too large for its key rather than letting it overflow. Backspace at 42pt is the
     /// largest and yields a 49pt label against a 58.5pt key in portrait and a 54pt key in
     /// landscape, so it is near the ceiling; going above it wants a landscape check.
-    static let backspaceTitleFontSize: CGFloat = 42.0
-    static let returnTitleFontSize: CGFloat = 38.0
-    static let globeTitleFontSize: CGFloat = 38.0
-    static let shiftTitleFontSize: CGFloat = 32.0
+    /// The key height the four sizes below were measured against: the iPad's, in portrait, which is
+    /// the 58.5pt the note above cites.
+    static let tunedKeyHeight: CGFloat = 58.5
+
+    /// These four are bounded by the key height, so they follow whatever height the keys actually
+    /// have or they clip -- backspace draws a label 1.17x its point size, and a 42pt glyph wants a
+    /// 49pt key. A phone is 0.79 of the tuned height upright and 0.55 on its side.
+    ///
+    /// One factor rather than literals per device: the four were tuned against each other, and
+    /// scaling them together is what keeps that relationship at any key height.
+    static var glyphScale: CGFloat {
+        return isPhoneLayout ? phoneKeyHeight / tunedKeyHeight : 1.0
+    }
+
+    static var backspaceTitleFontSize: CGFloat { return 42.0 * glyphScale }
+    static var returnTitleFontSize: CGFloat { return 38.0 * glyphScale }
+    static var globeTitleFontSize: CGFloat { return 38.0 * glyphScale }
+    static var shiftTitleFontSize: CGFloat { return 32.0 * glyphScale }
+
+    /// The swap glyph on the phone's combined control key. Bounded by the key's *width* rather than
+    /// its height, unlike the four above: that key is as narrow as a number key -- it shares the
+    /// column -- while standing a full key tall, so width is what runs out first.
+    static let swapTitleFontSize: CGFloat = 22.0
 
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
@@ -119,7 +170,28 @@ class SymbolKeyButton: KeyButton {
 
     /// Smaller than the letter keys' corner glyph: a number key is narrower than a letter key and
     /// its numeral is centred across the same width, so a full-size glyph crowds it.
-    static let symbolFontSize: CGFloat = 18.0
+    static let padSymbolFontSize: CGFloat = 18.0
+
+    /// What a phone takes off that: 30%.
+    ///
+    /// A phone's number key is roughly a third the width of an iPad's, and the symbol shares the key
+    /// with a numeral centred across the whole of it, so the size the iPad reads comfortably at
+    /// crowds the numeral here.
+    static let phoneSymbolScale: CGFloat = 0.7
+
+    static var symbolFontSize: CGFloat {
+        return isPhoneLayout ? padSymbolFontSize * phoneSymbolScale : padSymbolFontSize
+    }
+
+    /// The fraction of the key's height the symbol is centred within, measured from the top.
+    ///
+    /// The symbol sits in the middle of this band and the numeral is centred across the whole key,
+    /// so shortening the band is what lifts the symbol clear of the numeral. A phone's key is the
+    /// same height as an iPad's but carries a numeral nearly as large across a third of the width,
+    /// which is what brought the two together.
+    static var symbolBandHeight: CGFloat {
+        return isPhoneLayout ? 0.34 : 0.5
+    }
 
     fileprivate(set) var symbolLabel: UILabel!
 
@@ -154,6 +226,6 @@ class SymbolKeyButton: KeyButton {
         symbolLabel.frame = CGRect(x: SymbolKeyButton.symbolInset,
                                    y: 0.0,
                                    width: bounds.width - SymbolKeyButton.symbolInset,
-                                   height: bounds.height * 0.5)
+                                   height: bounds.height * SymbolKeyButton.symbolBandHeight)
     }
 }

@@ -37,6 +37,21 @@
 		26E7E64D211E19EB0073CAF5 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E64C211E19EB0073CAF5 /* Settings.bundle */; };
 		26E7E64E211E19EB0073CAF5 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 26E7E64C211E19EB0073CAF5 /* Settings.bundle */; };
 		63604CE91CCB00240066CD65 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63604CE81CCB00240066CD65 /* Launch Screen.storyboard */; };
+		F1B000000000000000000001 /* KeyboardTextTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000001 /* KeyboardTextTarget.swift */; };
+		F1B000000000000000000002 /* KeyboardInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000002 /* KeyboardInputViewController.swift */; };
+		F1B000000000000000000003 /* KaartKeyboardInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000003 /* KaartKeyboardInputView.swift */; };
+		F1C000000000000000000001 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5D81965061C009A561C /* KeyboardViewController.swift */; };
+		F1C000000000000000000002 /* KeyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F119650C79009A561C /* KeyButton.swift */; };
+		F1C000000000000000000003 /* CharacterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5F319650C90009A561C /* CharacterButton.swift */; };
+		F1C000000000000000000004 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4914216EAD2300E794E1 /* Language.swift */; };
+		F1C000000000000000000005 /* StringSubscripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EA19650B93009A561C /* StringSubscripts.swift */; };
+		F1C000000000000000000006 /* UIImageFromCALayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076EF5EC19650BD3009A561C /* UIImageFromCALayer.swift */; };
+		F1C000000000000000000007 /* KeyboardTextTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000001 /* KeyboardTextTarget.swift */; };
+		F1C000000000000000000008 /* KaartKeyboardInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000003 /* KaartKeyboardInputView.swift */; };
+		F1C000000000000000000009 /* KeyboardPreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A000000000000000000004 /* KeyboardPreviewViewController.swift */; };
+		F1D000000000000000000001 /* english.json in Resources */ = {isa = PBXBuildFile; fileRef = 261D7589216571E800182E80 /* english.json */; };
+		F1D000000000000000000002 /* greek.json in Resources */ = {isa = PBXBuildFile; fileRef = 262A492121751D0500E794E1 /* greek.json */; };
+		F1D000000000000000000003 /* serbian-cyrillic.json in Resources */ = {isa = PBXBuildFile; fileRef = 26A490AD21C9C1D6002BBD7D /* serbian-cyrillic.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +113,10 @@
 		26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		26E7E64C211E19EB0073CAF5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		63604CE81CCB00240066CD65 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		F1A000000000000000000001 /* KeyboardTextTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardTextTarget.swift; sourceTree = "<group>"; };
+		F1A000000000000000000002 /* KeyboardInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInputViewController.swift; sourceTree = "<group>"; };
+		F1A000000000000000000003 /* KaartKeyboardInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaartKeyboardInputView.swift; sourceTree = "<group>"; };
+		F1A000000000000000000004 /* KeyboardPreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPreviewViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +185,7 @@
 				26E7E641211DF0310073CAF5 /* MainStoryboard.storyboard */,
 				261D75832165309800182E80 /* DetailViewController.swift */,
 				261D758121652F2500182E80 /* MasterTableViewController.swift */,
+				F1A000000000000000000004 /* KeyboardPreviewViewController.swift */,
 				076EF58F19650431009A561C /* Images.xcassets */,
 				076EF58B19650431009A561C /* Supporting Files */,
 				26E7E64C211E19EB0073CAF5 /* Settings.bundle */,
@@ -189,6 +209,9 @@
 				262A4914216EAD2300E794E1 /* Language.swift */,
 				261D75882165719E00182E80 /* Languages */,
 				076EF5D81965061C009A561C /* KeyboardViewController.swift */,
+				F1A000000000000000000001 /* KeyboardTextTarget.swift */,
+				F1A000000000000000000002 /* KeyboardInputViewController.swift */,
+				F1A000000000000000000003 /* KaartKeyboardInputView.swift */,
 				072711361967692900A896D1 /* Custom Views */,
 				076EF5E919650A93009A561C /* Extensions */,
 				076EF5D61965061C009A561C /* Supporting Files */,
@@ -346,6 +369,9 @@
 				26E7E642211DF0310073CAF5 /* MainStoryboard.storyboard in Resources */,
 				26269A3B2229896C006EE067 /* vietnamese.json in Resources */,
 				076EF59019650431009A561C /* Images.xcassets in Resources */,
+				F1D000000000000000000001 /* english.json in Resources */,
+				F1D000000000000000000002 /* greek.json in Resources */,
+				F1D000000000000000000003 /* serbian-cyrillic.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,6 +403,15 @@
 				076EF58E19650431009A561C /* AppDelegate.swift in Sources */,
 				261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */,
 				261D75842165309800182E80 /* DetailViewController.swift in Sources */,
+				F1C000000000000000000009 /* KeyboardPreviewViewController.swift in Sources */,
+				F1C000000000000000000001 /* KeyboardViewController.swift in Sources */,
+				F1C000000000000000000002 /* KeyButton.swift in Sources */,
+				F1C000000000000000000003 /* CharacterButton.swift in Sources */,
+				F1C000000000000000000004 /* Language.swift in Sources */,
+				F1C000000000000000000005 /* StringSubscripts.swift in Sources */,
+				F1C000000000000000000006 /* UIImageFromCALayer.swift in Sources */,
+				F1C000000000000000000007 /* KeyboardTextTarget.swift in Sources */,
+				F1C000000000000000000008 /* KaartKeyboardInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +425,9 @@
 				2661F61C1ECBB279006A0EEB /* KeyboardViewController.swift in Sources */,
 				076EF5F219650C79009A561C /* KeyButton.swift in Sources */,
 				076EF5F419650C90009A561C /* CharacterButton.swift in Sources */,
+				F1B000000000000000000001 /* KeyboardTextTarget.swift in Sources */,
+				F1B000000000000000000002 /* KeyboardInputViewController.swift in Sources */,
+				F1B000000000000000000003 /* KaartKeyboardInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,7 +575,7 @@
 				STRIP_STYLE = "non-global";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -564,7 +602,7 @@
 				STRIP_STYLE = "non-global";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -593,7 +631,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -617,7 +655,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

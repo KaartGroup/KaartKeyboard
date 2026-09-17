@@ -23,9 +23,15 @@ private let keyboardLog = OSLog(subsystem: "com.kaart.keyboardContainer.keyboard
 
 
 /**
- An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
+ The Kaart keyboard: its keys, its layout and its height.
+
+ An ordinary view controller rather than a `UIInputViewController`, so the same keyboard can be
+ raised two ways -- as a system keyboard extension, hosted by `KeyboardInputViewController`, or
+ inside an app as a text field's `inputView`, hosted by `KaartKeyboardInputView`. What only an
+ extension can do does not live here: the keys type into a `KeyboardTextTarget` the host supplies,
+ and the globe key is left for the host to wire, since an app has no other input mode to advance to.
  */
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
+class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     
     // MARK: Constants
     
@@ -106,6 +112,31 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
     }
     
+    /// Whether this is the phone layout. Defined by KeyButton, which needs the same answer for its
+    /// own sizes and is the lower of the two layers.
+    fileprivate static var isPhone: Bool {
+        return KeyButton.isPhoneLayout
+    }
+
+    /// How many of the bank's two preset rows are drawn.
+    ///
+    /// A phone draws one. Seven rows is over half a phone screen, and the top preset row is the one
+    /// that can go without losing a key outright: its control key folds into the bottom row's, which
+    /// carries both jobs there -- see addPresetControlButtons().
+    fileprivate var visiblePresetRows: Int {
+        return KeyboardViewController.isPhone ? 1 : shortWord.count
+    }
+
+    /// How many presets of a row are drawn. Six fit an iPad; at a phone's width they truncate to
+    /// ellipses, so a phone draws four.
+    ///
+    /// The bank still holds six to a row on both. The last two are simply not drawn on a phone, so a
+    /// rename writes back into the same six-wide row the iPad edits and neither device can shorten
+    /// what the other saved.
+    fileprivate var visiblePresetColumns: Int {
+        return KeyboardViewController.isPhone ? 4 : presetColumns
+    }
+
     fileprivate let spacing: CGFloat = KeyButton.gutter
 
     /// A 24pt term in the key-height formula below, and nothing else.
@@ -184,7 +215,10 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     // than given a width, so this is the number that actually sizes them: widening the presets is
     // what squeezes the controls.
     fileprivate var presetKeyWidth: CGFloat {
-        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing - controlKeyWidth) / 6.0)
+        // One gutter at each end and one between every pair of the row's keys, the control key
+        // included: two more than there are presets. Six presets give the eight this was written as.
+        let columns = CGFloat(visiblePresetColumns)
+        return KeyboardViewController.nonNegative((view.frame.width - (columns + 2) * spacing - controlKeyWidth) / columns)
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -195,13 +229,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         return KeyboardViewController.nonNegative((view.frame.width - 11 * spacing) / 10.0)
     }
     
-    /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
-    /// characters, and the space row.
-    fileprivate let rowCountVertical: CGFloat = 7.0
+    /// The number of key rows the keyboard lays out: the presets, the numbers, three of characters,
+    /// and the space row. Seven on an iPad, six on a phone, which draws one preset row instead of
+    /// two -- and the keyboard is shorter by exactly that row, since contentHeight counts them.
+    fileprivate var rowCountVertical: CGFloat {
+        return CGFloat(visiblePresetRows) + 5.0
+    }
 
     /// Height of individual keys. The same whether or not a preset is being renamed: the band
     /// takes its room from the keyboard's height, not from the rows.
+    ///
+    /// A phone states its height outright, in KeyButton alongside the glyph sizes that have to
+    /// follow it, rather than reaching it through the formula below: that divides keyboardHeight by
+    /// 6.5 while seven rows are laid out and subtracts a 24pt reserve left over from a predictive
+    /// strip the keyboard no longer has, so a phone height reached through it would mean picking a
+    /// keyboardHeight that means nothing on its own.
     fileprivate var keyHeight: CGFloat {
+        if KeyboardViewController.isPhone {
+            return KeyButton.phoneKeyHeight
+        }
         return (keyboardHeight - 7.0 * spacing - keyHeightReserve) / 6.5
     }
 
@@ -253,7 +299,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
 //    fileprivate var shiftButton: KeyButton!
     fileprivate var deleteButton: KeyButton!
     //    fileprivate var tabButton: KeyButton!
-    fileprivate var nextKeyboardButton: KeyButton!
+    /// Reachable by the host, which is what wires it -- see addNextKeyboardButton().
+    private(set) var nextKeyboardButton: KeyButton!
     fileprivate var spaceButton: KeyButton!
     fileprivate var returnButton: KeyButton!
     fileprivate var kaartKeyboardButton: KeyButton!
@@ -333,8 +380,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     
     fileprivate var heightConstraint: NSLayoutConstraint!
     
-    fileprivate var proxy: UITextDocumentProxy {
-        return textDocumentProxy
+    /// Where the keys type. Set by the host before the keyboard goes on screen.
+    ///
+    /// Held strongly: a target is a small adapter made on the spot by the host and handed over, so
+    /// nothing else refers to it and a weak reference here let it go before the first key was
+    /// pressed -- every key then typed into the fallback below and nothing reached the field. Both
+    /// targets hold what they type into weakly, so this does not close a cycle.
+    var textTarget: KeyboardTextTarget?
+
+    /// The target the keys actually use, so none of them has to carry the "if there is a host" case.
+    /// An unwired keyboard types into nothing rather than trapping mid-touch.
+    fileprivate var proxy: KeyboardTextTarget {
+        return textTarget ?? DiscardedTextTarget.shared
     }
     
     /// Whether a character is a letter / whitespace, judged by its first Unicode scalar.
@@ -530,13 +587,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     // view's trailing margin on the right, so the pair absorbs any rounding left over by the six
     // fixed-width presets rather than leaving a ragged right edge.
     func updateConstraintForPresetControls() {
-        guard arrayOfShortWordButton.count == 2,
-              let lastTopPreset = arrayOfShortWordButton[0].last,
-              let lastBottomPreset = arrayOfShortWordButton[1].last,
-              let groupSwap = presetGroupSwapButton,
-              let numeralSwap = numeralSwapButton else { return }
+        // Every preset row on screen ends in a control key: two rows and two keys on an iPad, one of
+        // each on a phone, where the surviving key carries both jobs.
+        var placements: [(button: KeyButton, rowLeader: KeyButton)] = []
+        if let numeralSwap = numeralSwapButton, let lastPreset = arrayOfShortWordButton.last?.last {
+            placements.append((numeralSwap, lastPreset))
+        }
+        if let groupSwap = presetGroupSwapButton, arrayOfShortWordButton.count == 2,
+           let lastTopPreset = arrayOfShortWordButton[0].last {
+            placements.append((groupSwap, lastTopPreset))
+        }
 
-        for (button, rowLeader) in [(groupSwap, lastTopPreset), (numeralSwap, lastBottomPreset)] {
+        for (button, rowLeader) in placements {
             removeAllConstrains(button)
             button.translatesAutoresizingMaskIntoConstraints = false
 
@@ -678,11 +740,11 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     }
     func updateConstraintForNumberButton()
     {
-        // The number row hangs off the second preset row. Both are built in viewDidLoad before this
-        // runs, but reading them positionally is what turns a build-order change into a crash.
+        // The number row hangs off the last preset row -- the second on an iPad, the only one on a
+        // phone. Both are built in viewDidLoad before this runs, but reading them positionally is
+        // what turns a build-order change into a crash.
         guard let firstButton = arrayOfNumberButton.first,
-              arrayOfShortWordButton.count > 1,
-              let shortWordBtn = arrayOfShortWordButton[1].first else { return }
+              let shortWordBtn = arrayOfShortWordButton.last?.first else { return }
 
         removeAllConstrains(firstButton)
 
@@ -759,19 +821,26 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     override func updateViewConstraints()
     {
         super.updateViewConstraints()
-        
+
+        // The height is installed before the guard below, and not after the row constraints as it
+        // used to be, because it is the one measurement that does not depend on the view's width --
+        // see contentHeight. UIKit hands an extension a sized input view before the first layout
+        // pass, so running this only on a non-empty frame worked there; an app host asks the
+        // keyboard how tall it is before it has ever been laid out, and the guard returning first
+        // left it answering zero and the keyboard invisible.
+        setUpHeightConstraint()
+
         // Add custom view sizing constraints here
         if (view.frame.size.width == 0 || view.frame.size.height == 0) {
             return
         }
-        
+
         updateConstraintForShortWorld();
         updateConstraintForNumberButton()
         updateConstraintForPresetControls()
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
-        setUpHeightConstraint()
     }
     
     let currentString:NSString = "";
@@ -1134,6 +1203,25 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         updatePresetControlFills()
     }
     
+    /// The phone's single control key: one tap swaps the numeral plane and the preset group
+    /// together.
+    ///
+    /// Nothing happens at all while a preset is being renamed. The group swap has always refused
+    /// then -- a pending edit is addressed by position within the active group, so swapping would
+    /// land it on the group that just arrived -- and swapping only the numerals instead would let
+    /// the two states drift apart, which is what makes one key readable as both.
+    @objc func numeralAndPresetSwapPressed(_ sender: KeyButton){
+        guard shortWordTxtFld.isHidden else { return }
+
+        isRomanNumerals = !isRomanNumerals
+        activeBank = (activeBank + 1) % shortWordBanks.count
+
+        updateNumeralTitles()
+        updateNumberRowSymbols()
+        updateShortWordTitles()
+        updatePresetControlFills()
+    }
+
     // Swaps which preset group fills the twelve preset keys.
     @objc func presetGroupSwapPressed(_ sender: KeyButton){
         // Not while a preset is being edited: the pending edit is addressed by position within the
@@ -1509,17 +1597,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         
     }
     
+    /// Builds the globe key but wires nothing to it.
+    ///
+    /// What the key should do is the one thing that differs between the two hosts, and neither
+    /// answer can be given from here: an extension shows the input-mode list, which only a
+    /// `UIInputViewController` can do, and an app has no other input mode to offer, so it hands the
+    /// field back to the system keyboard instead. The host reaches the key through
+    /// `nextKeyboardButton` once the view has loaded and adds its own target.
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
         nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
         nextKeyboardButton.setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
-        if #available(iOS 10.0, *) {
-            nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
-        } else {
-            nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.advanceToNextInputMode), for: .touchUpInside)
-        }
         self.view.addSubview(nextKeyboardButton)
     }
     
@@ -1624,7 +1714,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         for row in arrayOfShortWordButton {
             for button in row { button.removeFromSuperview() }
         }
-        arrayOfShortWordButton = [[],[]]
+        arrayOfShortWordButton = Array(repeating: [], count: visiblePresetRows)
         
         let userDefaults : UserDefaults = UserDefaults.standard
         
@@ -1647,8 +1737,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         // right places immediately afterwards, which is why nothing looked wrong, but the frames a
         // key is created with are the frames its labels are laid out against.
         var y: CGFloat = 0.0
-        for (rowIndex, row) in shortWord.enumerated(){
-            for index in 1...row.count{
+        for (rowIndex, row) in shortWord.prefix(visiblePresetRows).enumerated(){
+            for index in 1...min(row.count, visiblePresetColumns){
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
@@ -1813,10 +1903,34 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         if width > 0 && width != lastLaidOutWidth {
             lastLaidOutWidth = width
             updateViewConstraints()
+            refreshGlyphSizes()
         }
 
         layoutPresetEditor()
         layoutLanguagePanel()
+    }
+
+    /// Re-applies the glyph sizes, which come from the key height and so change with a phone's
+    /// orientation.
+    ///
+    /// The keys themselves are resized by their constraints, but a font is set once, when the key is
+    /// built. Without this a rotation left a portrait-sized glyph on a landscape-sized key, and
+    /// KeyButton masks to bounds -- so backspace would have been cut off rather than drawn smaller.
+    /// Rebuilding the keys instead would do it too, and would also stack a second copy of every
+    /// gesture recogniser on them.
+    fileprivate func refreshGlyphSizes() {
+        deleteButton?.useGlyphTitleFont(size: KeyButton.backspaceTitleFontSize)
+        returnButton?.useGlyphTitleFont(size: KeyButton.returnTitleFontSize)
+        nextKeyboardButton?.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
+
+        // Sets the size for the iOS 12 fallback title; updateShiftGlyph() re-renders the SF Symbol
+        // at the new size above that.
+        shiftButton?.useGlyphTitleFont(size: KeyButton.shiftTitleFontSize)
+        updateShiftGlyph()
+
+        if KeyboardViewController.isPhone, let swapButton = numeralSwapButton {
+            applySwapGlyph(to: swapButton)
+        }
     }
 
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){
@@ -1958,15 +2072,55 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     fileprivate func addPresetControlButtons() {
         presetGroupSwapButton?.removeFromSuperview()
         numeralSwapButton?.removeFromSuperview()
+        presetGroupSwapButton = nil
+        numeralSwapButton = nil
 
-        presetGroupSwapButton = makePresetControlButton(
-            title: "P1/2",
-            action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
-        numeralSwapButton = makePresetControlButton(
-            title: "Num",
-            action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+        if KeyboardViewController.isPhone {
+            // One preset row leaves one control column, so the two jobs share a key -- see
+            // numeralAndPresetSwapPressed(). There is no P1/2 key on a phone at all.
+            let swapButton = makePresetControlButton(
+                title: "",
+                action: #selector(KeyboardViewController.numeralAndPresetSwapPressed(_:)))
+            applySwapGlyph(to: swapButton)
+            numeralSwapButton = swapButton
+        } else {
+            presetGroupSwapButton = makePresetControlButton(
+                title: "P1/2",
+                action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
+            numeralSwapButton = makePresetControlButton(
+                title: "Num",
+                action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+        }
 
         updatePresetControlFills()
+    }
+
+    /// Two arrows swapping places, drawn on the phone's combined control key.
+    ///
+    /// A glyph rather than a word because "Num" truncated to an ellipsis in a key this narrow -- it
+    /// shares the number keys' column -- and because the key stopped meaning only numerals when it
+    /// took on the preset group as well. Neither word fits and neither is the whole truth, so the
+    /// key says "these two things swap" instead.
+    ///
+    /// arrow.left.arrow.right on iOS 13+ and U+21C4 below it: the same
+    /// SF-Symbol-with-a-Unicode-fallback pairing the shift key uses, and the two are drawn alike
+    /// enough that the key reads the same either way. The deployment target is 12.0.
+    fileprivate let swapGlyphSymbolName = "arrow.left.arrow.right"
+    fileprivate let swapGlyphFallback = "\u{21C4}"
+
+    fileprivate func applySwapGlyph(to button: KeyButton) {
+        if #available(iOS 13.0, *) {
+            let configuration = UIImage.SymbolConfiguration(pointSize: KeyButton.swapTitleFontSize,
+                                                            weight: .regular)
+            button.setImage(UIImage(systemName: swapGlyphSymbolName, withConfiguration: configuration)?
+                                .withRenderingMode(.alwaysTemplate),
+                            for: .normal)
+            // Template image, so the glyph takes the cream the titled control keys set on iPad.
+            button.tintColor = KeyButton.defaultKeyFill
+        } else {
+            button.setTitle(swapGlyphFallback, for: .normal)
+            button.useGlyphTitleFont(size: KeyButton.swapTitleFontSize)
+        }
     }
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {

@@ -13,11 +13,20 @@ class MasterTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Preview",
+                                                            style: .plain,
+                                                            target: self,
+                                                            action: #selector(showKeyboardPreview))
+    }
 
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    /// Opens the in-app keyboard, the one hosted by this app rather than installed as an extension.
+    ///
+    /// Shown as the detail rather than pushed onto this column: on iPad the master column is a few
+    /// hundred points wide, and a keyboard laid out in it says nothing about how it looks on a
+    /// screen. Collapsed on iPhone, this pushes onto the same stack anyway.
+    @objc private func showKeyboardPreview() {
+        let preview = KeyboardPreviewViewController()
+        showDetailViewController(UINavigationController(rootViewController: preview), sender: self)
     }
     
     override func didReceiveMemoryWarning() {
