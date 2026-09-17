@@ -12,7 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
+    var defaults = UserDefaults(suiteName: "group.com.kaart.keyboard")
 
     /// Whether the user has added our keyboard in Settings.
     ///

@@ -19,7 +19,7 @@ import os.log
 ///
 /// The subsystem is the shared prefix rather than the extension's own bundle identifier, so one
 /// predicate follows the keyboard and the container app together.
-private let keyboardLog = OSLog(subsystem: "com.kaartgroup.KaartKeyboard", category: "keyboard")
+private let keyboardLog = OSLog(subsystem: "com.kaart.keyboardContainer.keyboard", category: "keyboard")
 
 
 /**
@@ -77,7 +77,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
 
     fileprivate var languages: [Language] = []
     
-    fileprivate var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
+    fileprivate var defaults = UserDefaults(suiteName: "group.com.kaart.keyboard")
     
     fileprivate var showLanguages: [String:Bool] {
         return [
