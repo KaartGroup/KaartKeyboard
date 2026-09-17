@@ -18,7 +18,6 @@
 		26269A3B2229896C006EE067 /* vietnamese.json in Resources */ = {isa = PBXBuildFile; fileRef = 26269A3A2229896C006EE067 /* vietnamese.json */; };
 		26269A3C2229A56A006EE067 /* vietnamese.json in Resources */ = {isa = PBXBuildFile; fileRef = 26269A3A2229896C006EE067 /* vietnamese.json */; };
 		262A4911216D601D00E794E1 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4910216D601D00E794E1 /* SplitViewController.swift */; };
-		262A4913216E565C00E794E1 /* LanguagesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */; };
 		262A491B216EB25F00E794E1 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262A4914216EAD2300E794E1 /* Language.swift */; };
 		262A491D216FA3EF00E794E1 /* english.json in Resources */ = {isa = PBXBuildFile; fileRef = 261D7589216571E800182E80 /* english.json */; };
 		262A492021751B1200E794E1 /* Kaart_Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */; };
@@ -89,7 +88,6 @@
 		262A490C216D4DF100E794E1 /* KaartKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = KaartKeyboard.entitlements; path = KaartKeyboard/KaartKeyboard.entitlements; sourceTree = SOURCE_ROOT; };
 		262A490D216D53F300E794E1 /* Keyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Keyboard.entitlements; path = Keyboard/Keyboard.entitlements; sourceTree = SOURCE_ROOT; };
 		262A4910216D601D00E794E1 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
-		262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagesTableViewController.swift; sourceTree = "<group>"; };
 		262A4914216EAD2300E794E1 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		262A492121751D0500E794E1 /* greek.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = greek.json; sourceTree = "<group>"; };
 		265D78CD211A2F3B0046FA5B /* Kaart_Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Kaart_Keyboard.png; sourceTree = "<group>"; };
@@ -172,7 +170,6 @@
 				076EF58B19650431009A561C /* Supporting Files */,
 				26E7E64C211E19EB0073CAF5 /* Settings.bundle */,
 				262A4910216D601D00E794E1 /* SplitViewController.swift */,
-				262A4912216E565C00E794E1 /* LanguagesTableViewController.swift */,
 			);
 			name = KaartKeyboard;
 			path = ELDeveloperKeyboard;
@@ -377,7 +374,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				262A4911216D601D00E794E1 /* SplitViewController.swift in Sources */,
-				262A4913216E565C00E794E1 /* LanguagesTableViewController.swift in Sources */,
 				076EF58E19650431009A561C /* AppDelegate.swift in Sources */,
 				261D758221652F2500182E80 /* MasterTableViewController.swift in Sources */,
 				261D75842165309800182E80 /* DetailViewController.swift in Sources */,
