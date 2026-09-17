@@ -2045,9 +2045,11 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         if KeyboardViewController.isPhone {
             // One preset row leaves one control column, so the two jobs share a key -- see
             // numeralAndPresetSwapPressed(). There is no P1/2 key on a phone at all.
-            numeralSwapButton = makePresetControlButton(
-                title: "Num",
+            let swapButton = makePresetControlButton(
+                title: "",
                 action: #selector(KeyboardViewController.numeralAndPresetSwapPressed(_:)))
+            applySwapGlyph(to: swapButton)
+            numeralSwapButton = swapButton
         } else {
             presetGroupSwapButton = makePresetControlButton(
                 title: "P1/2",
@@ -2058,6 +2060,34 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         }
 
         updatePresetControlFills()
+    }
+
+    /// Two arrows swapping places, drawn on the phone's combined control key.
+    ///
+    /// A glyph rather than a word because "Num" truncated to an ellipsis in a key this narrow -- it
+    /// shares the number keys' column -- and because the key stopped meaning only numerals when it
+    /// took on the preset group as well. Neither word fits and neither is the whole truth, so the
+    /// key says "these two things swap" instead.
+    ///
+    /// arrow.left.arrow.right on iOS 13+ and U+21C4 below it: the same
+    /// SF-Symbol-with-a-Unicode-fallback pairing the shift key uses, and the two are drawn alike
+    /// enough that the key reads the same either way. The deployment target is 12.0.
+    fileprivate let swapGlyphSymbolName = "arrow.left.arrow.right"
+    fileprivate let swapGlyphFallback = "\u{21C4}"
+
+    fileprivate func applySwapGlyph(to button: KeyButton) {
+        if #available(iOS 13.0, *) {
+            let configuration = UIImage.SymbolConfiguration(pointSize: KeyButton.swapTitleFontSize,
+                                                            weight: .regular)
+            button.setImage(UIImage(systemName: swapGlyphSymbolName, withConfiguration: configuration)?
+                                .withRenderingMode(.alwaysTemplate),
+                            for: .normal)
+            // Template image, so the glyph takes the cream the titled control keys set on iPad.
+            button.tintColor = KeyButton.defaultKeyFill
+        } else {
+            button.setTitle(swapGlyphFallback, for: .normal)
+            button.useGlyphTitleFont(size: KeyButton.swapTitleFontSize)
+        }
     }
 
     fileprivate func makePresetControlButton(title: String, action: Selector) -> KeyButton {

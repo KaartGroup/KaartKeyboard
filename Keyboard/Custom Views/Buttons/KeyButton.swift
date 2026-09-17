@@ -66,6 +66,11 @@ class KeyButton: UIButton {
     static let globeTitleFontSize: CGFloat = 38.0
     static let shiftTitleFontSize: CGFloat = 32.0
 
+    /// The swap glyph on the phone's combined control key. Bounded by the key's *width* rather than
+    /// its height, unlike the four above: that key is as narrow as a number key -- it shares the
+    /// column -- while standing a full key tall, so width is what runs out first.
+    static let swapTitleFontSize: CGFloat = 22.0
+
     /// Extends the tap region beyond the painted key so no touch is wasted in the gutters.
     /// Half a gutter means neighbouring keys meet at the midline without overlapping.
     /// Set to 0 for keys laid out edge to edge, such as the accent popup, where there is no
@@ -141,6 +146,16 @@ class SymbolKeyButton: KeyButton {
         return isPhoneLayout ? padSymbolFontSize * phoneSymbolScale : padSymbolFontSize
     }
 
+    /// The fraction of the key's height the symbol is centred within, measured from the top.
+    ///
+    /// The symbol sits in the middle of this band and the numeral is centred across the whole key,
+    /// so shortening the band is what lifts the symbol clear of the numeral. A phone's key is the
+    /// same height as an iPad's but carries a numeral nearly as large across a third of the width,
+    /// which is what brought the two together.
+    static var symbolBandHeight: CGFloat {
+        return isPhoneLayout ? 0.34 : 0.5
+    }
+
     fileprivate(set) var symbolLabel: UILabel!
 
     /// The symbol this key carries. Empty leaves the corner blank and makes the downward swipe
@@ -174,6 +189,6 @@ class SymbolKeyButton: KeyButton {
         symbolLabel.frame = CGRect(x: SymbolKeyButton.symbolInset,
                                    y: 0.0,
                                    width: bounds.width - SymbolKeyButton.symbolInset,
-                                   height: bounds.height * 0.5)
+                                   height: bounds.height * SymbolKeyButton.symbolBandHeight)
     }
 }
