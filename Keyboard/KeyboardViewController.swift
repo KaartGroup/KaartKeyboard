@@ -23,9 +23,15 @@ private let keyboardLog = OSLog(subsystem: "com.kaart.keyboardContainer.keyboard
 
 
 /**
- An iOS custom keyboard extension written in Swift designed to make it much, much easier to type code on an iOS device.
+ The Kaart keyboard: its keys, its layout and its height.
+
+ An ordinary view controller rather than a `UIInputViewController`, so the same keyboard can be
+ raised two ways -- as a system keyboard extension, hosted by `KeyboardInputViewController`, or
+ inside an app as a text field's `inputView`, hosted by `KaartKeyboardInputView`. What only an
+ extension can do does not live here: the keys type into a `KeyboardTextTarget` the host supplies,
+ and the globe key is left for the host to wire, since an app has no other input mode to advance to.
  */
-class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
+class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     
     // MARK: Constants
     
@@ -253,7 +259,8 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
 //    fileprivate var shiftButton: KeyButton!
     fileprivate var deleteButton: KeyButton!
     //    fileprivate var tabButton: KeyButton!
-    fileprivate var nextKeyboardButton: KeyButton!
+    /// Reachable by the host, which is what wires it -- see addNextKeyboardButton().
+    private(set) var nextKeyboardButton: KeyButton!
     fileprivate var spaceButton: KeyButton!
     fileprivate var returnButton: KeyButton!
     fileprivate var kaartKeyboardButton: KeyButton!
@@ -333,8 +340,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     
     fileprivate var heightConstraint: NSLayoutConstraint!
     
-    fileprivate var proxy: UITextDocumentProxy {
-        return textDocumentProxy
+    /// Where the keys type. Set by the host before the keyboard goes on screen.
+    ///
+    /// Held strongly: a target is a small adapter made on the spot by the host and handed over, so
+    /// nothing else refers to it and a weak reference here let it go before the first key was
+    /// pressed -- every key then typed into the fallback below and nothing reached the field. Both
+    /// targets hold what they type into weakly, so this does not close a cycle.
+    var textTarget: KeyboardTextTarget?
+
+    /// The target the keys actually use, so none of them has to carry the "if there is a host" case.
+    /// An unwired keyboard types into nothing rather than trapping mid-touch.
+    fileprivate var proxy: KeyboardTextTarget {
+        return textTarget ?? DiscardedTextTarget.shared
     }
     
     /// Whether a character is a letter / whitespace, judged by its first Unicode scalar.
@@ -759,19 +776,26 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     override func updateViewConstraints()
     {
         super.updateViewConstraints()
-        
+
+        // The height is installed before the guard below, and not after the row constraints as it
+        // used to be, because it is the one measurement that does not depend on the view's width --
+        // see contentHeight. UIKit hands an extension a sized input view before the first layout
+        // pass, so running this only on a non-empty frame worked there; an app host asks the
+        // keyboard how tall it is before it has ever been laid out, and the guard returning first
+        // left it answering zero and the keyboard invisible.
+        setUpHeightConstraint()
+
         // Add custom view sizing constraints here
         if (view.frame.size.width == 0 || view.frame.size.height == 0) {
             return
         }
-        
+
         updateConstraintForShortWorld();
         updateConstraintForNumberButton()
         updateConstraintForPresetControls()
         updateConstraintForCharacter()
         updateConstraintForSpeceRow()
         updateConstraintForDelete()
-        setUpHeightConstraint()
     }
     
     let currentString:NSString = "";
@@ -1509,17 +1533,19 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         
     }
     
+    /// Builds the globe key but wires nothing to it.
+    ///
+    /// What the key should do is the one thing that differs between the two hosts, and neither
+    /// answer can be given from here: an extension shows the input-mode list, which only a
+    /// `UIInputViewController` can do, and an app has no other input mode to offer, so it hands the
+    /// field back to the system keyboard instead. The host reaches the key through
+    /// `nextKeyboardButton` once the view has loaded and adds its own target.
     fileprivate func addNextKeyboardButton() {
         nextKeyboardButton = KeyButton(frame: CGRect(x: keyWidth * 4 + spacing * 5, y: keyHeight * 5.0 + spacing * 6.0, width: keyWidth / 2, height: keyHeight))
         nextKeyboardButton.setTitle("\u{1F310}", for: .normal)
         nextKeyboardButton.useGlyphTitleFont(size: KeyButton.globeTitleFontSize)
         nextKeyboardButton.setTitleColor(UIColor.black, for: .normal)
         nextKeyboardButton.setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
-        if #available(iOS 10.0, *) {
-            nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.handleInputModeList(from:with:)), for: .allTouchEvents)
-        } else {
-            nextKeyboardButton.addTarget(self, action: #selector(UIInputViewController.advanceToNextInputMode), for: .touchUpInside)
-        }
         self.view.addSubview(nextKeyboardButton)
     }
     
