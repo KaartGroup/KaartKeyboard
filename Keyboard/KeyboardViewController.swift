@@ -112,6 +112,34 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         return enabled.filter { $0 == "english" } + enabled.filter { $0 != "english" }.sorted()
     }
     
+    /// Whether this is the phone layout.
+    ///
+    /// The idiom and not the size class: an iPad in a narrow split is still an iPad, and the app
+    /// that will host this keyboard forces a compact horizontal size class on iPad in the screen the
+    /// keyboard is raised over -- so a size-class test would give a phone layout on an iPad.
+    fileprivate static var isPhone: Bool {
+        return UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    /// How many of the bank's two preset rows are drawn.
+    ///
+    /// A phone draws one. Seven rows is over half a phone screen, and the top preset row is the one
+    /// that can go without losing a key outright: its control key folds into the bottom row's, which
+    /// carries both jobs there -- see addPresetControlButtons().
+    fileprivate var visiblePresetRows: Int {
+        return KeyboardViewController.isPhone ? 1 : shortWord.count
+    }
+
+    /// How many presets of a row are drawn. Six fit an iPad; at a phone's width they truncate to
+    /// ellipses, so a phone draws four.
+    ///
+    /// The bank still holds six to a row on both. The last two are simply not drawn on a phone, so a
+    /// rename writes back into the same six-wide row the iPad edits and neither device can shorten
+    /// what the other saved.
+    fileprivate var visiblePresetColumns: Int {
+        return KeyboardViewController.isPhone ? 4 : presetColumns
+    }
+
     fileprivate let spacing: CGFloat = KeyButton.gutter
 
     /// A 24pt term in the key-height formula below, and nothing else.
@@ -190,7 +218,10 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     // than given a width, so this is the number that actually sizes them: widening the presets is
     // what squeezes the controls.
     fileprivate var presetKeyWidth: CGFloat {
-        return KeyboardViewController.nonNegative((view.frame.width - 8 * spacing - controlKeyWidth) / 6.0)
+        // One gutter at each end and one between every pair of the row's keys, the control key
+        // included: two more than there are presets. Six presets give the eight this was written as.
+        let columns = CGFloat(visiblePresetColumns)
+        return KeyboardViewController.nonNegative((view.frame.width - (columns + 2) * spacing - controlKeyWidth) / columns)
     }
     
     // Ten number keys spanning the full width: eleven gutters, one at each end and nine between.
@@ -201,9 +232,12 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         return KeyboardViewController.nonNegative((view.frame.width - 11 * spacing) / 10.0)
     }
     
-    /// The number of key rows the keyboard lays out: two of presets, the numbers, three of
-    /// characters, and the space row.
-    fileprivate let rowCountVertical: CGFloat = 7.0
+    /// The number of key rows the keyboard lays out: the presets, the numbers, three of characters,
+    /// and the space row. Seven on an iPad, six on a phone, which draws one preset row instead of
+    /// two -- and the keyboard is shorter by exactly that row, since contentHeight counts them.
+    fileprivate var rowCountVertical: CGFloat {
+        return CGFloat(visiblePresetRows) + 5.0
+    }
 
     /// Height of individual keys. The same whether or not a preset is being renamed: the band
     /// takes its room from the keyboard's height, not from the rows.
@@ -547,13 +581,18 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     // view's trailing margin on the right, so the pair absorbs any rounding left over by the six
     // fixed-width presets rather than leaving a ragged right edge.
     func updateConstraintForPresetControls() {
-        guard arrayOfShortWordButton.count == 2,
-              let lastTopPreset = arrayOfShortWordButton[0].last,
-              let lastBottomPreset = arrayOfShortWordButton[1].last,
-              let groupSwap = presetGroupSwapButton,
-              let numeralSwap = numeralSwapButton else { return }
+        // Every preset row on screen ends in a control key: two rows and two keys on an iPad, one of
+        // each on a phone, where the surviving key carries both jobs.
+        var placements: [(button: KeyButton, rowLeader: KeyButton)] = []
+        if let numeralSwap = numeralSwapButton, let lastPreset = arrayOfShortWordButton.last?.last {
+            placements.append((numeralSwap, lastPreset))
+        }
+        if let groupSwap = presetGroupSwapButton, arrayOfShortWordButton.count == 2,
+           let lastTopPreset = arrayOfShortWordButton[0].last {
+            placements.append((groupSwap, lastTopPreset))
+        }
 
-        for (button, rowLeader) in [(groupSwap, lastTopPreset), (numeralSwap, lastBottomPreset)] {
+        for (button, rowLeader) in placements {
             removeAllConstrains(button)
             button.translatesAutoresizingMaskIntoConstraints = false
 
@@ -695,11 +734,11 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     }
     func updateConstraintForNumberButton()
     {
-        // The number row hangs off the second preset row. Both are built in viewDidLoad before this
-        // runs, but reading them positionally is what turns a build-order change into a crash.
+        // The number row hangs off the last preset row -- the second on an iPad, the only one on a
+        // phone. Both are built in viewDidLoad before this runs, but reading them positionally is
+        // what turns a build-order change into a crash.
         guard let firstButton = arrayOfNumberButton.first,
-              arrayOfShortWordButton.count > 1,
-              let shortWordBtn = arrayOfShortWordButton[1].first else { return }
+              let shortWordBtn = arrayOfShortWordButton.last?.first else { return }
 
         removeAllConstrains(firstButton)
 
@@ -1158,6 +1197,25 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         updatePresetControlFills()
     }
     
+    /// The phone's single control key: one tap swaps the numeral plane and the preset group
+    /// together.
+    ///
+    /// Nothing happens at all while a preset is being renamed. The group swap has always refused
+    /// then -- a pending edit is addressed by position within the active group, so swapping would
+    /// land it on the group that just arrived -- and swapping only the numerals instead would let
+    /// the two states drift apart, which is what makes one key readable as both.
+    @objc func numeralAndPresetSwapPressed(_ sender: KeyButton){
+        guard shortWordTxtFld.isHidden else { return }
+
+        isRomanNumerals = !isRomanNumerals
+        activeBank = (activeBank + 1) % shortWordBanks.count
+
+        updateNumeralTitles()
+        updateNumberRowSymbols()
+        updateShortWordTitles()
+        updatePresetControlFills()
+    }
+
     // Swaps which preset group fills the twelve preset keys.
     @objc func presetGroupSwapPressed(_ sender: KeyButton){
         // Not while a preset is being edited: the pending edit is addressed by position within the
@@ -1650,7 +1708,7 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         for row in arrayOfShortWordButton {
             for button in row { button.removeFromSuperview() }
         }
-        arrayOfShortWordButton = [[],[]]
+        arrayOfShortWordButton = Array(repeating: [], count: visiblePresetRows)
         
         let userDefaults : UserDefaults = UserDefaults.standard
         
@@ -1673,8 +1731,8 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         // right places immediately afterwards, which is why nothing looked wrong, but the frames a
         // key is created with are the frames its labels are laid out against.
         var y: CGFloat = 0.0
-        for (rowIndex, row) in shortWord.enumerated(){
-            for index in 1...row.count{
+        for (rowIndex, row) in shortWord.prefix(visiblePresetRows).enumerated(){
+            for index in 1...min(row.count, visiblePresetColumns){
                 shortWordButton = KeyButton(frame: CGRect(x: spacing * CGFloat(index) + presetKeyWidth * CGFloat(index-1), y: y, width: presetKeyWidth, height: keyHeight))
                 shortWordButton.setTitle(shortWord[rowIndex][index - 1], for: .normal)
                 shortWordButton.setTitleColor(UIColor.white, for: .normal)
@@ -1984,13 +2042,23 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
     fileprivate func addPresetControlButtons() {
         presetGroupSwapButton?.removeFromSuperview()
         numeralSwapButton?.removeFromSuperview()
+        presetGroupSwapButton = nil
+        numeralSwapButton = nil
 
-        presetGroupSwapButton = makePresetControlButton(
-            title: "P1/2",
-            action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
-        numeralSwapButton = makePresetControlButton(
-            title: "Num",
-            action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+        if KeyboardViewController.isPhone {
+            // One preset row leaves one control column, so the two jobs share a key -- see
+            // numeralAndPresetSwapPressed(). There is no P1/2 key on a phone at all.
+            numeralSwapButton = makePresetControlButton(
+                title: "Num",
+                action: #selector(KeyboardViewController.numeralAndPresetSwapPressed(_:)))
+        } else {
+            presetGroupSwapButton = makePresetControlButton(
+                title: "P1/2",
+                action: #selector(KeyboardViewController.presetGroupSwapPressed(_:)))
+            numeralSwapButton = makePresetControlButton(
+                title: "Num",
+                action: #selector(KeyboardViewController.numeralSwapPressed(_:)))
+        }
 
         updatePresetControlFills()
     }
