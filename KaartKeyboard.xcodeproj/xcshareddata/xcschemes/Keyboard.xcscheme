@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "076EF5D31965061C009A561C"
-               BuildableName = "KaartKeyboard.KaartKeyboard.appex"
-               BlueprintName = "Kaart Keyboard"
+               BuildableName = "Keyboard.appex"
+               BlueprintName = "Keyboard"
                ReferencedContainer = "container:KaartKeyboard.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

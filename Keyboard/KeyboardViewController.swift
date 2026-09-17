@@ -19,7 +19,7 @@ import os.log
 ///
 /// The subsystem is the shared prefix rather than the extension's own bundle identifier, so one
 /// predicate follows the keyboard and the container app together.
-private let keyboardLog = OSLog(subsystem: "com.kaartgroup.KaartKeyboard", category: "keyboard")
+private let keyboardLog = OSLog(subsystem: "com.kaart.keyboardContainer.keyboard", category: "keyboard")
 
 
 /**
@@ -76,8 +76,6 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     fileprivate var _showVietnamese: Bool = false
 
     fileprivate var languages: [Language] = []
-    
-    fileprivate var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
     
     fileprivate var showLanguages: [String:Bool] {
         return [
@@ -816,16 +814,18 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     fileprivate func reloadLanguages() -> Bool {
         let previous = languages.map { $0.title }
 
-        // `defaults` is nil if the app group is unavailable, so read through it rather
-        // than force-unwrapping: a missing suite should mean "no languages selected",
-        // not a crash before the view exists.
-        _showEnglish = defaults?.bool(forKey: "english") ?? false
-        _showGreek = defaults?.bool(forKey: "greek") ?? false
-        _showSerbianCyrillic = defaults?.bool(forKey: "serbian-cyrillic") ?? false
-        _showRomanian = defaults?.bool(forKey: "romanian") ?? false
-        _showMacedonian = defaults?.bool(forKey: "macedonian") ?? false
-        _showBulgarian = defaults?.bool(forKey: "bulgarian") ?? false
-        _showVietnamese = defaults?.bool(forKey: "vietnamese") ?? false
+        // The extension's own defaults, not a shared suite. Language selection lives in the
+        // keyboard now, so these are written a few lines away by the language panel rather than
+        // by the container app in another process -- which is what lets the keyboard read them
+        // without Full Access.
+        let defaults = UserDefaults.standard
+        _showEnglish = defaults.bool(forKey: "english")
+        _showGreek = defaults.bool(forKey: "greek")
+        _showSerbianCyrillic = defaults.bool(forKey: "serbian-cyrillic")
+        _showRomanian = defaults.bool(forKey: "romanian")
+        _showMacedonian = defaults.bool(forKey: "macedonian")
+        _showBulgarian = defaults.bool(forKey: "bulgarian")
+        _showVietnamese = defaults.bool(forKey: "vietnamese")
 
         languages = orderedLanguageKeys.compactMap(loadLanguage)
 
@@ -1280,6 +1280,162 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
     @objc func handleClosePress(_ sender: KeyButton) {
         dismissTertiaryButtons()
     }
+
+    // MARK: Language selection
+
+    /// The languages the keyboard offers, in the order the panel lays them out, with the names it
+    /// shows. The JSON files carry their lowercase keys as titles -- "serbian-cyrillic" -- which is
+    /// fine for matching but not for reading, so the readable names live here.
+    ///
+    /// English leads because orderedLanguageKeys puts it first: the panel reading in the same order
+    /// the Kaart key cycles is one less thing to be surprised by.
+    fileprivate static let selectableLanguages: [(key: String, name: String)] = [
+        ("english", "English"),
+        ("bulgarian", "Bulgarian"),
+        ("greek", "Greek"),
+        ("macedonian", "Macedonian"),
+        ("romanian", "Romanian"),
+        ("serbian-cyrillic", "Serbian (Cyrillic)"),
+        ("vietnamese", "Vietnamese")
+    ]
+
+    /// The panel's backing view, non-nil only while it is open. That is also what tells the layout
+    /// pass whether there is anything to place.
+    fileprivate var languagePanel: UIView?
+
+    /// The panel's toggles, each paired with the defaults key it writes.
+    fileprivate var languageToggles: [(key: String, button: KeyButton)] = []
+
+    fileprivate var languageDoneButton: KeyButton?
+
+    /// Opens the language panel on a long press of the Kaart key.
+    ///
+    /// Long press rather than a key of its own: the bottom row has no room left, and the Kaart key
+    /// is already the language key -- a short tap cycles through the enabled languages, so holding
+    /// it to choose which ones those are keeps both halves of the job in one place.
+    @objc func handleKaartKeyboardLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        showLanguagePanel()
+    }
+
+    /// Covers the keys with the language chooser.
+    ///
+    /// A panel over the whole view rather than a popup strip above the key: seven language names do
+    /// not fit across a keyboard's width at a readable size, and the tertiary-button strip this
+    /// would otherwise have reused caps itself at seven slots including its own close key.
+    fileprivate func showLanguagePanel() {
+        guard languagePanel == nil else { return }
+
+        // An accent popup left open underneath would sit above the panel and take the taps meant
+        // for it, since both are added straight to the view.
+        dismissTertiaryButtons()
+
+        let panel = UIView(frame: view.bounds)
+        panel.backgroundColor = KeyboardViewController.keyboardBackground
+        view.addSubview(panel)
+        view.bringSubviewToFront(panel)
+        languagePanel = panel
+
+        languageToggles = KeyboardViewController.selectableLanguages.map { entry in
+            let button = KeyButton(frame: .zero)
+            button.addTarget(self, action: #selector(handleLanguageToggle(_:)), for: .touchUpInside)
+            panel.addSubview(button)
+            return (entry.key, button)
+        }
+
+        let done = KeyButton(frame: .zero)
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.white, for: .normal)
+        done.setBackgroundImage(UIImage.fromColor(presetKeyFill), for: .normal)
+        done.addTarget(self, action: #selector(handleLanguageDone(_:)), for: .touchUpInside)
+        panel.addSubview(done)
+        languageDoneButton = done
+
+        refreshLanguageToggles()
+
+        // Placed now rather than on the next layout pass, so the panel never shows at zero size for
+        // a frame. Same reason layoutPresetEditor() is called on the way in.
+        layoutLanguagePanel()
+    }
+
+    /// Flips one language and repaints, leaving the keyboard underneath alone until Done.
+    ///
+    /// Rebuilding on every tap would tear down and rebuild each character row while the panel is
+    /// still covering them -- work nobody sees, and, when the language in use is among the ones
+    /// being switched off, a keyboard that changes under the user mid-choice.
+    @objc func handleLanguageToggle(_ sender: KeyButton) {
+        guard let entry = languageToggles.first(where: { $0.button === sender }) else { return }
+
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.bool(forKey: entry.key) == false, forKey: entry.key)
+        refreshLanguageToggles()
+    }
+
+    /// Paints every toggle from what is stored, so the panel keeps no state of its own to fall out
+    /// of step with the defaults.
+    fileprivate func refreshLanguageToggles() {
+        let defaults = UserDefaults.standard
+
+        for (entry, toggle) in zip(KeyboardViewController.selectableLanguages, languageToggles) {
+            let isOn = defaults.bool(forKey: entry.key)
+            let fill = isOn ? KeyButton.defaultKeyFill : controlKeyFillPrimary
+
+            toggle.button.setTitle(isOn ? "\u{2713} \(entry.name)" : entry.name, for: .normal)
+            toggle.button.setTitleColor(isOn ? KeyButton.defaultTitleColor : .white, for: .normal)
+            toggle.button.setBackgroundImage(UIImage.fromColor(fill), for: .normal)
+        }
+    }
+
+    /// Takes the panel down and rebuilds the keyboard around whatever is now switched on.
+    ///
+    /// The rebuild is the one viewWillAppear does for a language change made elsewhere: the
+    /// character rows, the space bar's label and the number row's symbols. reloadLanguages()
+    /// reseeds CURRENT_LANG when the language in use has just been switched off, and falls back to
+    /// English when the last one has, so the keyboard cannot come back pointing at nothing.
+    @objc func handleLanguageDone(_ sender: KeyButton) {
+        dismissLanguagePanel()
+
+        reloadLanguages()
+        addCharacterButtons()
+        addSpaceButton()
+        updateNumberRowSymbols()
+        shiftMode = .on
+        updateViewConstraints()
+    }
+
+    fileprivate func dismissLanguagePanel() {
+        languagePanel?.removeFromSuperview()
+        languagePanel = nil
+        languageToggles = []
+        languageDoneButton = nil
+    }
+
+    /// Lays the panel out in two columns, with Done on a row of its own below them.
+    ///
+    /// By frame rather than by constraints, like the preset editor, and called from
+    /// viewDidLayoutSubviews for the same reason: the keyboard's width changes on rotation, and a
+    /// panel placed once at the width it opened with would keep that width afterwards.
+    fileprivate func layoutLanguagePanel() {
+        guard let panel = languagePanel else { return }
+
+        panel.frame = view.bounds
+
+        let columns = 2
+        let rows = (languageToggles.count + columns - 1) / columns
+        let cellWidth = (panel.bounds.width - CGFloat(columns + 1) * spacing) / CGFloat(columns)
+
+        for (index, toggle) in languageToggles.enumerated() {
+            toggle.button.frame = CGRect(x: spacing + CGFloat(index % columns) * (cellWidth + spacing),
+                                         y: spacing + CGFloat(index / columns) * (keyHeight + spacing),
+                                         width: cellWidth,
+                                         height: keyHeight)
+        }
+
+        languageDoneButton?.frame = CGRect(x: spacing,
+                                           y: spacing + CGFloat(rows) * (keyHeight + spacing),
+                                           width: panel.bounds.width - 2 * spacing,
+                                           height: keyHeight)
+    }
     
     func handleSwipeUpForButton(_ button: CharacterButton) {
     }
@@ -1373,6 +1529,14 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         kaartKeyboardButton.setBackgroundImage(UIImage.fromColor(KeyButton.defaultKeyFill), for: .normal)
         kaartKeyboardButton.imageView?.contentMode = .scaleAspectFit
         kaartKeyboardButton.addTarget(self, action: #selector(handleKaartKeyboardPress(_:)), for: .touchUpInside)
+
+        // Holding the key chooses which languages the short tap cycles through. 0.4s is the
+        // threshold the preset keys already use for press-and-hold.
+        let chooseLanguages = UILongPressGestureRecognizer(target: self,
+                                                           action: #selector(handleKaartKeyboardLongPress(_:)))
+        chooseLanguages.minimumPressDuration = 0.4
+        kaartKeyboardButton.addGestureRecognizer(chooseLanguages)
+
         self.view.addSubview(kaartKeyboardButton)
     }
     
@@ -1652,6 +1816,7 @@ class KeyboardViewController: UIInputViewController, CharacterButtonDelegate {
         }
 
         layoutPresetEditor()
+        layoutLanguagePanel()
     }
 
     @objc func pasteShortWord(_ gesture:UILongPressGestureRecognizer){

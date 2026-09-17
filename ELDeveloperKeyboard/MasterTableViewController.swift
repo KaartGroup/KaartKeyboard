@@ -9,7 +9,6 @@
 import UIKit
 
 class MasterTableViewController: UITableViewController {
-    var defaults = UserDefaults(suiteName: "group.com.kaartgroup.KaartKeyboard")
 
     override func viewDidLoad() {
         super.viewDidLoad()
