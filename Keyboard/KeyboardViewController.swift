@@ -236,9 +236,24 @@ class KeyboardViewController: UIViewController, CharacterButtonDelegate {
         return CGFloat(visiblePresetRows) + 5.0
     }
 
+    /// The painted height of a key on a phone.
+    ///
+    /// Stated outright rather than run through the iPad's formula below. That formula divides by
+    /// 6.5 while seven rows are laid out and subtracts a 24pt reserve left over from a predictive
+    /// strip the keyboard no longer has, so reaching a given phone height through it would mean
+    /// picking a keyboardHeight that means nothing on its own.
+    ///
+    /// 46pt is the number itself: a 51pt touch target once KeyButton's outset either side is
+    /// counted, above the 44pt minimum, against the 58.6pt the iPad's formula was handing a phone.
+    /// Six rows of it come to 316pt of an iPhone 17's 874, down from 394.
+    fileprivate static let phoneKeyHeight: CGFloat = 46.0
+
     /// Height of individual keys. The same whether or not a preset is being renamed: the band
     /// takes its room from the keyboard's height, not from the rows.
     fileprivate var keyHeight: CGFloat {
+        if KeyboardViewController.isPhone {
+            return KeyboardViewController.phoneKeyHeight
+        }
         return (keyboardHeight - 7.0 * spacing - keyHeightReserve) / 6.5
     }
 

@@ -61,10 +61,18 @@ class KeyButton: UIButton {
     /// glyph too large for its key rather than letting it overflow. Backspace at 42pt is the
     /// largest and yields a 49pt label against a 58.5pt key in portrait and a 54pt key in
     /// landscape, so it is near the ceiling; going above it wants a landscape check.
-    static let backspaceTitleFontSize: CGFloat = 42.0
-    static let returnTitleFontSize: CGFloat = 38.0
-    static let globeTitleFontSize: CGFloat = 38.0
-    static let shiftTitleFontSize: CGFloat = 32.0
+    /// A phone's keys are 46pt tall against the iPad's 58.6, and these four are bounded by that
+    /// height, so they come down with it or they clip. One factor rather than four more literals:
+    /// the four have been tuned against each other, and scaling them together is what keeps that
+    /// tuning intact on a shorter key.
+    static var glyphScale: CGFloat {
+        return isPhoneLayout ? 0.78 : 1.0
+    }
+
+    static var backspaceTitleFontSize: CGFloat { return 42.0 * glyphScale }
+    static var returnTitleFontSize: CGFloat { return 38.0 * glyphScale }
+    static var globeTitleFontSize: CGFloat { return 38.0 * glyphScale }
+    static var shiftTitleFontSize: CGFloat { return 32.0 * glyphScale }
 
     /// The swap glyph on the phone's combined control key. Bounded by the key's *width* rather than
     /// its height, unlike the four above: that key is as narrow as a number key -- it shares the
