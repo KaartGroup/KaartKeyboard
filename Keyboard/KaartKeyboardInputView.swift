@@ -71,10 +71,24 @@ final class KaartKeyboardInputView: UIInputView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Clearing `inputView` and reloading is enough to swap one custom keyboard for another, but not
-    /// to bring the system keyboard back up: the field keeps first responder and comes back with no
-    /// keyboard at all. Resigning and taking it again is what makes UIKit build the system keyboard
-    /// afresh.
+    /// Hands the field back to the system keyboard.
+    ///
+    /// Clearing `inputView` and calling `reloadInputViews()` is sufficient on its own. The resign
+    /// and re-take below is belt and braces, and is kept only because it is what this has always
+    /// done here.
+    ///
+    /// It was added to fix a field that appeared to come back with no keyboard at all. That was
+    /// measured on a simulator with a hardware keyboard attached, which suppresses every software
+    /// keyboard while still drawing custom `inputView`s -- so the symptom belonged to the
+    /// simulator, not to this code. The comment that used to sit here stated the opposite as fact.
+    /// Confirmed on 2026-09-18 by disconnecting the hardware keyboard and watching the system
+    /// keyboard come up without the cycle.
+    ///
+    /// Note this leaves no key on screen that brings the Kaart keys back -- the system keyboard is
+    /// the system's, and nothing on it can call into an app. Here that is survivable because
+    /// `KeyboardPreviewViewController` puts a "Kaart Keys" button in the navigation bar. An app
+    /// without such a button needs one before wiring the globe key to this, or the switch only goes
+    /// one way. Maprizon left its globe key inert for exactly that reason.
     @objc private func handleSystemKeyboard() {
         guard let field = field else { return }
         field.inputView = nil
